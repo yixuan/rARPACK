@@ -29,25 +29,30 @@ BEGIN_RCPP
     //
     // initial value of ido
     int ido = 0;
-    // 'I' means standard eigen value problem
+    // 'I' means standard eigen value problem, A * x = lambda * x
     char bmat = 'I';
-    // dimension of x vector, so A is n*n
+    // dimension of A (n by n)
     int n = INTEGER(n_scalar_r)[0];
+    // specify selection criteria
     // "LM": largest magnitude
+    // "SM": smallest magnitude
+    // "LR", "LI": largest real/imaginary part
+    // "SR", "SI": smallest real/imaginary part
     char *which = new char[3];
     which[0] = CHAR(STRING_ELT(which_string_r, 0))[0];
     which[1] = CHAR(STRING_ELT(which_string_r, 0))[1];
     which[2] = '\0';
-    // number of eigenvalues needed
+    // number of eigenvalues requested
     int nev = INTEGER(k_scalar_r)[0];
     // precision
     double tol = REAL(tol_scalar_r)[0];
     // residual vector
     double *resid = new double[n]();
-    // something related to the algorithm
+    // related to the algorithm, large ncv results in
+    // faster convergence, but with greater memory use
     int ncv = INTEGER(ncv_scalar_r)[0];
     
-    // variables to be returned
+    // variables to be returned to R
     //
     // vector of real part of eigenvalues
     Rcpp::NumericVector dreal_ret(nev + 1);
@@ -56,7 +61,8 @@ BEGIN_RCPP
     // matrix of real part of eigenvectors
     Rcpp::NumericMatrix vreal_ret(n, ncv);
     // matrix of imag part of eigenvectors
-    // determine the dimension of vimag_ret after we get nconv converged eigenvalues
+    // determine the dimension of vimag_ret after
+    // we get 'nconv' converged eigenvalues
     Rcpp::NumericMatrix vimag_ret;
     // result list
     Rcpp::List ret;
@@ -103,12 +109,13 @@ BEGIN_RCPP
     // whether to calculate eigenvectors or not.
     bool rvec = true;
     // 'A' means to calculate Ritz vectors
+    // 'P' to calculate Schur vectors
     char HowMny = 'A';
     // real part of eigenvalues
     double *dr = dreal_ret.begin();
     // imaginary part of eigenvalues
     double *di = dimag_ret.begin();
-    // store results, will use V instead.
+    // used to store results, will use V instead.
     double *Z = V;
     // leading dimension of Z, required by FORTRAN
     int ldz = n;
@@ -128,6 +135,7 @@ BEGIN_RCPP
     {
         //std::cout << "Error in _naupd" << std::endl;
     } else {
+        // use neupp() to retrieve results
         neupp(rvec, HowMny, dr,
                 di, Z, ldz, sigmar,
                 sigmai, workv, bmat, n,
@@ -139,19 +147,22 @@ BEGIN_RCPP
         {
             //std::cout << "Error in _neupd" << std::endl;
         } else {
+            // obtain 'nconv' converged eigenvalues
             nconv = iparam[5 - 1];
             Rcpp::Range range = Rcpp::Range(0, nconv - 1);
 
             // if all eigenvalues are real
-            // if (all(abs(dimag[1:nconv] < 1e-30)))
+            // equivalent R code: if (all(abs(dimag[1:nconv] < 1e-30)))
             if (Rcpp::is_true(Rcpp::all(Rcpp::abs(dimag_ret) < 1e-30)))
             {
-                // we don't need to allocate vimag_ret
+                // so we don't need to allocate 'vimag_ret'
+                // for imaginary part of the eigenvectors
                 ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                                          Rcpp::Named("values") = dreal_ret,
                                          Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range));
             } else {
                 vimag_ret = Rcpp::NumericMatrix(n, nconv);
+                // obtain the imaginary part of the eigenvectors
                 bool first = true;
                 for (int i = 0; i < nconv; i++)
                 {
