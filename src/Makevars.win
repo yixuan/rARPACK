@@ -1,0 +1,18 @@
+## Use the R_HOME indirection to support installations of multiple R version
+PKG_LIBS = $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" -e "Rcpp:::LdFlags()")
+PKG_LIBS += -L./ARPACK -larpack $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+
+.PHONY: all clean
+
+all: $(SHLIB)
+
+$(SHLIB): ARPACK/libarpack.a
+
+ARPACK/libarpack.a:
+	cd ARPACK && $(MAKE) all F77="$(F77)" FFLAGS="$(FFLAGS)" AR="$(AR)" RM="$(RM)"
+
+clean:
+	$(RM) *.o
+	$(RM) *.dll
+	$(RM) *.so
+	cd ARPACK && $(MAKE) clean

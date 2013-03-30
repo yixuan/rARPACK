@@ -1,0 +1,5 @@
+		  CHANGES IN rarpack VERSION 0.1-0
+
+NEW FEATURES
+
+    o Initial version. For now eigs() supports dense real nonsymmetric matrices.

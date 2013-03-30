@@ -1,0 +1,3 @@
+LIBRARY rarpack.dll
+EXPORTS
+ den_real_nonsym
