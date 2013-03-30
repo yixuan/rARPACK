@@ -9,7 +9,7 @@ all: $(SHLIB)
 $(SHLIB): ARPACK/libarpack.a
 
 ARPACK/libarpack.a:
-	cd ARPACK && $(MAKE) all F77="$(F77)" FFLAGS="$(FFLAGS)" AR="$(AR)" RM="$(RM)"
+	cd ARPACK && $(MAKE) all F77="$(F77)" FFLAGS="$(ALL_FFLAGS)" AR="$(AR)" RM="$(RM)"
 
 clean:
 	$(RM) *.o
