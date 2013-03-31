@@ -69,8 +69,7 @@
   Default is 300.} }
 }
 \note{
-  Currently only dense real nonsymmetric matrices are
-  supported.
+  Currently only real nonsymmetric matrices are supported.
 }
 \examples{
 n = 20;
