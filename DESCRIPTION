@@ -23,4 +23,5 @@ LinkingTo: Rcpp, RcppEigen
 Collate:
     '00_method.R'
     'den_real_nonsym.R'
+    'sparse_real_nonsym.R'
     'zzz.R'

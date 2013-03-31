@@ -1,3 +1,14 @@
+		  CHANGES IN rarpack VERSION 0.2-0
+
+NEW FEATURES
+
+    o Now eigs() supports sparse real nonsymmetric matrices of the class "dgCMatrix",
+      defined in the Matrix package.
+
+
+
+
+
 		  CHANGES IN rarpack VERSION 0.1-0
 
 NEW FEATURES
