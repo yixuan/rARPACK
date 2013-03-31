@@ -25,7 +25,7 @@ typedef int ARlogical;
 extern "C"
 {
 
-// debug "common" statement.
+/* debug "common" statement. */
 
   struct { 
     ARint logfil, ndigit, mgetv0;
@@ -35,7 +35,7 @@ extern "C"
   } F77NAME(debug);
 
 
-// double precision symmetric routines.
+/* double precision symmetric routines. */
 
   void F77NAME(dsaupd)(ARint *ido, char *bmat, ARint *n, char *which,
                        ARint *nev, double *tol, double *resid,
@@ -52,7 +52,7 @@ extern "C"
                        double *workd, double *workl,
                        ARint *lworkl, ARint *info);
 
-// double precision nonsymmetric routines.
+/* double precision nonsymmetric routines. */
 
   void F77NAME(dnaupd)(ARint *ido, char *bmat, ARint *n, char *which,
                        ARint *nev, double *tol, double *resid,
@@ -71,7 +71,7 @@ extern "C"
                        double *workd, double *workl,
                        ARint *lworkl, ARint *info);
 
-// single precision symmetric routines.
+/* single precision symmetric routines. */
 
   void F77NAME(ssaupd)(ARint *ido, char *bmat, ARint *n, char *which,
                        ARint *nev, float *tol, float *resid,
@@ -88,7 +88,7 @@ extern "C"
                        float *workd, float *workl,
                        ARint *lworkl, ARint *info);
 
-// single precision nonsymmetric routines.
+/* single precision nonsymmetric routines. */
 
   void F77NAME(snaupd)(ARint *ido, char *bmat, ARint *n, char *which,
                        ARint *nev, float *tol, float *resid,
@@ -108,7 +108,7 @@ extern "C"
 
 #ifdef ARCOMP_H
 
-// single precision complex routines.
+/* single precision complex routines. */
 
   void F77NAME(cnaupd)(ARint *ido, char *bmat, ARint *n, char *which,
                        ARint *nev, float *tol, arcomplex<float> *resid,
@@ -127,7 +127,7 @@ extern "C"
                        arcomplex<float> *workl, ARint *lworkl,
                        float *rwork, ARint *info);
 
-// double precision complex routines.
+/* double precision complex routines. */
 
   void F77NAME(znaupd)(ARint *ido, char *bmat, ARint *n, char *which,
                        ARint *nev, double *tol, arcomplex<double> *resid,
