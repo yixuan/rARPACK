@@ -3,7 +3,7 @@
 
 #include "arpack_f.h"
 
-// Nonsymmetric real matrix
+/* Nonsymmetric real matrix */
 inline void naupp(ARint& ido, char bmat, ARint n, char* which, ARint nev,
                   double& tol, double resid[], ARint ncv, double V[],
                   ARint ldv, ARint iparam[], ARint ipntr[], double workd[],
@@ -74,7 +74,7 @@ inline void neupp(bool rvec, char HowMny, float dr[],
 }
 
 
-// Symmetric real matrix
+/* Symmetric real matrix */
 inline void saupp(ARint& ido, char bmat, ARint n, char* which, ARint nev,
                   double& tol, double resid[], ARint ncv, double V[],
                   ARint ldv, ARint iparam[], ARint ipntr[], double workd[],
@@ -98,4 +98,4 @@ inline void saupp(ARint& ido, char bmat, ARint n, char* which, ARint nev,
 
 }
 
-#endif // ARPACK_CPP_H
+#endif /* ARPACK_CPP_H */
