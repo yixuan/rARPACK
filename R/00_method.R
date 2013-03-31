@@ -42,7 +42,7 @@
 ##' \item{nconv}{Number of converged eigenvalues.}
 ##' \item{values}{Computed eigenvalues.}
 ##' \item{vectors}{Computed eigenvectors. \code{vectors[, j]} corresponds to \code{values[j]}.}
-##' @note Currently only dense real nonsymmetric matrices are supported.
+##' @note Currently only real nonsymmetric matrices are supported.
 ##' @author Yixuan Qiu <\url{http://statr.me}>
 ##' @seealso \code{\link[base]{eigen}()}, \code{\link[base]{svd}()}
 ##'
