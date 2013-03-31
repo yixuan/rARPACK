@@ -1,6 +1,10 @@
 \docType{methods}
 \name{eigs}
 \alias{eigs}
+\alias{eigs-dgCMatrix,numeric,character,missing,missing-method}
+\alias{eigs-dgCMatrix,numeric,character,numeric,list-method}
+\alias{eigs-dgCMatrix,numeric,character,numeric,missing-method}
+\alias{eigs-dgCMatrix,numeric,missing,missing,missing-method}
 \alias{eigs-matrix,numeric,character,missing,missing-method}
 \alias{eigs-matrix,numeric,character,numeric,list-method}
 \alias{eigs-matrix,numeric,character,numeric,missing-method}
@@ -66,14 +70,15 @@
   Default is 300.} }
 }
 \examples{
-n = 20
-k = 5
+n = 20;
+k = 5;
 ## will have complex eigenvalues
-A1 = matrix(rnorm(n^2), n)
-eigs(A1, k)
-## only have real eigenvalues, since A2 is symmetric
-A2 = crossprod(A1)
-eigs(A2, k)
+A1 = matrix(rnorm(n^2), n);
+eigs(A1, k);
+## only have real eigenvalues,
+## since A2 is symmetric
+A2 = crossprod(A1);
+eigs(A2, k);
 }
 \author{
   Yixuan Qiu <\url{http://statr.me}>
@@ -82,3 +87,4 @@ eigs(A2, k)
   \code{\link[base]{eigen}()}, \code{\link[base]{svd}()}
 }
 \keyword{array}
+
