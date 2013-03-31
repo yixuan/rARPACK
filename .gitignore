@@ -4,3 +4,9 @@
 # Example code in package build process
 *-Ex.R
 .Rproj.user
+
+# Binary files after building
+*.o
+*.a
+*.dll
+*.so
