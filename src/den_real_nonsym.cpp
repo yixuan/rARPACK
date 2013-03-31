@@ -133,7 +133,8 @@ BEGIN_RCPP
     // info < 0 means error occurs
     if (info < 0)
     {
-        //std::cout << "Error in _naupd" << std::endl;
+        ::Rf_error("Error in dnaupd subroutine of ARPACK, with code %d",
+                   info);
     } else {
         // use neupp() to retrieve results
         neupp(rvec, HowMny, dr,
@@ -145,7 +146,8 @@ BEGIN_RCPP
                 lworkl, ierr);
         if (ierr < 0)
         {
-            //std::cout << "Error in _neupd" << std::endl;
+            ::Rf_error("Error in dneupd subroutine of ARPACK,"
+                       "with code %d", ierr);
         } else {
             // obtain 'nconv' converged eigenvalues
             nconv = iparam[5 - 1];
