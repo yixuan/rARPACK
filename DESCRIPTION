@@ -16,8 +16,10 @@ License: GPL
 URL: http://github.com/yixuan/rarpack
 Depends:
     methods,
-    Rcpp (>= 0.10.0)
-LinkingTo: Rcpp
+    Matrix (>= 1.0-1),
+    Rcpp (>= 0.10.3),
+    RcppEigen (>= 0.3.1.2.1)
+LinkingTo: Rcpp, RcppEigen
 Collate:
     '00_method.R'
     'den_real_nonsym.R'
