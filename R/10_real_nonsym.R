@@ -20,24 +20,17 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
     if (k <= 0 | k >= n - 1)
         stop("'k' must satisfy 0 < k < nrow(A) - 1.\nTo calculate all eigenvalues, try eigen()");
     
-    arpack.param = list(which = "LM",
+    arpack.param = list(which = which,
                         ncv = min(n - 1, max(2 * k + 1, 20)),
                         tol = 1e-8,
                         maxitr = 300,
-                        sigmar = 0.0,
-                        sigmai = 0.0);
+                        sigmar = Re(sigma[1]),
+                        sigmai = Im(sigma[1]));
     eigenv.type = c("LM", "SM", "LR", "SR", "LI", "SI");
-    if (inherits(sigma, "character"))
+    if (!(arpack.param$which %in% eigenv.type))
     {
-        if (!(sigma %in% eigenv.type))
-            stop(sprintf("when type of 'sigma' is character, it must one of\n%s",
-                         paste(eigenv.type, collapse = ", ")));
-        arpack.param$which = sigma;
-    } else if (inherits(sigma, "numeric")){
-        arpack.param$sigmar = Re(sigma[1]);
-        arpack.param$sigmai = Im(sigma[1]);
-    } else {
-        stop("'sigma' must be either of the class 'character' or 'numeric'");
+        stop(sprintf("argument 'which' must be one of\n%s",
+                     paste(eigenv.type, collapse = ", ")));
     }
     arpack.param[names(opts)] = opts;
     if (arpack.param$ncv < k + 2 | arpack.param$ncv > n)
