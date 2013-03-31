@@ -7,15 +7,17 @@
 ##' e.g., choosing the \code{k} largest or smallest
 ##' eigenvalues and the corresponding eigenvectors.
 ##'
+##' @usage eigs(A, k, which, sigma, opts, ...)
+##' 
 ##' @param A The matrix whose eigen values/vectors are to be computed.
 ##' @param k Number of eigenvalues requested.
 ##' @param which Selection criteria. See Details below.
 ##' @param sigma Shift parameter. See Details below.
 ##' @param opts Control parameters related to the computing
 ##' algorithm. See Details below.
-##' @param ... Currently not used.
+##' @param \dots Currently not used.
 ##'
-##' @section Details: The \code{which} argument is a character string
+##' @details The \code{which} argument is a character string
 ##' that specifies the type of eigenvalues to be computed.
 ##' Possible values are:
 ##'

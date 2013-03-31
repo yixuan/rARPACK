@@ -1,5 +1,5 @@
 ##' @rdname eigs-methods
-##' @aliases eigs-dgCMatrix,numeric,character,numeric,list-method
+##' @aliases eigs,dgCMatrix,numeric,character,numeric,list-method
 setMethod("eigs", signature(A = "dgCMatrix",
                             k = "numeric",
                             which = "character",
@@ -9,7 +9,7 @@ setMethod("eigs", signature(A = "dgCMatrix",
               eigs.real_nonsym(A, k, which, sigma, opts, ...,
                                mattype = "sparse"));
 ##' @rdname eigs-methods
-##' @aliases eigs-dgCMatrix,numeric,character,numeric,missing-method
+##' @aliases eigs,dgCMatrix,numeric,character,numeric,missing-method
 setMethod("eigs", signature(A = "dgCMatrix",
                             k = "numeric",
                             which = "character",
@@ -19,7 +19,7 @@ setMethod("eigs", signature(A = "dgCMatrix",
               eigs.real_nonsym(A, k, which, sigma, list(), ...,
                                mattype = "sparse"));
 ##' @rdname eigs-methods
-##' @aliases eigs-dgCMatrix,numeric,character,missing,missing-method
+##' @aliases eigs,dgCMatrix,numeric,character,missing,missing-method
 setMethod("eigs", signature(A = "dgCMatrix",
                             k = "numeric",
                             which = "character",
@@ -29,7 +29,7 @@ setMethod("eigs", signature(A = "dgCMatrix",
               eigs.real_nonsym(A, k, which, 0.0, list(), ...,
                                mattype = "sparse"));
 ##' @rdname eigs-methods
-##' @aliases eigs-dgCMatrix,numeric,missing,missing,missing-method
+##' @aliases eigs,dgCMatrix,numeric,missing,missing,missing-method
 setMethod("eigs", signature(A = "dgCMatrix",
                             k = "numeric",
                             which = "missing",

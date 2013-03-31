@@ -1,15 +1,18 @@
 \docType{methods}
 \name{eigs}
 \alias{eigs}
-\alias{eigs-dgCMatrix,numeric,character,missing,missing-method}
-\alias{eigs-dgCMatrix,numeric,character,numeric,list-method}
-\alias{eigs-dgCMatrix,numeric,character,numeric,missing-method}
-\alias{eigs-dgCMatrix,numeric,missing,missing,missing-method}
-\alias{eigs-matrix,numeric,character,missing,missing-method}
-\alias{eigs-matrix,numeric,character,numeric,list-method}
-\alias{eigs-matrix,numeric,character,numeric,missing-method}
-\alias{eigs-matrix,numeric,missing,missing,missing-method}
+\alias{eigs,dgCMatrix,numeric,character,missing,missing-method}
+\alias{eigs,dgCMatrix,numeric,character,numeric,list-method}
+\alias{eigs,dgCMatrix,numeric,character,numeric,missing-method}
+\alias{eigs,dgCMatrix,numeric,missing,missing,missing-method}
+\alias{eigs,matrix,numeric,character,missing,missing-method}
+\alias{eigs,matrix,numeric,character,numeric,list-method}
+\alias{eigs,matrix,numeric,character,numeric,missing-method}
+\alias{eigs,matrix,numeric,missing,missing,missing-method}
 \title{Find a few eigenvalues and eigenvectors for square matrix}
+\usage{
+  eigs(A, k, which, sigma, opts, ...)
+}
 \arguments{
   \item{A}{The matrix whose eigen values/vectors are to be
   computed.}
@@ -23,7 +26,7 @@
   \item{opts}{Control parameters related to the computing
   algorithm. See Details below.}
 
-  \item{...}{Currently not used.}
+  \item{\dots}{Currently not used.}
 }
 \value{
   A list of converged eigenvalues and eigenvectors.
@@ -40,11 +43,7 @@
   choosing the \code{k} largest or smallest eigenvalues and
   the corresponding eigenvectors.
 }
-\note{
-  Currently only dense real nonsymmetric matrices are
-  supported.
-}
-\section{Details}{
+\details{
   The \code{which} argument is a character string that
   specifies the type of eigenvalues to be computed.
   Possible values are:
@@ -68,6 +67,10 @@
   \item{\code{tol}}{Precision parameter. Default is 1e-8.}
   \item{\code{maxitr}}{Maximum number of iterations.
   Default is 300.} }
+}
+\note{
+  Currently only dense real nonsymmetric matrices are
+  supported.
 }
 \examples{
 n = 20;
