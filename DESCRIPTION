@@ -15,6 +15,7 @@ Description: rarpack is an R wrapper of the ARPACK library
 License: GPL
 URL: http://github.com/yixuan/rarpack
 Depends:
+    methods,
     Rcpp (>= 0.10.0)
 LinkingTo: Rcpp
 Collate:
