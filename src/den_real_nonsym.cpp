@@ -60,10 +60,6 @@ BEGIN_RCPP
     Rcpp::NumericVector dimag_ret(nev + 1);
     // matrix of real part of eigenvectors
     Rcpp::NumericMatrix vreal_ret(n, ncv);
-    // matrix of imag part of eigenvectors
-    // determine the dimension of vimag_ret after
-    // we get 'nconv' converged eigenvalues
-    Rcpp::NumericMatrix vimag_ret;
     // result list
     Rcpp::List ret;
     
@@ -157,39 +153,42 @@ BEGIN_RCPP
             // equivalent R code: if (all(abs(dimag[1:nconv] < 1e-30)))
             if (Rcpp::is_true(Rcpp::all(Rcpp::abs(dimag_ret) < 1e-30)))
             {
-                // so we don't need to allocate 'vimag_ret'
-                // for imaginary part of the eigenvectors
                 dreal_ret.erase(nconv, dreal_ret.length() - 1);
                 ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                                          Rcpp::Named("values") = dreal_ret,
                                          Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range));
             } else {
-                vimag_ret = Rcpp::NumericMatrix(n, nconv);
                 Rcpp::ComplexVector cmpvalues_ret(nconv);
                 Rcpp::ComplexMatrix cmpvectors_ret(n, nconv);
-                // obtain the imaginary part of the eigenvectors
+                // obtain the real and imaginary part of the eigenvectors
                 bool first = true;
-                for (int i = 0; i < nconv; i++)
+                int i, j;
+                for (i = 0; i < nconv; i++)
                 {
                     cmpvalues_ret[i].r = dreal_ret[i];
                     cmpvalues_ret[i].i = dimag_ret[i];
-                    if (first && fabs(dimag_ret[i]) > 1e-30)
+                    if (fabs(dimag_ret[i]) > 1e-30)
                     {
-                        vimag_ret(Rcpp::_, i) = vreal_ret(Rcpp::_, i + 1);
-                        vimag_ret(Rcpp::_, i + 1) = -vreal_ret(Rcpp::_, i + 1);
-                        vreal_ret(Rcpp::_, i + 1) = vreal_ret(Rcpp::_, i);
-                        first = false;
+                        if (first)
+                        {
+                            for (j = 0; j < n; j++)
+                            {
+                                cmpvectors_ret(j, i).r = vreal_ret(j, i);
+                                cmpvectors_ret(j, i).i = vreal_ret(j, i + 1);
+                                cmpvectors_ret(j, i + 1).r = vreal_ret(j, i);
+                                cmpvectors_ret(j, i + 1).i = -vreal_ret(j, i + 1);
+                            }
+                            first = false;
+                        } else {
+                            first = true;
+                        }
                     } else {
+                        for (j = 0; j < n; j++)
+                        {
+                            cmpvectors_ret(j, i).r = vreal_ret(j, i);
+                            cmpvectors_ret(j, i).i = 0;
+                        }
                         first = true;
-                    }
-                }
-                // assign values to complex eigenvectors
-                for (int i = 0; i < n; i++)
-                {
-                    for (int j = 0; j < nconv; j++)
-                    {
-                        cmpvectors_ret(i, j).r = vreal_ret(i, j);
-                        cmpvectors_ret(i, j).i = vimag_ret(i, j);
                     }
                 }
                 ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
