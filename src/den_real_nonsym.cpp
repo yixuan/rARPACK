@@ -1,22 +1,8 @@
-#include <Rcpp.h>
-#include <R_ext/BLAS.h>
+#include <RcppEigen.h>
 #include "arpack_cpp.h"
 
-// calculate matrix(n, n) * vector(n) product using BLAS
-void mat_v_prod(double *mat, double *x, int len, double *y)
-{
-    char trans = 'N';
-    int n = len;
-    double alpha = 1.0;
-    int one = 1;
-    double zero = 0.0;
-
-    F77_CALL(dgemv)(&trans, &n, &n,
-            &alpha, mat, &n,
-            x, &one, &zero,
-            y, &one);
-}
-
+typedef Eigen::Map<const Eigen::MatrixXd> MapMat;
+typedef Eigen::Map<Eigen::VectorXd> MapVec;
 
 RcppExport SEXP den_real_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         SEXP which_string_r, SEXP ncv_scalar_r,
@@ -24,7 +10,6 @@ RcppExport SEXP den_real_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         SEXP sigmar_scalar_r, SEXP sigmai_scalar_r)
 {
 BEGIN_RCPP
-
     // begin ARPACK
     //
     // initial value of ido
@@ -51,6 +36,13 @@ BEGIN_RCPP
     // related to the algorithm, large ncv results in
     // faster convergence, but with greater memory use
     int ncv = INTEGER(ncv_scalar_r)[0];
+    
+    // map A_mat_r to Eigen sparse matrix
+    const MapMat A(REAL(A_mat_r), n, n);
+    // declare Eigen vectors (hey here I mean the C++ library Eigen,
+    // not eigenvectors) that will be connected to workd in the iteration
+    MapVec x_vec(NULL, n);
+    MapVec y_vec(NULL, n);
     
     // variables to be returned to R
     //
@@ -92,8 +84,13 @@ BEGIN_RCPP
     // ido == -1 or ido == 1 means more iterations needed
     while (ido == -1 || ido == 1)
     {
-        mat_v_prod(REAL(A_mat_r), &workd[ipntr[0] - 1], n,
-                &workd[ipntr[1] - 1]);
+        // first map &workd[ipntr[0] - 1] and &workd[ipntr[1] - 1]
+        // to x_vec and y_vec respectively, and then do the matrix product
+        // y_vec <- A * x_vec
+        new (&x_vec) MapVec(&workd[ipntr[0] - 1], n);
+        new (&y_vec) MapVec(&workd[ipntr[1] - 1], n);
+        y_vec.noalias() = A * x_vec;
+        
         naupp(ido, bmat, n, which, nev,
             tol, resid, ncv, V,
             ldv, iparam, ipntr, workd,
