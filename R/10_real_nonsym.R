@@ -58,21 +58,5 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
                 as.numeric(arpack.param$tol), as.integer(arpack.param$maxitr),
                 as.numeric(arpack.param$sigmar), as.numeric(arpack.param$sigmai),
                 PACKAGE = "rarpack");
-    
-    # den_real_nonsym() will return list(nconv, values, vectors)
-    # sparse_real_nonsym() will return list(nconv, d.real, d.imag,
-    #                                       v.real, v.imag)
-    if (!is.null(res$values))
-    {
-        res$values = res$values[1:res$nconv];
-        return(res);
-    } else {
-        res$values = res$d.real[1:res$nconv] + res$d.imag[1:res$nconv] * 1i;
-        res$vectors = res$v.real + res$v.imag * 1i;
-        res$d.real = NULL;
-        res$d.imag = NULL;
-        res$v.real = NULL;
-        res$v.imag = NULL;
-    }
     return(res);
 }

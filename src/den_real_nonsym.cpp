@@ -159,15 +159,20 @@ BEGIN_RCPP
             {
                 // so we don't need to allocate 'vimag_ret'
                 // for imaginary part of the eigenvectors
+                dreal_ret.erase(nconv, dreal_ret.length() - 1);
                 ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                                          Rcpp::Named("values") = dreal_ret,
                                          Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range));
             } else {
                 vimag_ret = Rcpp::NumericMatrix(n, nconv);
+                Rcpp::ComplexVector cmpvalues_ret(nconv);
+                Rcpp::ComplexMatrix cmpvectors_ret(n, nconv);
                 // obtain the imaginary part of the eigenvectors
                 bool first = true;
                 for (int i = 0; i < nconv; i++)
                 {
+                    cmpvalues_ret[i].r = dreal_ret[i];
+                    cmpvalues_ret[i].i = dimag_ret[i];
                     if (first && fabs(dimag_ret[i]) > 1e-30)
                     {
                         vimag_ret(Rcpp::_, i) = vreal_ret(Rcpp::_, i + 1);
@@ -178,11 +183,18 @@ BEGIN_RCPP
                         first = true;
                     }
                 }
+                // assign values to complex eigenvectors
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = 0; j < nconv; j++)
+                    {
+                        cmpvectors_ret(i, j).r = vreal_ret(i, j);
+                        cmpvectors_ret(i, j).i = vimag_ret(i, j);
+                    }
+                }
                 ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                         Rcpp::Named("d.real") = dreal_ret,
-                                         Rcpp::Named("d.imag") = dimag_ret,
-                                         Rcpp::Named("v.real") = vreal_ret(Rcpp::_, range),
-                                         Rcpp::Named("v.imag") = vimag_ret(Rcpp::_, range));
+                                         Rcpp::Named("values") = cmpvalues_ret,
+                                         Rcpp::Named("vectors") = cmpvectors_ret);
             }
         }
     }
