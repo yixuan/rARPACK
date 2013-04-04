@@ -37,13 +37,6 @@ BEGIN_RCPP
     // faster convergence, but with greater memory use
     int ncv = INTEGER(ncv_scalar_r)[0];
     
-    // map A_mat_r to Eigen sparse matrix
-    const MapMat A(REAL(A_mat_r), n, n);
-    // declare Eigen vectors (hey here I mean the C++ library Eigen,
-    // not eigenvectors) that will be connected to workd in the iteration
-    MapVec x_vec(NULL, n);
-    MapVec y_vec(NULL, n);
-    
     // variables to be returned to R
     //
     // vector of real part of eigenvalues
@@ -76,6 +69,13 @@ BEGIN_RCPP
     double *workl = new double[lworkl]();
     // error flag, initialized to 0
     int info = 0;
+    
+    // map A_mat_r to Eigen matrix
+    const MapMat A(REAL(A_mat_r), n, n);
+    // declare Eigen vectors (hey here I mean the C++ library Eigen,
+    // not eigenvectors) that will be connected to workd in the iteration
+    MapVec x_vec(workd + 2 * n, n);
+    MapVec y_vec(workd + n, n);
 
     naupp(ido, bmat, n, which, nev,
             tol, resid, ncv, V,
