@@ -89,8 +89,6 @@ inline void saupp(ARint& ido, char bmat, ARint n, char* which, ARint nev,
                   &lworkl, &info);
 
 }
-
-
 inline void saupp(ARint& ido, char bmat, ARint n, char* which, ARint nev,
                   float& tol, float resid[], ARint ncv, float V[],
                   ARint ldv, ARint iparam[], ARint ipntr[], float workd[],
@@ -101,5 +99,54 @@ inline void saupp(ARint& ido, char bmat, ARint n, char* which, ARint nev,
                   &lworkl, &info);
 
 }
+
+
+inline void seupp(bool rvec, char HowMny, double d[], double Z[],
+                  ARint ldz, double sigma, char bmat, ARint n,
+                  char* which, ARint nev, double tol, double resid[],
+                  ARint ncv, double V[], ARint ldv, ARint iparam[],
+                  ARint ipntr[], double workd[], double workl[],
+                  ARint lworkl, ARint& info)
+{
+
+  ARint      irvec;
+  ARlogical* iselect;
+  double*    iZ;
+
+  irvec   = (ARint) rvec;
+  iselect = new ARlogical[ncv];
+  iZ = (Z == NULL) ? V : Z;
+
+  F77NAME(dseupd)(&irvec, &HowMny, iselect, d, iZ, &ldz, &sigma, &bmat,
+                  &n, which, &nev, &tol, resid, &ncv, V, &ldv, iparam,
+                  ipntr, workd, workl, &lworkl, &info );
+
+  delete[] iselect;
+
+}
+inline void seupp(bool rvec, char HowMny, float d[], float Z[],
+                  ARint ldz, float sigma, char bmat, ARint n,
+                  char* which, ARint nev, float tol, float resid[],
+                  ARint ncv, float V[], ARint ldv, ARint iparam[],
+                  ARint ipntr[], float workd[], float workl[],
+                  ARint lworkl, ARint& info)
+{
+
+  ARint      irvec;
+  ARlogical* iselect;
+  float*     iZ;
+
+  irvec   = (ARint) rvec;
+  iselect = new ARlogical[ncv];
+  iZ = (Z == NULL) ? V : Z;
+
+  F77NAME(sseupd)(&irvec, &HowMny, iselect, d, iZ, &ldz, &sigma, &bmat,
+                  &n, which, &nev, &tol, resid, &ncv, V, &ldv, iparam,
+                  ipntr, workd, workl, &lworkl, &info );
+
+  delete[] iselect;
+
+}
+
 
 #endif /* ARPACK_CPP_H */

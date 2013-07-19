@@ -1,6 +1,6 @@
 #include "do_eigs.h"
 
-SEXP do_eigs(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
+SEXP do_eigs_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         SEXP which_string_r, SEXP ncv_scalar_r,
         SEXP tol_scalar_r, SEXP maxitr_scalar_r,
         SEXP retvec_logical_r,

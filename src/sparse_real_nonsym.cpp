@@ -47,7 +47,7 @@ BEGIN_RCPP
     data.x_vec = &x_vec;
     data.y_vec = &y_vec;
     
-    return do_eigs(A_mat_r, n_scalar_r, k_scalar_r,
+    return do_eigs_nonsym(A_mat_r, n_scalar_r, k_scalar_r,
                    which_string_r, ncv_scalar_r,
                    tol_scalar_r, maxitr_scalar_r,
                    retvec_logical_r,
