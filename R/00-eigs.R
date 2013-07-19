@@ -61,9 +61,28 @@
 ##' eigs(A2, k);
 eigs <- function(A, k, which = "LM", sigma = 0.0, opts = list(), ...)
 {
-    mattype = if(inherits(A, "matrix"))
-              {"dense"} else if(inherits(A, "dgCMatrix"))
-              {"sparse"} else stop("unsupported matrix type");
-    eigs.real_nonsym(A, k, which, sigma, opts, ...,
-                     mattype = mattype);
+    if(inherits(A, "matrix"))
+    {
+        eigs.real_nonsym(A, k, which, sigma, opts, ...,
+                         mattype = "matrix");
+    } else if(inherits(A, "dgCMatrix")) {
+        eigs.real_nonsym(A, k, which, sigma, opts, ...,
+                         mattype = "dgCMatrix");
+    } else if(inherits(A, "dsyMatrix")){
+        eigs.real_sym(A, k, which, sigma, opts, ...,
+                      mattype = "dsyMatrix")
+    } else {
+        stop("unsupported matrix type");
+    }
+}
+
+eigs.sym <- function(A, k, which = "LM", sigma = 0.0, opts = list(), ..., lower = TRUE)
+{
+    if(inherits(A, "matrix"))
+    {
+        eigs.real_sym(A, k, which, sigma, opts, ...,
+                      mattype = "matrix", lower = lower);
+    } else {
+        stop("unsupported matrix type");
+    }
 }
