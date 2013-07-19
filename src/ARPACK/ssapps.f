@@ -91,7 +91,7 @@ c     TR95-13, Department of Computational and Applied Mathematics.
 c
 c\Routines called:
 c     ivout   ARPACK utility routine that prints integers. 
-c     second  ARPACK utility routine for timing.
+c     arscnd  ARPACK utility routine for timing.
 c     svout   ARPACK utility routine that prints vectors.
 c     slamch  LAPACK routine that determines machine constants.
 c     slartg  LAPACK Givens rotation construction routine.
@@ -111,10 +111,10 @@ c     Rice University
 c     Houston, Texas            
 c
 c\Revision history:
-c     12/16/93: Version ' 2.1'
+c     12/16/93: Version ' 2.4'
 c
 c\SCCS Information: @(#) 
-c FILE: sapps.F   SID: 2.5   DATE OF SID: 4/19/96   RELEASE: 2
+c FILE: sapps.F   SID: 2.6   DATE OF SID: 3/28/97   RELEASE: 2
 c
 c\Remarks
 c  1. In this version, each shift is applied to all the subblocks of
@@ -176,7 +176,7 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   saxpy, scopy, sscal, slacpy, slartg, slaset, svout, 
-     &           ivout, second, sgemv
+     &           ivout, arscnd, sgemv
 c
 c     %--------------------%
 c     | External Functions |
@@ -213,7 +213,7 @@ c     | Initialize timing statistics  |
 c     | & message level for debugging |
 c     %-------------------------------%
 c
-      call second (t0)
+      call arscnd (t0)
       msglvl = msapps
 c 
       kplusp = kev + np 
@@ -372,7 +372,7 @@ c               %----------------------------------------------------%
 c               | Accumulate the rotation in the matrix Q;  Q <- Q*G |
 c               %----------------------------------------------------%
 c
-                do 50 j = 1, min( j+jj, kplusp )
+                do 50 j = 1, min( i+jj, kplusp )
                    a1       =   c*q(j,i) + s*q(j,i+1)
                    q(j,i+1) = - s*q(j,i) + c*q(j,i+1)
                    q(j,i)   = a1
@@ -503,7 +503,7 @@ c
          end if
       end if
 c
-      call second (t1)
+      call arscnd (t1)
       tsapps = tsapps + (t1 - t0)
 c 
  9000 continue 

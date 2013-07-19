@@ -66,7 +66,7 @@ c          computed. To select the Ritz vector corresponding to a
 c          Ritz value (DR(j), DI(j)), SELECT(j) must be set to .TRUE.. 
 c          If HOWMNY = 'A' or 'P', SELECT is used as internal workspace.
 c
-c  DR      Real array of dimension NEV+1.  (OUTPUT)
+c  DR      Real  array of dimension NEV+1.  (OUTPUT)
 c          If IPARAM(7) = 1,2 or 3 and SIGMAI=0.0  then on exit: DR contains 
 c          the real part of the Ritz  approximations to the eigenvalues of 
 c          A*z = lambda*B*z. 
@@ -76,7 +76,7 @@ c          SNAUPD. A further computation must be performed by the user
 c          to transform the Ritz values computed for OP by SNAUPD to those
 c          of the original system A*z = lambda*B*z. See remark 3 below.
 c
-c  DI      Real array of dimension NEV+1.  (OUTPUT)
+c  DI      Real  array of dimension NEV+1.  (OUTPUT)
 c          On exit, DI contains the imaginary part of the Ritz value 
 c          approximations to the eigenvalues of A*z = lambda*B*z associated
 c          with DR.
@@ -88,7 +88,7 @@ c                pairs and the real and imaginary parts of these are
 c                represented in two consecutive columns of the array Z 
 c                (see below).
 c
-c  Z       Real N by NEV+1 array if RVEC = .TRUE. and HOWMNY = 'A'. (OUTPUT)
+c  Z       Real  N by NEV+1 array if RVEC = .TRUE. and HOWMNY = 'A'. (OUTPUT)
 c          On exit, if RVEC = .TRUE. and HOWMNY = 'A', then the columns of 
 c          Z represent approximate eigenvectors (Ritz vectors) corresponding 
 c          to the NCONV=IPARAM(5) Ritz values for eigensystem 
@@ -113,15 +113,15 @@ c  LDZ     Integer.  (INPUT)
 c          The leading dimension of the array Z.  If Ritz vectors are
 c          desired, then  LDZ >= max( 1, N ).  In any case,  LDZ >= 1.
 c
-c  SIGMAR  Real  (INPUT)
+c  SIGMAR  Real   (INPUT)
 c          If IPARAM(7) = 3 or 4, represents the real part of the shift. 
 c          Not referenced if IPARAM(7) = 1 or 2.
 c
-c  SIGMAI  Real  (INPUT)
+c  SIGMAI  Real   (INPUT)
 c          If IPARAM(7) = 3 or 4, represents the imaginary part of the shift. 
 c          Not referenced if IPARAM(7) = 1 or 2. See remark 3 below.
 c
-c  WORKEV  Real work array of dimension 3*NCV.  (WORKSPACE)
+c  WORKEV  Real  work array of dimension 3*NCV.  (WORKSPACE)
 c
 c  **** The remaining arguments MUST be the same as for the   ****
 c  **** call to SNAUPD that was just completed.               ****
@@ -137,7 +137,7 @@ c         the the last call to SNAUPD and the call to SNEUPD.
 c
 c  Three of these parameters (V, WORKL, INFO) are also output parameters:
 c
-c  V       Real N by NCV array.  (INPUT/OUTPUT)
+c  V       Real  N by NCV array.  (INPUT/OUTPUT)
 c
 c          Upon INPUT: the NCV columns of V contain the Arnoldi basis
 c                      vectors for OP as constructed by SNAUPD .
@@ -153,7 +153,7 @@ c          Ritz vectors.  If a separate array Z has been passed then
 c          the first NCONV=IPARAM(5) columns of V will contain approximate
 c          Schur vectors that span the desired invariant subspace.
 c
-c  WORKL   Real work array of length LWORKL.  (OUTPUT/WORKSPACE)
+c  WORKL   Real  work array of length LWORKL.  (OUTPUT/WORKSPACE)
 c          WORKL(1:ncv*ncv+3*ncv) contains information obtained in
 c          snaupd.  They are not changed by sneupd.
 c          WORKL(ncv*ncv+3*ncv+1:3*ncv*ncv+6*ncv) holds the
@@ -206,6 +206,11 @@ c          = -12: HOWMNY = 'S' not yet implemented
 c          = -13: HOWMNY must be one of 'A' or 'P' if RVEC = .true.
 c          = -14: SNAUPD did not find any eigenvalues to sufficient
 c                 accuracy.
+c          = -15: DNEUPD got a different count of the number of converged
+c                 Ritz values than DNAUPD got.  This indicates the user
+c                 probably made an error in passing data from DNAUPD to
+c                 DNEUPD or that the data was modified before entering
+c                 DNEUPD
 c
 c\BeginLib
 c
@@ -248,15 +253,15 @@ c\Remarks
 c
 c  1. Currently only HOWMNY = 'A' and 'P' are implemented.
 c
-c     Let X' denote the transpose of X.
+c     Let trans(X) denote the transpose of X.
 c
 c  2. Schur vectors are an orthogonal representation for the basis of
 c     Ritz vectors. Thus, their numerical properties are often superior.
 c     If RVEC = .TRUE. then the relationship
 c             A * V(:,1:IPARAM(5)) = V(:,1:IPARAM(5)) * T, and
-c     V(:,1:IPARAM(5))' * V(:,1:IPARAM(5)) = I are approximately satisfied.
-c     Here T is the leading submatrix of order IPARAM(5) of the real 
-c     upper quasi-triangular matrix stored workl(ipntr(12)). That is,
+c     trans(V(:,1:IPARAM(5))) * V(:,1:IPARAM(5)) = I are approximately 
+c     satisfied. Here T is the leading submatrix of order IPARAM(5) of the 
+c     real upper quasi-triangular matrix stored workl(ipntr(12)). That is,
 c     T is block upper triangular with 1-by-1 and 2-by-2 diagonal blocks; 
 c     each 2-by-2 diagonal block has its diagonal elements equal and its
 c     off-diagonal elements of opposite sign.  Corresponding to each 2-by-2
@@ -268,13 +273,14 @@ c     form the IPARAM(5) Rayleigh quotients in order to transform the Ritz
 c     values computed by SNAUPD for OP to those of A*z = lambda*B*z. 
 c     Set RVEC = .true. and HOWMNY = 'A', and
 c     compute 
-c           Z(:,I)' * A * Z(:,I) if DI(I) = 0.
+c           trans(Z(:,I)) * A * Z(:,I) if DI(I) = 0.
 c     If DI(I) is not equal to zero and DI(I+1) = - D(I), 
 c     then the desired real and imaginary parts of the Ritz value are
-c           Z(:,I)' * A * Z(:,I) +  Z(:,I+1)' * A * Z(:,I+1),
-c           Z(:,I)' * A * Z(:,I+1) -  Z(:,I+1)' * A * Z(:,I), respectively.
+c           trans(Z(:,I)) * A * Z(:,I) +  trans(Z(:,I+1)) * A * Z(:,I+1),
+c           trans(Z(:,I)) * A * Z(:,I+1) -  trans(Z(:,I+1)) * A * Z(:,I), 
+c     respectively.
 c     Another possibility is to set RVEC = .true. and HOWMNY = 'P' and
-c     compute V(:,1:IPARAM(5))' * A * V(:,1:IPARAM(5)) and then an upper
+c     compute trans(V(:,1:IPARAM(5))) * A * V(:,1:IPARAM(5)) and then an upper
 c     quasi-triangular matrix of order IPARAM(5) is computed. See remark
 c     2 above.
 c
@@ -288,15 +294,16 @@ c     Rice University
 c     Houston, Texas            
 c 
 c\SCCS Information: @(#) 
-c FILE: neupd.F   SID: 2.5   DATE OF SID: 7/31/96   RELEASE: 2 
+c FILE: neupd.F   SID: 2.7   DATE OF SID: 09/20/00   RELEASE: 2 
 c
 c\EndLib
 c
 c-----------------------------------------------------------------------
-      subroutine sneupd (rvec, howmny, select, dr, di, z, ldz, sigmar, 
-     &                   sigmai, workev, bmat, n, which, nev, tol, 
-     &                   resid, ncv, v, ldv, iparam, ipntr, workd, 
-     &                   workl, lworkl, info)
+      subroutine sneupd(rvec , howmny, select, dr    , di,    
+     &                   z    , ldz   , sigmar, sigmai, workev,
+     &                   bmat , n     , which , nev   , tol,
+     &                   resid, ncv   , v     , ldv   , iparam,
+     &                   ipntr, workd , workl , lworkl, info)
 c
 c     %----------------------------------------------------%
 c     | Include files for debugging and timing information |
@@ -312,7 +319,7 @@ c
       character  bmat, howmny, which*2
       logical    rvec
       integer    info, ldz, ldv, lworkl, n, ncv, nev
-      Real     
+      Real      
      &           sigmar, sigmai, tol
 c
 c     %-----------------%
@@ -321,43 +328,51 @@ c     %-----------------%
 c
       integer    iparam(11), ipntr(14)
       logical    select(ncv)
-      Real
-     &           dr(nev+1), di(nev+1), resid(n), v(ldv,ncv), z(ldz,*), 
-     &           workd(3*n), workl(lworkl), workev(3*ncv)
+      Real 
+     &           dr(nev+1)    , di(nev+1), resid(n)  , 
+     &           v(ldv,ncv)   , z(ldz,*) , workd(3*n), 
+     &           workl(lworkl), workev(3*ncv)
 c
 c     %------------%
 c     | Parameters |
 c     %------------%
 c
-      Real
+      Real 
      &           one, zero
-      parameter (one = 1.0E+0, zero = 0.0E+0)
+      parameter (one = 1.0E+0 , zero = 0.0E+0 )
 c
 c     %---------------%
 c     | Local Scalars |
 c     %---------------%
 c
       character  type*6
-      integer    bounds, ierr, ih, ihbds, iheigr, iheigi, iconj, nconv, 
-     &           invsub, iuptri, iwev, iwork(1), j, k, ktrord, 
-     &           ldh, ldq, mode, msglvl, outncv, ritzr, ritzi, wri, wrr,
-     &           irr, iri, ibd
+      integer    bounds, ierr  , ih    , ihbds   , 
+     &           iheigr, iheigi, iconj , nconv   , 
+     &           invsub, iuptri, iwev  , iwork(1),
+     &           j     , k     , ldh   , ldq     ,
+     &           mode  , msglvl, outncv, ritzr   ,
+     &           ritzi , wri   , wrr   , irr     ,
+     &           iri   , ibd   , ishift, numcnv  ,
+     &           np    , jj    , nconv2
       logical    reord
-      Real
-     &           conds, rnorm, sep, temp, thres, vl(1,1), temp1, eps23
+      Real 
+     &           conds  , rnorm, sep  , temp,
+     &           vl(1,1), temp1, eps23
 c
 c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
-      external   scopy, sger, sgeqr2, slacpy, slahqr, slaset, smout, 
-     &           sorm2r, strevc, strmm, strsen, sscal, svout, ivout
+      external   scopy , sger  , sgeqr2, slacpy, 
+     &           slahqr, slaset, smout , sorm2r, 
+     &           strevc, strmm , strsen, sscal , 
+     &           svout , ivout
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
-      Real
+      Real 
      &           slapy2, snrm2, slamch, sdot
       external   slapy2, snrm2, slamch, sdot
 c
@@ -385,7 +400,7 @@ c     | Get machine dependent constant. |
 c     %---------------------------------%
 c
       eps23 = slamch('Epsilon-Machine')
-      eps23 = eps23**(2.0E+0 / 3.0E+0)
+      eps23 = eps23**(2.0E+0  / 3.0E+0 )
 c
 c     %--------------%
 c     | Quick return |
@@ -511,109 +526,90 @@ c     %------------------------------------%
 c
       rnorm = workl(ih+2)
       workl(ih+2) = zero
-c     
+c
+      if (msglvl .gt. 2) then
+         call svout(logfil, ncv, workl(irr), ndigit,
+     &   '_neupd: Real part of Ritz values passed in from _NAUPD.')
+         call svout(logfil, ncv, workl(iri), ndigit,
+     &   '_neupd: Imag part of Ritz values passed in from _NAUPD.')
+         call svout(logfil, ncv, workl(ibd), ndigit,
+     &   '_neupd: Ritz estimates passed in from _NAUPD.')
+      end if
+c
       if (rvec) then
 c     
-c        %-------------------------------------------%
-c        | Get converged Ritz value on the boundary. |
-c        | Note: converged Ritz values have been     |
-c        | placed in the first NCONV locations in    |
-c        | workl(ritzr) and workl(ritzi).  They have |
-c        | been sorted (in _naup2) according to the  |
-c        | WHICH selection criterion.                |
-c        %-------------------------------------------%
-c
-         if (which .eq. 'LM' .or. which .eq. 'SM') then
-            thres = slapy2( workl(ritzr), workl(ritzi) )
-         else if (which .eq. 'LR' .or. which .eq. 'SR') then
-            thres = workl(ritzr)
-         else if (which .eq. 'LI' .or. which .eq. 'SI') then
-            thres = abs( workl(ritzi) )
-         end if
-c
-         if (msglvl .gt. 2) then
-            call svout(logfil, 1, thres, ndigit,
-     &           '_neupd: Threshold eigenvalue used for re-ordering')
-         end if
-c
-c        %----------------------------------------------------------%
-c        | Check to see if all converged Ritz values appear at the  |
-c        | top of the upper quasi-triangular matrix computed by     |
-c        | _neigh in _naup2.  This is done in the following way:    |
-c        |                                                          |
-c        | 1) For each Ritz value obtained from _neigh, compare it  |
-c        |    with the threshold Ritz value computed above to       |
-c        |    determine whether it is a wanted one.                 |
-c        |                                                          | 
-c        | 2) If it is wanted, then check the corresponding Ritz    |
-c        |    estimate to see if it has converged.  If it has, set  |
-c        |    correponding entry in the logical array SELECT to     |
-c        |    .TRUE..                                               |
-c        |                                                          |
-c        | If SELECT(j) = .TRUE. and j > NCONV, then there is a     |
-c        | converged Ritz value that does not appear at the top of  |
-c        | the upper quasi-triangular matrix computed by _neigh in  |
-c        | _naup2.  Reordering is needed.                           |
-c        %----------------------------------------------------------%
-c
          reord = .false.
-         ktrord = 0
-         do 10 j = 0, ncv-1
-            select(j+1) = .false.
-            if (which .eq. 'LM') then
-               if (slapy2(workl(irr+j), workl(iri+j))
-     &            .ge. thres) then
-                  temp1 = max( eps23, 
-     &                         slapy2( workl(irr+j), workl(iri+j) ) )
-                  if (workl(ibd+j) .le. tol*temp1)
-     &               select(j+1) = .true.
-               end if
-            else if (which .eq. 'SM') then
-               if (slapy2(workl(irr+j), workl(iri+j))
-     &            .le. thres) then
-                  temp1 = max( eps23,
-     &                         slapy2( workl(irr+j), workl(iri+j) ) )
-                  if (workl(ibd+j) .le. tol*temp1)
-     &               select(j+1) = .true.
-               end if
-            else if (which .eq. 'LR') then
-               if (workl(irr+j) .ge. thres) then
-                  temp1 = max( eps23,
-     &                         slapy2( workl(irr+j), workl(iri+j) ) )
-                  if (workl(ibd+j) .le. tol*temp1)
-     &               select(j+1) = .true.
-               end if
-            else if (which .eq. 'SR') then
-               if (workl(irr+j) .le. thres) then
-                  temp1 = max( eps23,
-     &                         slapy2( workl(irr+j), workl(iri+j) ) )
-                  if (workl(ibd+j) .le. tol*temp1)
-     &               select(j+1) = .true.
-               end if
-            else if (which .eq. 'LI') then
-               if (abs(workl(iri+j)) .ge. thres) then
-                  temp1 = max( eps23,
-     &                         slapy2( workl(irr+j), workl(iri+j) ) )
-                  if (workl(ibd+j) .le. tol*temp1)
-     &               select(j+1) = .true.
-               end if
-            else if (which .eq. 'SI') then
-               if (abs(workl(iri+j)) .le. thres) then
-                  temp1 = max( eps23,
-     &                         slapy2( workl(irr+j), workl(iri+j) ) )
-                  if (workl(ibd+j) .le. tol*temp1)
-     &               select(j+1) = .true.
-               end if
-            end if
-            if (j+1 .gt. nconv ) reord = ( select(j+1) .or. reord )
-            if (select(j+1)) ktrord = ktrord + 1
- 10      continue 
+c
+c        %---------------------------------------------------%
+c        | Use the temporary bounds array to store indices   |
+c        | These will be used to mark the select array later |
+c        %---------------------------------------------------%
+c
+         do 10 j = 1,ncv
+            workl(bounds+j-1) = j
+            select(j) = .false.
+   10    continue
+c
+c        %-------------------------------------%
+c        | Select the wanted Ritz values.      |
+c        | Sort the Ritz values so that the    |
+c        | wanted ones appear at the tailing   |
+c        | NEV positions of workl(irr) and     |
+c        | workl(iri).  Move the corresponding |
+c        | error estimates in workl(bound)     |
+c        | accordingly.                        |
+c        %-------------------------------------%
+c
+         np     = ncv - nev
+         ishift = 0
+         call sngets(ishift       , which     , nev       , 
+     &                np           , workl(irr), workl(iri),
+     &                workl(bounds), workl     , workl(np+1))
 c
          if (msglvl .gt. 2) then
-             call ivout(logfil, 1, ktrord, ndigit,
+            call svout(logfil, ncv, workl(irr), ndigit,
+     &      '_neupd: Real part of Ritz values after calling _NGETS.')
+            call svout(logfil, ncv, workl(iri), ndigit,
+     &      '_neupd: Imag part of Ritz values after calling _NGETS.')
+            call svout(logfil, ncv, workl(bounds), ndigit,
+     &      '_neupd: Ritz value indices after calling _NGETS.')
+         end if
+c
+c        %-----------------------------------------------------%
+c        | Record indices of the converged wanted Ritz values  |
+c        | Mark the select array for possible reordering       |
+c        %-----------------------------------------------------%
+c
+         numcnv = 0
+         do 11 j = 1,ncv
+            temp1 = max(eps23,
+     &                 slapy2( workl(irr+ncv-j), workl(iri+ncv-j) ))
+            jj = workl(bounds + ncv - j)
+            if (numcnv .lt. nconv .and.
+     &          workl(ibd+jj-1) .le. tol*temp1) then
+               select(jj) = .true.
+               numcnv = numcnv + 1
+               if (jj .gt. nconv) reord = .true.
+            endif
+   11    continue
+c
+c        %-----------------------------------------------------------%
+c        | Check the count (numcnv) of converged Ritz values with    |
+c        | the number (nconv) reported by dnaupd.  If these two      |
+c        | are different then there has probably been an error       |
+c        | caused by incorrect passing of the dnaupd data.           |
+c        %-----------------------------------------------------------%
+c
+         if (msglvl .gt. 2) then
+             call ivout(logfil, 1, numcnv, ndigit,
      &            '_neupd: Number of specified eigenvalues')
              call ivout(logfil, 1, nconv, ndigit,
      &            '_neupd: Number of "converged" eigenvalues')
+         end if
+c
+         if (numcnv .ne. nconv) then
+            info = -15
+            go to 9000
          end if
 c
 c        %-----------------------------------------------------------%
@@ -623,12 +619,17 @@ c        | Make a copy of the upper Hessenberg matrix.               |
 c        | Initialize the Schur vector matrix Q to the identity.     |
 c        %-----------------------------------------------------------%
 c     
-         call scopy (ldh*ncv, workl(ih), 1, workl(iuptri), 1)
-         call slaset ('All', ncv, ncv, zero, one, workl(invsub), ldq)
-         call slahqr (.true., .true., ncv, 1, ncv, workl(iuptri), ldh,
-     &        workl(iheigr), workl(iheigi), 1, ncv, 
-     &        workl(invsub), ldq, ierr)
-         call scopy (ncv, workl(invsub+ncv-1), ldq, workl(ihbds), 1)
+         call scopy(ldh*ncv, workl(ih), 1, workl(iuptri), 1)
+         call slaset('All', ncv, ncv, 
+     &                zero , one, workl(invsub),
+     &                ldq)
+         call slahqr(.true., .true.       , ncv, 
+     &                1     , ncv          , workl(iuptri), 
+     &                ldh   , workl(iheigr), workl(iheigi),
+     &                1     , ncv          , workl(invsub), 
+     &                ldq   , ierr)
+         call scopy(ncv         , workl(invsub+ncv-1), ldq, 
+     &               workl(ihbds), 1)
 c     
          if (ierr .ne. 0) then
             info = -8
@@ -636,14 +637,15 @@ c
          end if
 c     
          if (msglvl .gt. 1) then
-            call svout (logfil, ncv, workl(iheigr), ndigit,
+            call svout(logfil, ncv, workl(iheigr), ndigit,
      &           '_neupd: Real part of the eigenvalues of H')
-            call svout (logfil, ncv, workl(iheigi), ndigit,
+            call svout(logfil, ncv, workl(iheigi), ndigit,
      &           '_neupd: Imaginary part of the Eigenvalues of H')
-            call svout (logfil, ncv, workl(ihbds), ndigit,
+            call svout(logfil, ncv, workl(ihbds), ndigit,
      &           '_neupd: Last row of the Schur vector matrix')
             if (msglvl .gt. 3) then
-               call smout (logfil, ncv, ncv, workl(iuptri), ldh, ndigit,
+               call smout(logfil       , ncv, ncv   , 
+     &                     workl(iuptri), ldh, ndigit,
      &              '_neupd: The upper quasi-triangular matrix ')
             end if
          end if 
@@ -654,24 +656,34 @@ c           %-----------------------------------------------------%
 c           | Reorder the computed upper quasi-triangular matrix. | 
 c           %-----------------------------------------------------%
 c     
-            call strsen ('None', 'V', select, ncv, workl(iuptri), ldh, 
-     &           workl(invsub), ldq, workl(iheigr), workl(iheigi), 
-     &           nconv, conds, sep, workl(ihbds), ncv, iwork, 1, ierr)
+            call strsen('None'       , 'V'          , 
+     &                   select       , ncv          ,
+     &                   workl(iuptri), ldh          , 
+     &                   workl(invsub), ldq          , 
+     &                   workl(iheigr), workl(iheigi), 
+     &                   nconv2       , conds        ,
+     &                   sep          , workl(ihbds) , 
+     &                   ncv          , iwork        ,
+     &                   1            , ierr)
 c
+            if (nconv2 .lt. nconv) then
+               nconv = nconv2
+            end if
+
             if (ierr .eq. 1) then
                info = 1
                go to 9000
             end if
 c
             if (msglvl .gt. 2) then
-                call svout (logfil, ncv, workl(iheigr), ndigit,
+                call svout(logfil, ncv, workl(iheigr), ndigit,
      &           '_neupd: Real part of the eigenvalues of H--reordered')
-                call svout (logfil, ncv, workl(iheigi), ndigit,
+                call svout(logfil, ncv, workl(iheigi), ndigit,
      &           '_neupd: Imag part of the eigenvalues of H--reordered')
                 if (msglvl .gt. 3) then
-                   call smout (logfil, ncv, ncv, workl(iuptri), ldq, 
-     &                  ndigit,
-     &              '_neupd: Quasi-triangular matrix after re-ordering')
+                   call smout(logfil       , ncv, ncv   , 
+     &                         workl(iuptri), ldq, ndigit,
+     &             '_neupd: Quasi-triangular matrix after re-ordering')
                 end if
             end if
 c     
@@ -692,8 +704,8 @@ c        | if a spectral transformation was not used.         |
 c        %----------------------------------------------------%
 c
          if (type .eq. 'REGULR') then 
-            call scopy (nconv, workl(iheigr), 1, dr, 1)
-            call scopy (nconv, workl(iheigi), 1, di, 1)
+            call scopy(nconv, workl(iheigr), 1, dr, 1)
+            call scopy(nconv, workl(iheigi), 1, di, 1)
          end if
 c     
 c        %----------------------------------------------------------%
@@ -702,8 +714,9 @@ c        | the wanted invariant subspace located in the first NCONV |
 c        | columns of workl(invsub,ldq).                            |
 c        %----------------------------------------------------------%
 c     
-         call sgeqr2 (ncv, nconv, workl(invsub), ldq, workev, 
-     &        workev(ncv+1), ierr)
+         call sgeqr2(ncv, nconv , workl(invsub), 
+     &               ldq, workev, workev(ncv+1),
+     &               ierr)
 c
 c        %---------------------------------------------------------%
 c        | * Postmultiply V by Q using sorm2r.                     |   
@@ -717,9 +730,11 @@ c        | vectors associated with the real upper quasi-triangular |
 c        | matrix of order NCONV in workl(iuptri)                  |
 c        %---------------------------------------------------------%
 c     
-         call sorm2r ('Right', 'Notranspose', n, ncv, nconv,
-     &        workl(invsub), ldq, workev, v, ldv, workd(n+1), ierr)
-         call slacpy ('All', n, nconv, v, ldv, z, ldz)
+         call sorm2r('Right', 'Notranspose', n            , 
+     &                ncv   , nconv        , workl(invsub),
+     &                ldq   , workev       , v            , 
+     &                ldv   , workd(n+1)   , ierr)
+         call slacpy('All', n, nconv, v, ldv, z, ldz)
 c
          do 20 j=1, nconv
 c     
@@ -733,8 +748,8 @@ c           | matrix consisting of plus or minus ones           |
 c           %---------------------------------------------------%
 c     
             if (workl(invsub+(j-1)*ldq+j-1) .lt. zero) then
-               call sscal (nconv, -one, workl(iuptri+j-1), ldq)
-               call sscal (nconv, -one, workl(iuptri+(j-1)*ldq), 1)
+               call sscal(nconv, -one, workl(iuptri+j-1), ldq)
+               call sscal(nconv, -one, workl(iuptri+(j-1)*ldq), 1)
             end if
 c     
  20      continue
@@ -754,9 +769,11 @@ c
                end if
  30         continue
 c
-            call strevc ('Right', 'Select', select, ncv, workl(iuptri), 
-     &           ldq, vl, 1, workl(invsub), ldq, ncv, outncv, workev,
-     &           ierr)
+            call strevc('Right', 'Select'     , select       , 
+     &                   ncv    , workl(iuptri), ldq          , 
+     &                   vl     , 1            , workl(invsub),
+     &                   ldq    , ncv          , outncv       ,
+     &                   workev , ierr)
 c
             if (ierr .ne. 0) then
                 info = -9
@@ -781,7 +798,7 @@ c                 | real eigenvalue case |
 c                 %----------------------%
 c     
                   temp = snrm2( ncv, workl(invsub+(j-1)*ldq), 1 )
-                  call sscal ( ncv, one / temp, 
+                  call sscal( ncv, one / temp, 
      &                 workl(invsub+(j-1)*ldq), 1 )
 c
                else
@@ -795,12 +812,16 @@ c                 | square root of two.                       |
 c                 %-------------------------------------------%
 c
                   if (iconj .eq. 0) then
-                     temp = slapy2( snrm2( ncv, workl(invsub+(j-1)*ldq), 
-     &                      1 ), snrm2( ncv, workl(invsub+j*ldq),  1) )  
-                     call sscal ( ncv, one / temp, 
-     &                      workl(invsub+(j-1)*ldq), 1 )
-                     call sscal ( ncv, one / temp, 
-     &                      workl(invsub+j*ldq), 1 )
+                     temp = slapy2(snrm2(ncv, 
+     &                                   workl(invsub+(j-1)*ldq), 
+     &                                   1),
+     &                             snrm2(ncv, 
+     &                                   workl(invsub+j*ldq),
+     &                                   1))  
+                     call sscal(ncv, one/temp, 
+     &                           workl(invsub+(j-1)*ldq), 1 )
+                     call sscal(ncv, one/temp, 
+     &                           workl(invsub+j*ldq), 1 )
                      iconj = 1
                   else
                      iconj = 0
@@ -811,7 +832,7 @@ c
  40         continue
 c
             call sgemv('T', ncv, nconv, one, workl(invsub),
-     &                ldq, workl(ihbds), 1, zero,  workev, 1)
+     &                 ldq, workl(ihbds), 1, zero,  workev, 1)
 c
             iconj = 0
             do 45 j=1, nconv
@@ -836,10 +857,10 @@ c
             if (msglvl .gt. 2) then
                call scopy(ncv, workl(invsub+ncv-1), ldq,
      &                    workl(ihbds), 1)
-               call svout (logfil, ncv, workl(ihbds), ndigit,
+               call svout(logfil, ncv, workl(ihbds), ndigit,
      &              '_neupd: Last row of the eigenvector matrix for T')
                if (msglvl .gt. 3) then
-                  call smout (logfil, ncv, ncv, workl(invsub), ldq, 
+                  call smout(logfil, ncv, ncv, workl(invsub), ldq, 
      &                 ndigit, '_neupd: The eigenvector matrix for T')
                end if
             end if
@@ -856,8 +877,9 @@ c           | associated with leading portion of T in the first NCONV |
 c           | columns of workl(invsub,ldq).                           |
 c           %---------------------------------------------------------%
 c     
-            call sgeqr2 (ncv, nconv, workl(invsub), ldq, workev, 
-     &                   workev(ncv+1), ierr)
+            call sgeqr2(ncv, nconv , workl(invsub), 
+     &                   ldq, workev, workev(ncv+1),
+     &                   ierr)
 c     
 c           %----------------------------------------------%
 c           | * Postmultiply Z by Q.                       |   
@@ -867,11 +889,15 @@ c           | Ritz vectors associated with the Ritz values |
 c           | in workl(iheigr) and workl(iheigi).          |
 c           %----------------------------------------------%
 c     
-            call sorm2r ('Right', 'Notranspose', n, ncv, nconv,
-     &           workl(invsub), ldq, workev, z, ldz, workd(n+1), ierr)
+            call sorm2r('Right', 'Notranspose', n            ,
+     &                   ncv  , nconv        , workl(invsub),
+     &                   ldq  , workev       , z            ,
+     &                   ldz  , workd(n+1)   , ierr)
 c     
-            call strmm ('Right', 'Upper', 'No transpose', 'Non-unit',
-     &                  n, nconv, one, workl(invsub), ldq, z, ldz)
+            call strmm('Right'   , 'Upper'       , 'No transpose',
+     &                  'Non-unit', n            , nconv         ,
+     &                  one       , workl(invsub), ldq           ,
+     &                  z         , ldz)
 c     
          end if
 c     
@@ -882,11 +908,11 @@ c        | An approximate invariant subspace is not needed.     |
 c        | Place the Ritz values computed SNAUPD into DR and DI |
 c        %------------------------------------------------------%
 c
-         call scopy (nconv, workl(ritzr), 1, dr, 1)
-         call scopy (nconv, workl(ritzi), 1, di, 1)
-         call scopy (nconv, workl(ritzr), 1, workl(iheigr), 1)
-         call scopy (nconv, workl(ritzi), 1, workl(iheigi), 1)
-         call scopy (nconv, workl(bounds), 1, workl(ihbds), 1)
+         call scopy(nconv, workl(ritzr), 1, dr, 1)
+         call scopy(nconv, workl(ritzi), 1, di, 1)
+         call scopy(nconv, workl(ritzr), 1, workl(iheigr), 1)
+         call scopy(nconv, workl(ritzi), 1, workl(iheigi), 1)
+         call scopy(nconv, workl(bounds), 1, workl(ihbds), 1)
       end if
 c 
 c     %------------------------------------------------%
@@ -898,7 +924,7 @@ c
       if (type .eq. 'REGULR') then
 c
          if (rvec) 
-     &      call sscal (ncv, rnorm, workl(ihbds), 1)     
+     &      call sscal(ncv, rnorm, workl(ihbds), 1)     
 c     
       else 
 c     
@@ -911,7 +937,7 @@ c
          if (type .eq. 'SHIFTI') then
 c
             if (rvec) 
-     &         call sscal (ncv, rnorm, workl(ihbds), 1)
+     &         call sscal(ncv, rnorm, workl(ihbds), 1)
 c
             do 50 k=1, ncv
                temp = slapy2( workl(iheigr+k-1), 
@@ -947,37 +973,37 @@ c
             do 80 k=1, ncv
                temp = slapy2( workl(iheigr+k-1), 
      &                        workl(iheigi+k-1) )
-               workl(iheigr+k-1) = workl(iheigr+k-1) / temp / temp 
+               workl(iheigr+k-1) = workl(iheigr+k-1)/temp/temp 
      &                           + sigmar   
-               workl(iheigi+k-1) = -workl(iheigi+k-1) / temp / temp
+               workl(iheigi+k-1) = -workl(iheigi+k-1)/temp/temp
      &                           + sigmai   
  80         continue
 c
-            call scopy (nconv, workl(iheigr), 1, dr, 1)
-            call scopy (nconv, workl(iheigi), 1, di, 1)
+            call scopy(nconv, workl(iheigr), 1, dr, 1)
+            call scopy(nconv, workl(iheigi), 1, di, 1)
 c
          else if (type .eq. 'REALPT' .or. type .eq. 'IMAGPT') then
 c
-            call scopy (nconv, workl(iheigr), 1, dr, 1)
-            call scopy (nconv, workl(iheigi), 1, di, 1)
+            call scopy(nconv, workl(iheigr), 1, dr, 1)
+            call scopy(nconv, workl(iheigi), 1, di, 1)
 c
          end if
 c
       end if
 c
       if (type .eq. 'SHIFTI' .and. msglvl .gt. 1) then
-         call svout (logfil, nconv, dr, ndigit,
+         call svout(logfil, nconv, dr, ndigit,
      &   '_neupd: Untransformed real part of the Ritz valuess.')
          call svout (logfil, nconv, di, ndigit,
      &   '_neupd: Untransformed imag part of the Ritz valuess.')
-         call svout (logfil, nconv, workl(ihbds), ndigit,
+         call svout(logfil, nconv, workl(ihbds), ndigit,
      &   '_neupd: Ritz estimates of untransformed Ritz values.')
       else if (type .eq. 'REGULR' .and. msglvl .gt. 1) then
-         call svout (logfil, nconv, dr, ndigit,
+         call svout(logfil, nconv, dr, ndigit,
      &   '_neupd: Real parts of converged Ritz values.')
          call svout (logfil, nconv, di, ndigit,
      &   '_neupd: Imag parts of converged Ritz values.')
-         call svout (logfil, nconv, workl(ihbds), ndigit,
+         call svout(logfil, nconv, workl(ihbds), ndigit,
      &   '_neupd: Associated Ritz estimates.')
       end if
 c 
@@ -1026,7 +1052,7 @@ c        | Perform a rank one update to Z and    |
 c        | purify all the Ritz vectors together. |
 c        %---------------------------------------%
 c
-         call sger (n, nconv, one, resid, 1, workev, 1, z, ldz)
+         call sger(n, nconv, one, resid, 1, workev, 1, z, ldz)
 c
       end if
 c

@@ -161,7 +161,7 @@ c                occurs.
 c
 c          = -1: N must be positive.
 c          = -2: NEV must be positive.
-c          = -3: NCV-NEV >= 2 and less than or equal to N.
+c          = -3: NCV-NEV >= 1 and less than or equal to N.
 c          = -5: WHICH must be one of 'LM', 'SM', 'LR', 'SR', 'LI', 'SI'
 c          = -6: BMAT must be one of 'I' or 'G'.
 c          = -7: Length of private work WORKL array is not sufficient.
@@ -175,6 +175,11 @@ c          = -12: HOWMNY = 'S' not yet implemented
 c          = -13: HOWMNY must be one of 'A' or 'P' if RVEC = .true.
 c          = -14: ZNAUPD did not find any eigenvalues to sufficient
 c                 accuracy.
+c          = -15: ZNEUPD got a different count of the number of converged
+c                 Ritz values than ZNAUPD got.  This indicates the user
+c                 probably made an error in passing data from ZNAUPD to
+c                 ZNEUPD or that the data was modified before entering
+c                 ZNEUPD
 c
 c\BeginLib
 c
@@ -220,7 +225,8 @@ c  2. Schur vectors are an orthogonal representation for the basis of
 c     Ritz vectors. Thus, their numerical properties are often superior.
 c     If RVEC = .true. then the relationship
 c             A * V(:,1:IPARAM(5)) = V(:,1:IPARAM(5)) * T, and
-c     V(:,1:IPARAM(5))' * V(:,1:IPARAM(5)) = I are approximately satisfied.
+c       transpose( V(:,1:IPARAM(5)) ) * V(:,1:IPARAM(5)) = I
+c     are approximately satisfied.
 c     Here T is the leading submatrix of order IPARAM(5) of the 
 c     upper triangular matrix stored workl(ipntr(12)). 
 c
@@ -234,15 +240,17 @@ c     Rice University
 c     Houston, Texas
 c
 c\SCCS Information: @(#)
-c FILE: neupd.F   SID: 2.4   DATE OF SID: 7/31/96   RELEASE: 2
+c FILE: neupd.F   SID: 2.8   DATE OF SID: 07/21/02   RELEASE: 2
 c
 c\EndLib
 c
 c-----------------------------------------------------------------------
-      subroutine zneupd (rvec, howmny, select, d, z, ldz, sigma, 
-     &                   workev, bmat, n, which, nev, tol, 
-     &                   resid, ncv, v, ldv, iparam, ipntr, workd, 
-     &                   workl, lworkl, rwork, info)
+      subroutine zneupd(rvec , howmny, select, d     ,
+     &                   z    , ldz   , sigma , workev,
+     &                   bmat , n     , which , nev   ,
+     &                   tol  , resid , ncv   , v     ,
+     &                   ldv  , iparam, ipntr , workd ,
+     &                   workl, lworkl, rwork , info  )
 c
 c     %----------------------------------------------------%
 c     | Include files for debugging and timing information |
@@ -272,8 +280,9 @@ c
       Double precision
      &           rwork(ncv)
       Complex*16
-     &           d(nev), resid(n), v(ldv,ncv), z(ldz, nev), 
-     &           workd(3*n), workl(lworkl), workev(2*ncv)
+     &           d(nev)     , resid(n)     , v(ldv,ncv),
+     &           z(ldz, nev), 
+     &           workd(3*n) , workl(lworkl), workev(2*ncv)
 c
 c     %------------%
 c     | Parameters |
@@ -288,21 +297,22 @@ c     | Local Scalars |
 c     %---------------%
 c
       character  type*6
-      integer    bounds, ierr, ih, ihbds, iheig, nconv, 
-     &           invsub, iuptri, iwev, j, 
-     &           ldh, ldq, mode, msglvl, ritz, wr, k,
-     &           irz, ibd, ktrord, outncv, iq
-      Complex*16
+      integer    bounds, ierr  , ih    , ihbds, iheig , nconv ,
+     &           invsub, iuptri, iwev  , j    , ldh   , ldq   ,
+     &           mode  , msglvl, ritz  , wr   , k     , irz   ,
+     &           ibd   , outncv, iq    , np   , numcnv, jj    ,
+     &           ishift, nconv2
+      Complex*16 
      &           rnorm, temp, vl(1)
       Double precision
-     &           thres, conds, sep, rtemp, eps23
+     &           conds, sep, rtemp, eps23
       logical    reord
 c
 c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
-      external   zcopy, zgeru, zgeqr2, zlacpy, zmout,
+      external   zcopy , zgeru, zgeqr2, zlacpy, zmout,
      &           zunm2r, ztrmm, zvout, ivout,
      &           zlahqr
 c  
@@ -402,7 +412,7 @@ c     | workl(ncv*ncv+ncv+1:ncv*ncv+2*ncv) := error bounds     |
 c     %--------------------------------------------------------%
 c
 c     %-----------------------------------------------------------%
-c     | The following is used and set by ZNEUPD.                  |
+c     | The following is used and set by ZNEUPD.                 |
 c     | workl(ncv*ncv+2*ncv+1:ncv*ncv+3*ncv) := The untransformed |
 c     |                                      Ritz values.         |
 c     | workl(ncv*ncv+3*ncv+1:ncv*ncv+4*ncv) := The untransformed |
@@ -453,140 +463,108 @@ c     %------------------------------------%
 c
       rnorm = workl(ih+2)
       workl(ih+2) = zero
-c     
+c
+      if (msglvl .gt. 2) then
+         call zvout(logfil, ncv, workl(irz), ndigit,
+     &   '_neupd: Ritz values passed in from _NAUPD.')
+         call zvout(logfil, ncv, workl(ibd), ndigit,
+     &   '_neupd: Ritz estimates passed in from _NAUPD.')
+      end if
+c
       if (rvec) then
 c
-c        %-------------------------------------------%
-c        | Get converged Ritz value on the boundary. |
-c        | Note: converged Ritz values have been     |
-c        | placed in the first NCONV locations in    |
-c        | workl(ritz).  They have been sorted       |
-c        | (in _naup2) according to the WHICH        |
-c        | selection criterion                       |
-c        %-------------------------------------------%
-c
-         if (which .eq. 'LM' .or. which .eq. 'SM') then
-            thres = dlapy2(dble(workl(ritz)),dimag(workl(ritz)))
-         else if (which .eq. 'LR' .or. which .eq. 'SR') then
-            thres = dble(workl(ritz))
-         else if (which .eq. 'LI' .or. which .eq. 'SI') then
-            thres = dimag(workl(ritz))
-         end if
-         if (msglvl .gt. 2) then
-            call dvout(logfil, 1, thres, ndigit,
-     &           '_neupd: Threshold eigenvalue used for re-ordering')
-         end if
-c
-c        %---------------------------------------------------------%
-c        | Check to see if all converged Ritz values appear at the |
-c        | at the top of the upper triangular matrix computed by   | 
-c        | _neigh in _naup2.  This is done in the following way:   | 
-c        |                                                         |
-c        | 1) For each Ritz value from _neigh, compare it with the |
-c        |    threshold Ritz value computed above to determine     |
-c        |    whether it is a wanted one.                          |
-c        |                                                         | 
-c        | 2) If it is wanted, then check the corresponding Ritz   |
-c        |    estimate to see if it has converged.  If it has, set |
-c        |    correponding entry in the logical array SELECT to    |
-c        |    .TRUE..                                              |
-c        |                                                         |
-c        | If SELECT(j) = .TRUE. and j > NCONV, then there is a    |
-c        | converged Ritz value that does not appear at the top of |
-c        | the upper triangular matrix computed by _neigh in       |
-c        | _naup2.  Reordering is needed.                          |
-c        %---------------------------------------------------------%
-c
          reord = .false.
-         ktrord = 0
-         do 10 j = 0, ncv-1
-            select(j+1) = .false.
-            if (which .eq. 'LM') then
-               if ( dlapy2(dble(workl(irz+j)),
-     &                      dimag(workl(irz+j))) .ge. thres ) then
-                  rtemp = max( eps23, dlapy2(dble(workl(irz+j-1)),
-     &                         dimag(workl(irz+j-1))) )
-                  if ( dlapy2(dble(workl(ibd+j)),
-     &                 dimag(workl(ibd+j))) .le. tol*rtemp )
-     &               select(j+1) = .true.
-               end if 
-            else if (which .eq. 'SM') then
-               if ( dlapy2(dble(workl(irz+j)),
-     &                      dimag(workl(irz+j))) .le. thres )  then
-                  rtemp = max( eps23, dlapy2(dble(workl(irz+j-1)),
-     &                         dimag(workl(irz+j-1))) )
-                  if ( dlapy2(dble(workl(ibd+j)),
-     &                 dimag(workl(ibd+j))) .le. tol*rtemp )
-     &               select(j+1) = .true.
-               end if
-            else if (which .eq. 'LR') then
-               if ( dble(workl(irz+j)) .ge. thres ) then
-                  rtemp = max( eps23, dlapy2(dble(workl(irz+j-1)),
-     &                         dimag(workl(irz+j-1))) )
-                  if ( dlapy2(dble(workl(ibd+j)),
-     &                 dimag(workl(ibd+j))) .le. tol*rtemp )
-     &               select(j+1) = .true.
-               end if
-            else if (which .eq. 'SR') then
-               if ( dble(workl(irz+j)) .le. thres ) then
-                  rtemp = max( eps23, dlapy2(dble(workl(irz+j-1)),
-     &                    dimag(workl(irz+j-1))) )
-                  if ( dlapy2(dble(workl(ibd+j)),
-     &                 dimag(workl(ibd+j))) .le. tol*rtemp )
-     &               select(j+1) = .true.
-               end if
-            else if (which .eq. 'LI') then
-               if ( dimag(workl(irz+j)) .ge. thres ) then
-                  rtemp = max( eps23, dlapy2(dble(workl(irz+j-1)),
-     &                    dimag(workl(irz+j-1))) )
-                  if ( dlapy2(dble(workl(ibd+j)),
-     &                 dimag(workl(ibd+j))) .le. tol*rtemp )
-     &               select(j+1) = .true.
-               end if
-            else if (which .eq. 'SI') then
-               if ( dimag(workl(irz+j)) .le. thres ) then
-                  rtemp = max( eps23, dlapy2(dble(workl(irz+j-1)),
-     &                    dimag(workl(irz+j-1))) )
-                  if ( dlapy2(dble(workl(ibd+j)),
-     &                 dimag(workl(ibd+j))) .le. tol*rtemp )
-     &               select(j+1) = .true.
-               end if
-            end if
-            if (j+1 .gt. nconv ) reord = ( select(j+1) .or. reord )
-            if (select(j+1)) ktrord = ktrord + 1
- 10      continue
+c
+c        %---------------------------------------------------%
+c        | Use the temporary bounds array to store indices   |
+c        | These will be used to mark the select array later |
+c        %---------------------------------------------------%
+c
+         do 10 j = 1,ncv
+            workl(bounds+j-1) = j
+            select(j) = .false.
+   10    continue
+c
+c        %-------------------------------------%
+c        | Select the wanted Ritz values.      |
+c        | Sort the Ritz values so that the    |
+c        | wanted ones appear at the tailing   |
+c        | NEV positions of workl(irr) and     |
+c        | workl(iri).  Move the corresponding |
+c        | error estimates in workl(ibd)       |
+c        | accordingly.                        |
+c        %-------------------------------------%
+c
+         np     = ncv - nev
+         ishift = 0
+         call zngets(ishift, which     , nev          ,
+     &                np    , workl(irz), workl(bounds))
 c
          if (msglvl .gt. 2) then
-             call ivout(logfil, 1, ktrord, ndigit,
+            call zvout (logfil, ncv, workl(irz), ndigit,
+     &      '_neupd: Ritz values after calling _NGETS.')
+            call zvout (logfil, ncv, workl(bounds), ndigit,
+     &      '_neupd: Ritz value indices after calling _NGETS.')
+         end if
+c
+c        %-----------------------------------------------------%
+c        | Record indices of the converged wanted Ritz values  |
+c        | Mark the select array for possible reordering       |
+c        %-----------------------------------------------------%
+c
+         numcnv = 0
+         do 11 j = 1,ncv
+            rtemp = max(eps23,
+     &                 dlapy2 ( dble(workl(irz+ncv-j)),
+     &                          dimag(workl(irz+ncv-j)) ))
+            jj = workl(bounds + ncv - j)
+            if (numcnv .lt. nconv .and.
+     &          dlapy2( dble(workl(ibd+jj-1)),
+     &          dimag(workl(ibd+jj-1)) )
+     &          .le. tol*rtemp) then
+               select(jj) = .true.
+               numcnv = numcnv + 1
+               if (jj .gt. nconv) reord = .true.
+            endif
+   11    continue
+c
+c        %-----------------------------------------------------------%
+c        | Check the count (numcnv) of converged Ritz values with    |
+c        | the number (nconv) reported by dnaupd.  If these two      |
+c        | are different then there has probably been an error       |
+c        | caused by incorrect passing of the dnaupd data.           |
+c        %-----------------------------------------------------------%
+c
+         if (msglvl .gt. 2) then
+             call ivout(logfil, 1, numcnv, ndigit,
      &            '_neupd: Number of specified eigenvalues')
              call ivout(logfil, 1, nconv, ndigit,
      &            '_neupd: Number of "converged" eigenvalues')
-         end if 
+         end if
 c
-c        if (ktrord .gt. nconv) then
-c
-c           %-----------------------------------%
-c           | More than NCONV Ritz values have  |
-c           | "converged", and they all satisfy |
-c           | the WHICH selection criterion.    |
-c           %-----------------------------------%
-c
-c           iparam(6) = ktrord
-c
-c        end if
+         if (numcnv .ne. nconv) then
+            info = -15
+            go to 9000
+         end if
 c
 c        %-------------------------------------------------------%
-c        | Call LAPACK routine zlahqr to compute the Schur form  |
-c        | of the upper Hessenberg matrix returned by ZNAUPD.    |
+c        | Call LAPACK routine zlahqr to compute the Schur form |
+c        | of the upper Hessenberg matrix returned by ZNAUPD.   |
 c        | Make a copy of the upper Hessenberg matrix.           |
 c        | Initialize the Schur vector matrix Q to the identity. |
 c        %-------------------------------------------------------%
 c
-         call zcopy (ldh*ncv, workl(ih), 1, workl(iuptri), 1)
-         call zlaset ('All', ncv, ncv, zero, one, workl(invsub), ldq)
-         call zlahqr (.true., .true., ncv, 1, ncv, workl(iuptri),
-     &        ldh, workl(iheig), 1, ncv, workl(invsub), ldq, ierr)
-         call zcopy (ncv, workl(invsub+ncv-1), ldq, workl(ihbds), 1)
+         call zcopy(ldh*ncv, workl(ih), 1, workl(iuptri), 1)
+         call zlaset('All', ncv, ncv          , 
+     &                zero , one, workl(invsub),
+     &                ldq)
+         call zlahqr(.true., .true.       , ncv          , 
+     &                1     , ncv          , workl(iuptri),
+     &                ldh   , workl(iheig) , 1            ,
+     &                ncv   , workl(invsub), ldq          ,
+     &                ierr)
+         call zcopy(ncv         , workl(invsub+ncv-1), ldq,
+     &               workl(ihbds), 1)
 c
          if (ierr .ne. 0) then
             info = -8
@@ -599,7 +577,8 @@ c
             call zvout (logfil, ncv, workl(ihbds), ndigit,
      &           '_neupd: Last row of the Schur vector matrix')
             if (msglvl .gt. 3) then
-               call zmout (logfil, ncv, ncv, workl(iuptri), ldh, ndigit,
+               call zmout (logfil       , ncv, ncv   , 
+     &                     workl(iuptri), ldh, ndigit,
      &              '_neupd: The upper triangular matrix ')
             end if
          end if
@@ -610,10 +589,16 @@ c           %-----------------------------------------------%
 c           | Reorder the computed upper triangular matrix. |
 c           %-----------------------------------------------%
 c
-            call ztrsen ('None', 'V', select, ncv, workl(iuptri), ldh,
-     &           workl(invsub), ldq, workl(iheig), nconv, conds, sep, 
-     &           workev, ncv, ierr)
+            call ztrsen('None'       , 'V'          , select      ,
+     &                   ncv          , workl(iuptri), ldh         ,
+     &                   workl(invsub), ldq          , workl(iheig),
+     &                   nconv2        , conds        , sep         , 
+     &                   workev       , ncv          , ierr)
 c
+            if (nconv2 .lt. nconv) then
+               nconv = nconv2
+            end if
+
             if (ierr .eq. 1) then
                info = 1
                go to 9000
@@ -623,8 +608,8 @@ c
                 call zvout (logfil, ncv, workl(iheig), ndigit,
      &           '_neupd: Eigenvalues of H--reordered')
                 if (msglvl .gt. 3) then
-                   call zmout (logfil, ncv, ncv, workl(iuptri), ldq,
-     &                  ndigit,
+                   call zmout(logfil       , ncv, ncv   ,
+     &                         workl(iuptri), ldq, ndigit,
      &              '_neupd: Triangular matrix after re-ordering')
                 end if
             end if
@@ -638,7 +623,8 @@ c        | to compute the Ritz estimates of converged  |
 c        | Ritz values.                                |
 c        %---------------------------------------------%
 c
-         call zcopy (ncv, workl(invsub+ncv-1), ldq, workl(ihbds), 1)
+         call zcopy(ncv         , workl(invsub+ncv-1), ldq,
+     &               workl(ihbds), 1)
 c 
 c        %--------------------------------------------%
 c        | Place the computed eigenvalues of H into D |
@@ -646,7 +632,7 @@ c        | if a spectral transformation was not used. |
 c        %--------------------------------------------%
 c
          if (type .eq. 'REGULR') then
-            call zcopy (nconv, workl(iheig), 1, d, 1)
+            call zcopy(nconv, workl(iheig), 1, d, 1)
          end if
 c
 c        %----------------------------------------------------------%
@@ -655,8 +641,9 @@ c        | the wanted invariant subspace located in the first NCONV |
 c        | columns of workl(invsub,ldq).                            |
 c        %----------------------------------------------------------%
 c
-         call zgeqr2 (ncv, nconv, workl(invsub), ldq, workev,
-     &                workev(ncv+1), ierr)
+         call zgeqr2(ncv , nconv , workl(invsub),
+     &                ldq , workev, workev(ncv+1),
+     &                ierr)
 c
 c        %--------------------------------------------------------%
 c        | * Postmultiply V by Q using zunm2r.                    |
@@ -670,10 +657,11 @@ c        | associated with the upper triangular matrix of order   |
 c        | NCONV in workl(iuptri).                                |
 c        %--------------------------------------------------------%
 c
-         call zunm2r ('Right', 'Notranspose', n, ncv, nconv, 
-     &        workl(invsub), ldq, workev, v, ldv, workd(n+1), 
-     &        ierr)
-         call zlacpy ('All', n, nconv, v, ldv, z, ldz)
+         call zunm2r('Right', 'Notranspose', n            ,
+     &                ncv    , nconv        , workl(invsub),
+     &                ldq    , workev       , v            ,
+     &                ldv    , workd(n+1)   , ierr)
+         call zlacpy('All', n, nconv, v, ldv, z, ldz)
 c
          do 20 j=1, nconv
 c
@@ -688,8 +676,8 @@ c           %---------------------------------------------------%
 c
             if ( dble( workl(invsub+(j-1)*ldq+j-1) ) .lt. 
      &                  dble(zero) ) then
-               call zscal (nconv, -one, workl(iuptri+j-1), ldq)
-               call zscal (nconv, -one, workl(iuptri+(j-1)*ldq), 1)
+               call zscal(nconv, -one, workl(iuptri+j-1), ldq)
+               call zscal(nconv, -one, workl(iuptri+(j-1)*ldq), 1)
             end if
 c
  20      continue
@@ -709,9 +697,11 @@ c
                end if
  30         continue
 c
-            call ztrevc ('Right', 'Select', select, ncv, workl(iuptri),
-     &           ldq, vl, 1, workl(invsub), ldq, ncv, outncv, workev,
-     &           rwork, ierr)
+            call ztrevc('Right', 'Select'     , select       ,
+     &                   ncv    , workl(iuptri), ldq          ,
+     &                   vl     , 1            , workl(invsub),
+     &                   ldq    , ncv          , outncv       ,
+     &                   workev , rwork        , ierr)
 c
             if (ierr .ne. 0) then
                 info = -9
@@ -749,10 +739,11 @@ c
                call zcopy(nconv, workl(invsub+ncv-1), ldq,
      &                    workl(ihbds), 1)
                call zvout (logfil, nconv, workl(ihbds), ndigit,
-     &              '_neupd: Last row of the eigenvector matrix for T')
+     &            '_neupd: Last row of the eigenvector matrix for T')
                if (msglvl .gt. 3) then
-                  call zmout (logfil, ncv, ncv, workl(invsub), ldq,
-     &                 ndigit, '_neupd: The eigenvector matrix for T')
+                  call zmout(logfil       , ncv, ncv   ,
+     &                        workl(invsub), ldq, ndigit,
+     &               '_neupd: The eigenvector matrix for T')
                end if
             end if
 c
@@ -767,9 +758,10 @@ c           | The eigenvector matrix Q of T is triangular. |
 c           | Form Z*Q.                                    |
 c           %----------------------------------------------%
 c
-            call ztrmm ('Right', 'Upper', 'No transpose', 'Non-unit',
-     &                  n, nconv, one, workl(invsub), ldq, z, ldz)
-c
+            call ztrmm('Right'   , 'Upper'      , 'No transpose',
+     &                  'Non-unit', n            , nconv         ,
+     &                  one       , workl(invsub), ldq           ,
+     &                  z         , ldz)
          end if 
 c
       else
@@ -779,9 +771,9 @@ c        | An approximate invariant subspace is not needed. |
 c        | Place the Ritz values computed ZNAUPD into D.    |
 c        %--------------------------------------------------%
 c
-         call zcopy (nconv, workl(ritz), 1, d, 1)
-         call zcopy (nconv, workl(ritz), 1, workl(iheig), 1)
-         call zcopy (nconv, workl(bounds), 1, workl(ihbds), 1)
+         call zcopy(nconv, workl(ritz), 1, d, 1)
+         call zcopy(nconv, workl(ritz), 1, workl(iheig), 1)
+         call zcopy(nconv, workl(bounds), 1, workl(ihbds), 1)
 c
       end if
 c
@@ -878,7 +870,7 @@ c
       return
 c     
 c     %---------------%
-c     | End of zneupd |
+c     | End of zneupd|
 c     %---------------%
 c
       end

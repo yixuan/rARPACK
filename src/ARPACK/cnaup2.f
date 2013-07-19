@@ -37,7 +37,7 @@ c  IUPD    Integer.  (INPUT)
 c          IUPD .EQ. 0: use explicit restart instead implicit update.
 c          IUPD .NE. 0: use implicit update.
 c
-c  V       Complex N by (NEV+NP) array.  (INPUT/OUTPUT)
+c  V       Complex  N by (NEV+NP) array.  (INPUT/OUTPUT)
 c          The Arnoldi basis vectors are returned in the first NEV 
 c          columns of V.
 c
@@ -45,21 +45,21 @@ c  LDV     Integer.  (INPUT)
 c          Leading dimension of V exactly as declared in the calling 
 c          program.
 c
-c  H       Complex (NEV+NP) by (NEV+NP) array.  (OUTPUT)
+c  H       Complex  (NEV+NP) by (NEV+NP) array.  (OUTPUT)
 c          H is used to store the generated upper Hessenberg matrix
 c
 c  LDH     Integer.  (INPUT)
 c          Leading dimension of H exactly as declared in the calling 
 c          program.
 c
-c  RITZ    Complex array of length NEV+NP.  (OUTPUT)
+c  RITZ    Complex  array of length NEV+NP.  (OUTPUT)
 c          RITZ(1:NEV)  contains the computed Ritz values of OP.
 c
-c  BOUNDS  Complex array of length NEV+NP.  (OUTPUT)
+c  BOUNDS  Complex  array of length NEV+NP.  (OUTPUT)
 c          BOUNDS(1:NEV) contain the error bounds corresponding to 
 c          the computed Ritz values.
 c          
-c  Q       Complex (NEV+NP) by (NEV+NP) array.  (WORKSPACE)
+c  Q       Complex  (NEV+NP) by (NEV+NP) array.  (WORKSPACE)
 c          Private (replicated) work array used to accumulate the
 c          rotation in the shift application step.
 c
@@ -67,7 +67,7 @@ c  LDQ     Integer.  (INPUT)
 c          Leading dimension of Q exactly as declared in the calling
 c          program.
 c
-c  WORKL   Complex work array of length at least 
+c  WORKL   Complex  work array of length at least 
 c          (NEV+NP)**2 + 3*(NEV+NP).  (WORKSPACE)
 c          Private (replicated) array on each PE or array allocated on
 c          the front end.  It is used in shifts calculation, shifts
@@ -84,13 +84,13 @@ c          IPNTR(3): pointer to the vector B * X when used in the
 c                    shift-and-invert mode.  X is the current operand.
 c          -------------------------------------------------------------
 c          
-c  WORKD   Complex work array of length 3*N.  (WORKSPACE)
+c  WORKD   Complex  work array of length 3*N.  (WORKSPACE)
 c          Distributed array to be used in the basic Arnoldi iteration
 c          for reverse communication.  The user should not use WORKD
 c          as temporary workspace during the iteration !!!!!!!!!!
 c          See Data Distribution Note in CNAUPD.
 c
-c  RWORK   Real   work array of length  NEV+NP ( WORKSPACE)
+c  RWORK   Real    work array of length  NEV+NP ( WORKSPACE)
 c          Private (replicated) array on each PE or array allocated on
 c          the front end.
 c
@@ -117,7 +117,7 @@ c
 c\BeginLib
 c
 c\Local variables:
-c     xxxxxx  Complex
+c     xxxxxx  Complex 
 c
 c\References:
 c  1. D.C. Sorensen, "Implicit Application of Polynomial Filters in
@@ -135,7 +135,7 @@ c     cneigh  ARPACK compute Ritz values and error bounds routine.
 c     cngets  ARPACK reorder Ritz values and error bounds routine.
 c     csortc  ARPACK sorting routine.
 c     ivout   ARPACK utility routine that prints integers.
-c     second  ARPACK utility routine for timing.
+c     arscnd  ARPACK utility routine for timing.
 c     cmout   ARPACK utility routine that prints matrices
 c     cvout   ARPACK utility routine that prints vectors.
 c     svout   ARPACK utility routine that prints vectors.
@@ -156,7 +156,7 @@ c     Rice University
 c     Houston, Texas 
 c 
 c\SCCS Information: @(#)
-c FILE: naup2.F   SID: 2.5   DATE OF SID: 8/16/96   RELEASE: 2
+c FILE: naup2.F   SID: 2.6   DATE OF SID: 06/01/00   RELEASE: 2
 c
 c\Remarks
 c     1. None
@@ -184,7 +184,7 @@ c
       character  bmat*1, which*2
       integer    ido, info, ishift, iupd, mode, ldh, ldq, ldv, mxiter,
      &           n, nev, np
-      Real  
+      Real   
      &           tol
 c
 c     %-----------------%
@@ -192,40 +192,41 @@ c     | Array Arguments |
 c     %-----------------%
 c
       integer    ipntr(13)
-      Complex
+      Complex 
      &           bounds(nev+np), h(ldh,nev+np), q(ldq,nev+np), 
      &           resid(n), ritz(nev+np),  v(ldv,nev+np), 
      &           workd(3*n), workl( (nev+np)*(nev+np+3) )
-       Real  
+       Real   
      &           rwork(nev+np)
 c
 c     %------------%
 c     | Parameters |
 c     %------------%
 c
-      Complex
+      Complex 
      &           one, zero
-      Real
+      Real 
      &           rzero
-      parameter (one = (1.0E+0, 0.0E+0), zero = (0.0E+0, 0.0E+0),
-     &           rzero = 0.0E+0)
+      parameter (one = (1.0E+0, 0.0E+0) , zero = (0.0E+0, 0.0E+0) ,
+     &           rzero = 0.0E+0 )
 c
 c     %---------------%
 c     | Local Scalars |
 c     %---------------%
 c
-      logical    cnorm, getv0, initv, update, ushift
-      integer    ierr, iter, i, j, kplusp, msglvl, nconv, nevbef, nev0, 
-     &           np0, nptemp
-      Complex
+      logical    cnorm , getv0, initv , update, ushift
+      integer    ierr  , iter , kplusp, msglvl, nconv, 
+     &           nevbef, nev0 , np0   , nptemp, i    ,
+     &           j    
+      Complex 
      &           cmpnorm
-      Real
-     &           rtemp, eps23, rnorm
+      Real 
+     &           rnorm , eps23, rtemp
       character  wprime*2
 c
-      save       cnorm, getv0, initv, update, ushift, 
-     &           iter, kplusp, msglvl, nconv, nev0, np0, 
-     &           eps23
+      save       cnorm,  getv0, initv , update, ushift, 
+     &           rnorm,  iter , kplusp, msglvl, nconv ,
+     &           nevbef, nev0 , np0   , eps23
 c
 c
 c     %-----------------------%
@@ -239,15 +240,15 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   ccopy, cgetv0, cnaitr, cneigh, cngets, cnapps,
-     &           csortc, cswap, cmout, cvout, ivout, second
+     &           csortc, cswap, cmout, cvout, ivout, arscnd
 c
 c     %--------------------%
 c     | External functions |
 c     %--------------------%
 c
-      Complex
+      Complex 
      &           cdotc
-      Real  
+      Real   
      &           scnrm2, slamch, slapy2
       external   cdotc, scnrm2, slamch, slapy2
 c
@@ -255,7 +256,7 @@ c     %---------------------%
 c     | Intrinsic Functions |
 c     %---------------------%
 c
-      intrinsic  aimag, real, min, max
+      intrinsic  aimag, real , min, max
 c
 c     %-----------------------%
 c     | Executable Statements |
@@ -263,7 +264,7 @@ c     %-----------------------%
 c
       if (ido .eq. 0) then
 c 
-         call second (t0)
+         call arscnd (t0)
 c 
          msglvl = mcaup2
 c 
@@ -288,7 +289,7 @@ c        | Get machine dependent constant. |
 c        %---------------------------------%
 c
          eps23 = slamch('Epsilon-Machine')
-         eps23 = eps23**(2.0E+0 / 3.0E+0)
+         eps23 = eps23**(2.0E+0  / 3.0E+0 )
 c
 c        %---------------------------------------%
 c        | Set flags for computing the first NEV |
@@ -415,8 +416,8 @@ c
    20    continue
          update = .true.
 c
-         call cnaitr (ido, bmat, n, nev, np, mode, resid, rnorm, v, ldv,
-     &                h, ldh, ipntr, workd, info)
+         call cnaitr(ido, bmat, n, nev, np,    mode,  resid, rnorm,
+     &               v  , ldv , h, ldh, ipntr, workd, info)
 c
          if (ido .ne. 99) go to 9000
 c
@@ -487,9 +488,9 @@ c
          nconv  = 0
 c
          do 25 i = 1, nev
-            rtemp = max( eps23, slapy2( real(ritz(np+i)),
+            rtemp = max( eps23, slapy2( real (ritz(np+i)),
      &                                  aimag(ritz(np+i)) ) ) 
-            if ( slapy2(real(bounds(np+i)),aimag(bounds(np+i))) 
+            if ( slapy2(real (bounds(np+i)),aimag(bounds(np+i))) 
      &                 .le. tol*rtemp ) then
                nconv = nconv + 1
             end if
@@ -573,7 +574,7 @@ c           | by 1 / max(eps23, magnitude of the Ritz value).  |
 c           %--------------------------------------------------%
 c
             do 35 j = 1, nev0 
-                rtemp = max( eps23, slapy2( real(ritz(j)),
+                rtemp = max( eps23, slapy2( real (ritz(j)),
      &                                       aimag(ritz(j)) ) )
                 bounds(j) = bounds(j)/rtemp
  35         continue
@@ -594,7 +595,7 @@ c           | value.                                       |
 c           %----------------------------------------------%
 c
             do 40 j = 1, nev0
-                rtemp = max( eps23, slapy2( real(ritz(j)),
+                rtemp = max( eps23, slapy2( real (ritz(j)),
      &                                       aimag(ritz(j)) ) )
                 bounds(j) = bounds(j)*rtemp
  40         continue
@@ -723,7 +724,7 @@ c        | the first step of the next call to cnaitr.  |
 c        %---------------------------------------------%
 c
          cnorm = .true.
-         call second (t2)
+         call arscnd (t2)
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call ccopy (n, resid, 1, workd(n+1), 1)
@@ -748,13 +749,13 @@ c        | WORKD(1:N) := B*RESID            |
 c        %----------------------------------%
 c
          if (bmat .eq. 'G') then
-            call second (t3)
+            call arscnd (t3)
             tmvbx = tmvbx + (t3 - t2)
          end if
 c 
          if (bmat .eq. 'G') then         
             cmpnorm = cdotc (n, resid, 1, workd, 1)
-            rnorm = sqrt(slapy2(real(cmpnorm),aimag(cmpnorm)))
+            rnorm = sqrt(slapy2(real (cmpnorm),aimag(cmpnorm)))
          else if (bmat .eq. 'I') then
             rnorm = scnrm2(n, resid, 1)
          end if
@@ -787,7 +788,7 @@ c     %------------%
 c     | Error Exit |
 c     %------------%
 c
-      call second (t1)
+      call arscnd (t1)
       tcaup2 = t1 - t0
 c     
  9000 continue

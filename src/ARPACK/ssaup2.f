@@ -148,7 +148,7 @@ c     sseigt  ARPACK compute Ritz values and error bounds routine.
 c     ssgets  ARPACK reorder Ritz values and error bounds routine.
 c     ssortr  ARPACK sorting routine.
 c     ivout   ARPACK utility routine that prints integers.
-c     second  ARPACK utility routine for timing.
+c     arscnd  ARPACK utility routine for timing.
 c     svout   ARPACK utility routine that prints vectors.
 c     slamch  LAPACK routine that determines machine constants.
 c     scopy   Level 1 BLAS that copies one vector to another.
@@ -170,7 +170,7 @@ c     12/15/93: Version ' 2.4'
 c     xx/xx/95: Version ' 2.4'.  (R.B. Lehoucq)
 c
 c\SCCS Information: @(#) 
-c FILE: saup2.F   SID: 2.6   DATE OF SID: 8/16/96   RELEASE: 2
+c FILE: saup2.F   SID: 2.7   DATE OF SID: 5/19/98   RELEASE: 2
 c
 c\EndLib
 c
@@ -235,7 +235,7 @@ c     | External Subroutines |
 c     %----------------------%
 c
       external   scopy, sgetv0, ssaitr, sscal, ssconv, sseigt, ssgets, 
-     &           ssapps, ssortr, svout, ivout, second, sswap
+     &           ssapps, ssortr, svout, ivout, arscnd, sswap
 c
 c     %--------------------%
 c     | External Functions |
@@ -262,7 +262,7 @@ c        | Initialize timing statistics  |
 c        | & message level for debugging |
 c        %-------------------------------%
 c
-         call second (t0)
+         call arscnd (t0)
          msglvl = msaup2
 c
 c        %---------------------------------%
@@ -546,13 +546,13 @@ c              %-----------------------------------------------------%
 c
                wprime = 'SA'
                call ssortr (wprime, .true., kplusp, ritz, bounds)
-               nevd2 = nev / 2
-               nevm2 = nev - nevd2 
+               nevd2 = nev0 / 2
+               nevm2 = nev0 - nevd2 
                if ( nev .gt. 1 ) then
                   call sswap ( min(nevd2,np), ritz(nevm2+1), 1,
      &                 ritz( max(kplusp-nevd2+1,kplusp-np+1) ), 1)
                   call sswap ( min(nevd2,np), bounds(nevm2+1), 1,
-     &                 bounds( max(kplusp-nevd2+1,kplusp-np)+1 ), 1)
+     &                 bounds( max(kplusp-nevd2+1,kplusp-np+1)), 1)
                end if
 c
             else
@@ -770,7 +770,7 @@ c        | the first step of the next call to ssaitr.  |
 c        %---------------------------------------------%
 c
          cnorm = .true.
-         call second (t2)
+         call arscnd (t2)
          if (bmat .eq. 'G') then
             nbx = nbx + 1
             call scopy (n, resid, 1, workd(n+1), 1)
@@ -795,7 +795,7 @@ c        | WORKD(1:N) := B*RESID            |
 c        %----------------------------------%
 c
          if (bmat .eq. 'G') then
-            call second (t3)
+            call arscnd (t3)
             tmvbx = tmvbx + (t3 - t2)
          end if
 c 
@@ -837,7 +837,7 @@ c     %------------%
 c     | Error exit |
 c     %------------%
 c
-      call second (t1)
+      call arscnd (t1)
       tsaup2 = t1 - t0
 c 
  9000 continue

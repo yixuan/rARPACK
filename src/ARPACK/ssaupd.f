@@ -12,14 +12,14 @@ c  few eigenpairs of a linear operator OP that is real and symmetric
 c  with respect to a real positive semi-definite symmetric matrix B, 
 c  i.e.
 c                   
-c       B*OP = (OP')*B.  
+c       B*OP = (OP`)*B.  
 c
 c  Another way to express this condition is 
 c
-c       < x,OPy > = < OPx,y >  where < z,w > = z'Bw  .
+c       < x,OPy > = < OPx,y >  where < z,w > = z`Bw  .
 c  
 c  In the standard eigenproblem B is the identity matrix.  
-c  ( A' denotes transpose of A)
+c  ( A` denotes transpose of A)
 c
 c  The computed approximate eigenvalues are called Ritz values and
 c  the corresponding approximate eigenvectors are called Ritz vectors.
@@ -120,14 +120,14 @@ c
 c  NEV     Integer.  (INPUT)
 c          Number of eigenvalues of OP to be computed. 0 < NEV < N.
 c
-c  TOL     Real scalar.  (INPUT)
+c  TOL     Real  scalar.  (INPUT)
 c          Stopping criterion: the relative accuracy of the Ritz value 
 c          is considered acceptable if BOUNDS(I) .LE. TOL*ABS(RITZ(I)).
 c          If TOL .LE. 0. is passed a default is set:
 c          DEFAULT = SLAMCH('EPS')  (machine precision as computed
 c                    by the LAPACK auxiliary subroutine SLAMCH).
 c
-c  RESID   Real array of length N.  (INPUT/OUTPUT)
+c  RESID   Real  array of length N.  (INPUT/OUTPUT)
 c          On INPUT: 
 c          If INFO .EQ. 0, a random initial residual vector is used.
 c          If INFO .NE. 0, RESID contains the initial residual vector,
@@ -144,7 +144,7 @@ c          NCV-NEV Lanczos vectors at each subsequent update iteration.
 c          Most of the cost in generating each Lanczos vector is in the 
 c          matrix-vector product OP*x. (See remark 4 below).
 c
-c  V       Real N by NCV array.  (OUTPUT)
+c  V       Real  N by NCV array.  (OUTPUT)
 c          The NCV columns of V contain the Lanczos basis vectors.
 c
 c  LDV     Integer.  (INPUT)
@@ -225,7 +225,7 @@ c                     of the tridiagonal matrix T. Only referenced by
 c                     sseupd if RVEC = .TRUE. See Remarks.
 c          -------------------------------------------------------------
 c          
-c  WORKD   Real work array of length 3*N.  (REVERSE COMMUNICATION)
+c  WORKD   Real  work array of length 3*N.  (REVERSE COMMUNICATION)
 c          Distributed array to be used in the basic Arnoldi iteration
 c          for reverse communication.  The user should not use WORKD 
 c          as temporary workspace during the iteration. Upon termination
@@ -233,7 +233,7 @@ c          WORKD(1:N) contains B*RESID(1:N). If the Ritz vectors are desired
 c          subroutine sseupd uses this output.
 c          See Data Distribution Note below.  
 c
-c  WORKL   Real work array of length LWORKL.  (OUTPUT/WORKSPACE)
+c  WORKL   Real  work array of length LWORKL.  (OUTPUT/WORKSPACE)
 c          Private (replicated) array on each PE or array allocated on
 c          the front end.  See Data Distribution Note below.
 c
@@ -288,13 +288,13 @@ c  2. If the Ritz vectors corresponding to the converged Ritz values
 c     are needed, the user must call sseupd immediately following completion
 c     of ssaupd. This is new starting with version 2.1 of ARPACK.
 c
-c  3. If M can be factored into a Cholesky factorization M = LL'
+c  3. If M can be factored into a Cholesky factorization M = LL`
 c     then Mode = 2 should not be selected.  Instead one should use
-c     Mode = 1 with  OP = inv(L)*A*inv(L').  Appropriate triangular 
-c     linear systems should be solved with L and L' rather
+c     Mode = 1 with  OP = inv(L)*A*inv(L`).  Appropriate triangular 
+c     linear systems should be solved with L and L` rather
 c     than computing inverses.  After convergence, an approximate
 c     eigenvector z of the original problem is recovered by solving
-c     L'z = x  where x is a Ritz vector of OP.
+c     L`z = x  where x is a Ritz vector of OP.
 c
 c  4. At present there is no a-priori analysis to guide the selection
 c     of NCV relative to NEV.  The only formal requrement is that NCV > NEV.
@@ -380,7 +380,7 @@ c             Arnoldi Iteration.
 c     sstats  ARPACK routine that initialize timing and other statistics
 c             variables.
 c     ivout   ARPACK utility routine that prints integers.
-c     second  ARPACK utility routine for timing.
+c     arscnd  ARPACK utility routine for timing.
 c     svout   ARPACK utility routine that prints vectors.
 c     slamch  LAPACK routine that determines machine constants.
 c
@@ -393,10 +393,10 @@ c     Rice University
 c     Houston, Texas            
 c 
 c\Revision history:
-c     12/15/93: Version ' 2.4'
+c     12/15/93: Version ' 2.4' 
 c
 c\SCCS Information: @(#) 
-c FILE: saupd.F   SID: 2.7   DATE OF SID: 8/27/96   RELEASE: 2 
+c FILE: saupd.F   SID: 2.8   DATE OF SID: 04/10/01   RELEASE: 2 
 c
 c\Remarks
 c     1. None
@@ -422,7 +422,7 @@ c     %------------------%
 c
       character  bmat*1, which*2
       integer    ido, info, ldv, lworkl, n, ncv, nev
-      Real
+      Real 
      &           tol
 c
 c     %-----------------%
@@ -430,16 +430,16 @@ c     | Array Arguments |
 c     %-----------------%
 c
       integer    iparam(11), ipntr(11)
-      Real
+      Real 
      &           resid(n), v(ldv,ncv), workd(3*n), workl(lworkl)
 c
 c     %------------%
 c     | Parameters |
 c     %------------%
 c
-      Real
+      Real 
      &           one, zero
-      parameter (one = 1.0E+0, zero = 0.0E+0)
+      parameter (one = 1.0E+0 , zero = 0.0E+0 )
 c
 c     %---------------%
 c     | Local Scalars |
@@ -456,13 +456,13 @@ c     %----------------------%
 c     | External Subroutines |
 c     %----------------------%
 c
-      external   ssaup2,  svout, ivout, second, sstats
+      external   ssaup2,  svout, ivout, arscnd, sstats
 c
 c     %--------------------%
 c     | External Functions |
 c     %--------------------%
 c
-      Real
+      Real 
      &           slamch
       external   slamch
 c
@@ -478,13 +478,14 @@ c        | & message level for debugging |
 c        %-------------------------------%
 c
          call sstats
-         call second (t0)
+         call arscnd (t0)
          msglvl = msaupd
 c
          ierr   = 0
          ishift = iparam(1)
          mxiter = iparam(3)
-         nb     = iparam(4)
+c         nb     = iparam(4)
+         nb     = 1
 c
 c        %--------------------------------------------%
 c        | Revision 2 performs only implicit restart. |
@@ -637,7 +638,7 @@ c
      &               '_saupd: corresponding error bounds')
       end if 
 c
-      call second (t1)
+      call arscnd (t1)
       tsaupd = t1 - t0
 c 
       if (msglvl .gt. 0) then
@@ -653,8 +654,8 @@ c
  1000    format (//,
      &      5x, '==========================================',/
      &      5x, '= Symmetric implicit Arnoldi update code =',/
-     &      5x, '= Version Number:', ' 2.4', 19x, ' =',/
-     &      5x, '= Version Date:  ', ' 07/31/96', 14x, ' =',/
+     &      5x, '= Version Number:', ' 2.4' , 19x, ' =',/
+     &      5x, '= Version Date:  ', ' 07/31/96' , 14x, ' =',/
      &      5x, '==========================================',/
      &      5x, '= Summary of timing statistics           =',/
      &      5x, '==========================================',//)

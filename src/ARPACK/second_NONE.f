@@ -1,4 +1,4 @@
-      SUBROUTINE SECOND( T )
+      SUBROUTINE ARSCND( T )
 *
       REAL       T
 *
@@ -10,7 +10,7 @@
 *  Purpose
 *  =======
 *
-*  SECOND returns the user time for a process in seconds.
+*  SECOND returns the user time for a process in arscnds.
 *  This version gets the time from the system function ETIME.
 *
 *     .. Local Scalars ..
@@ -19,14 +19,18 @@
 *     .. Local Arrays ..
       REAL               TARRAY( 2 )
 *     ..
+*     .. External Functions ..
+      REAL               ETIME
+      EXTERNAL           ETIME
 *     ..
 *     .. Executable Statements ..
 *
 
-      call ETIME( TARRAY, T )
-
+c      T1 = ETIME( TARRAY )
+c      T  = TARRAY( 1 )
+      T = 0
       RETURN
 *
-*     End of SECOND
+*     End of ARSCND
 *
       END
