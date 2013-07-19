@@ -1,3 +1,7 @@
+/*
+  C++ wrappers for ARPACK FORTRAN routines 
+*/
+
 #ifndef ARPACK_CPP_H
 #define ARPACK_CPP_H
 
