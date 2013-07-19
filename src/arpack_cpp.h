@@ -85,7 +85,7 @@ inline void saupp(ARint& ido, char bmat, ARint n, char* which, ARint nev,
                   double workl[], ARint lworkl, ARint& info)
 {
     F77NAME(dsaupd)(&ido, &bmat, &n, which, &nev, &tol, resid, &ncv,
-                  &V[1], &ldv, &iparam[1], &ipntr[1], &workd[1], &workl[1],
+                  V, &ldv, iparam, ipntr, workd, workl,
                   &lworkl, &info);
 
 }
@@ -95,7 +95,7 @@ inline void saupp(ARint& ido, char bmat, ARint n, char* which, ARint nev,
                   float workl[], ARint lworkl, ARint& info)
 {
     F77NAME(ssaupd)(&ido, &bmat, &n, which, &nev, &tol, resid, &ncv,
-                  &V[1], &ldv, &iparam[1], &ipntr[1], &workd[1], &workl[1],
+                  V, &ldv, iparam, ipntr, workd, workl,
                   &lworkl, &info);
 
 }
