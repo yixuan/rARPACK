@@ -33,7 +33,7 @@ ARFLAGS = rcs
 #  The name of the library is defined by $(ARPACKLIB) in
 #  ../ARmake.inc and is created at the next higher directory level.
 
-OBJS = icnteq.o icopy.o iset.o iswap.o ivout.o second.o
+OBJS = icnteq.o icopy.o iset.o iswap.o ivout.o second_NONE.o
 
 SOBJ  = sgetv0.o slaqrb.o sstqrb.o ssortc.o ssortr.o sstatn.o sstats.o \
 	snaitr.o snapps.o snaup2.o snaupd.o snconv.o sneigh.o sngets.o \
