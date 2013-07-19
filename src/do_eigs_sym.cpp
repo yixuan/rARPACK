@@ -105,7 +105,7 @@ BEGIN_RCPP
     // info < 0 means error occurs
     if (info < 0)
     {
-        ::Rf_error("Error in dnaupd subroutine of ARPACK, with code %d",
+        ::Rf_error("Error in dsaupd subroutine of ARPACK, with code %d",
                    info);
     } else {
         // use neupp() to retrieve results
