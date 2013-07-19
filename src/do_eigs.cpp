@@ -3,6 +3,7 @@
 SEXP do_eigs(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         SEXP which_string_r, SEXP ncv_scalar_r,
         SEXP tol_scalar_r, SEXP maxitr_scalar_r,
+        SEXP retvec_logical_r,
         SEXP sigmar_scalar_r, SEXP sigmai_scalar_r,
         Mvfun mat_v_prod, void *data)
 {
@@ -86,7 +87,7 @@ BEGIN_RCPP
     // retrieve results
     //
     // whether to calculate eigenvectors or not.
-    bool rvec = true;
+    bool rvec = (bool) LOGICAL(retvec_logical_r)[0];
     // 'A' means to calculate Ritz vectors
     // 'P' to calculate Schur vectors
     char HowMny = 'A';
@@ -137,46 +138,66 @@ BEGIN_RCPP
             if (Rcpp::is_true(Rcpp::all(Rcpp::abs(dimag_ret) < 1e-30)))
             {
                 dreal_ret.erase(nconv, dreal_ret.length() - 1);
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                if(rvec)
+                {
+                    ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                                          Rcpp::Named("values") = dreal_ret,
                                          Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range));
+                } else {
+                    ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                         Rcpp::Named("values") = dreal_ret,
+                                         Rcpp::Named("vectors") = R_NilValue);
+                }
+                
             } else {
                 Rcpp::ComplexVector cmpvalues_ret(nconv);
-                Rcpp::ComplexMatrix cmpvectors_ret(n, nconv);
-                // obtain the real and imaginary part of the eigenvectors
-                bool first = true;
-                int i, j;
+                int i;
                 for (i = 0; i < nconv; i++)
                 {
                     cmpvalues_ret[i].r = dreal_ret[i];
                     cmpvalues_ret[i].i = dimag_ret[i];
-                    if (fabs(dimag_ret[i]) > 1e-30)
+                }
+                if(!rvec)
+                {
+                    ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                         Rcpp::Named("values") = cmpvalues_ret,
+                                         Rcpp::Named("vectors") = R_NilValue);
+                } else {
+                    Rcpp::ComplexMatrix cmpvectors_ret(n, nconv);
+                    // obtain the real and imaginary part of the eigenvectors
+                    bool first = true;
+                    int j;
+                    for (i = 0; i < nconv; i++)
                     {
-                        if (first)
+                        if (fabs(dimag_ret[i]) > 1e-30)
                         {
+                            if (first)
+                            {
+                                for (j = 0; j < n; j++)
+                                {
+                                    cmpvectors_ret(j, i).r = vreal_ret(j, i);
+                                    cmpvectors_ret(j, i).i = vreal_ret(j, i + 1);
+                                    cmpvectors_ret(j, i + 1).r = vreal_ret(j, i);
+                                    cmpvectors_ret(j, i + 1).i = -vreal_ret(j, i + 1);
+                                }
+                                first = false;
+                            } else {
+                                first = true;
+                            }
+                        } else {
                             for (j = 0; j < n; j++)
                             {
                                 cmpvectors_ret(j, i).r = vreal_ret(j, i);
-                                cmpvectors_ret(j, i).i = vreal_ret(j, i + 1);
-                                cmpvectors_ret(j, i + 1).r = vreal_ret(j, i);
-                                cmpvectors_ret(j, i + 1).i = -vreal_ret(j, i + 1);
+                                cmpvectors_ret(j, i).i = 0;
                             }
-                            first = false;
-                        } else {
                             first = true;
                         }
-                    } else {
-                        for (j = 0; j < n; j++)
-                        {
-                            cmpvectors_ret(j, i).r = vreal_ret(j, i);
-                            cmpvectors_ret(j, i).i = 0;
-                        }
-                        first = true;
                     }
-                }
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                    ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                                          Rcpp::Named("values") = cmpvalues_ret,
                                          Rcpp::Named("vectors") = cmpvectors_ret);
+                }
+                
             }
         }
     }

@@ -28,6 +28,7 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
                         ncv = min(n - 1, max(2 * k + 1, 20)),
                         tol = 1e-8,
                         maxitr = 300,
+                        retvec = TRUE,
                         sigmar = Re(sigma[1]),
                         sigmai = Im(sigma[1]));
     
@@ -56,6 +57,7 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
     res = .Call(funname, A, as.integer(n), as.integer(k),
                 as.character(arpack.param$which), as.integer(arpack.param$ncv),
                 as.numeric(arpack.param$tol), as.integer(arpack.param$maxitr),
+                as.logical(arpack.param$retvec),
                 as.numeric(arpack.param$sigmar), as.numeric(arpack.param$sigmai),
                 PACKAGE = "rarpack");
     return(res);

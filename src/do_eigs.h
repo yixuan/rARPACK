@@ -22,6 +22,7 @@ typedef void (*Mvfun)(SEXP mat, double *x_in, double *y_out,
 SEXP do_eigs(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         SEXP which_string_r, SEXP ncv_scalar_r,
         SEXP tol_scalar_r, SEXP maxitr_scalar_r,
+        SEXP retvec_logical_r,
         SEXP sigmar_scalar_r, SEXP sigmai_scalar_r,
         Mvfun mat_v_prod, void *data);
 
