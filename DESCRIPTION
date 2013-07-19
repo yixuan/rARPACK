@@ -21,8 +21,6 @@ Depends:
     RcppEigen (>= 0.3.1.2.1)
 LinkingTo: Rcpp, RcppEigen
 Collate:
-    '00_method.R'
-    'den_real_nonsym.R'
-    'sparse_real_nonsym.R'
     'zzz.R'
     '10_real_nonsym.R'
+    '00-eigs.R'
