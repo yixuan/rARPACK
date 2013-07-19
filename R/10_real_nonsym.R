@@ -1,5 +1,5 @@
 eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
-                             mattype = c("dense", "sparse"))
+                             mattype = c("matrix", "dgCMatrix"))
 {
     n = nrow(A);
     # Check whether 'A' is a square matrix
@@ -15,7 +15,7 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
     #
     # However, for sparse matrices defined in Matrix package,
     # they are always double, so we can omit this check. 
-    if (mattype == "dense" & typeof(A) != "double")
+    if (mattype == "matrix" & typeof(A) != "double")
     {
         mode(A) = "double";
     }
@@ -49,8 +49,8 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
     
     # Different names of calls according to the type of matrix
     funname = switch(mattype,
-                     dense = "den_real_nonsym",
-                     sparse = "sparse_real_nonsym",
+                     matrix = "den_real_nonsym",
+                     dgCMatrix = "sparse_real_nonsym",
                      stop("invalid value of 'mattype'"));
     
     # Calling the C++ function
