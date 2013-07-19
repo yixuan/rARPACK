@@ -1,8 +1,12 @@
 \name{eigs}
 \alias{eigs}
+\alias{eigs.sym}
 \title{Find a few eigenvalues and eigenvectors for square matrix}
 \usage{
   eigs(A, k, which = "LM", sigma = 0, opts = list(), ...)
+
+  eigs.sym(A, k, which = "LM", sigma = 0, opts = list(),
+    ..., lower = TRUE)
 }
 \arguments{
   \item{A}{The matrix whose eigen values/vectors are to be
@@ -57,7 +61,8 @@
   Default is \code{min(n-1, max(2*k+1, 20))}.}
   \item{\code{tol}}{Precision parameter. Default is 1e-8.}
   \item{\code{maxitr}}{Maximum number of iterations.
-  Default is 300.} }
+  Default is 300.} \item{\code{retvec}}{Whether to compute
+  eigenvectors. If FALSE, only returning eigenvalues.} }
 }
 \note{
   Currently only real nonsymmetric matrices are supported.

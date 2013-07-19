@@ -48,6 +48,7 @@
 ##' @seealso \code{\link[base]{eigen}()}, \code{\link[base]{svd}()}
 ##'
 ##' @export
+##' @rdname eigs
 ##' @keywords array
 ##' @examples
 ##' n = 20;
@@ -76,6 +77,8 @@ eigs <- function(A, k, which = "LM", sigma = 0.0, opts = list(), ...)
     }
 }
 
+##' @rdname eigs
+##' @export
 eigs.sym <- function(A, k, which = "LM", sigma = 0.0, opts = list(), ..., lower = TRUE)
 {
     if(inherits(A, "matrix"))

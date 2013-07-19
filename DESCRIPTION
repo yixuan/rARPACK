@@ -24,3 +24,4 @@ Collate:
     'zzz.R'
     '10_real_nonsym.R'
     '00-eigs.R'
+    '15-real_sym.R'

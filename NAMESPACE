@@ -1,1 +1,2 @@
 export(eigs)
+export(eigs.sym)
