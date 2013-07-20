@@ -153,7 +153,7 @@ BEGIN_RCPP
     // variables to be returned to R
     //
     // vector of eigenvalues
-    Rcpp::NumericVector d_ret(nev + 1);
+    Rcpp::NumericVector d_ret(nev);
     // matrix of eigenvectors
     Rcpp::NumericMatrix v_ret(n, ncv);
     // result list
@@ -250,18 +250,26 @@ BEGIN_RCPP
     
     // obtain 'nconv' converged eigenvalues
     nconv = iparam[5 - 1];
-    Rcpp::Range range = Rcpp::Range(0, nconv - 1);
-
-    d_ret.erase(nconv, d_ret.length() - 1);
-    if(rvec)
+    if(nconv <= 0)
     {
-        ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                 Rcpp::Named("values") = d_ret,
-                                 Rcpp::Named("vectors") = v_ret(Rcpp::_, range));
+         ::Rf_warning("no converged eigenvalues found");
+         ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                  Rcpp::Named("values") = R_NilValue,
+                                  Rcpp::Named("vectors") = R_NilValue);
     } else {
-        ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                 Rcpp::Named("values") = d_ret,
-                                 Rcpp::Named("vectors") = R_NilValue);
+        // v.erase(start, end) removes v[start <= i < end]
+        d_ret.erase(nconv, d_ret.length());
+        if(rvec)
+        {
+            Rcpp::Range range = Rcpp::Range(0, nconv - 1);
+            ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                     Rcpp::Named("values") = d_ret,
+                                     Rcpp::Named("vectors") = v_ret(Rcpp::_, range));
+        } else {
+            ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                     Rcpp::Named("values") = d_ret,
+                                     Rcpp::Named("vectors") = R_NilValue);
+        }
     }
 
     delete [] workl;
