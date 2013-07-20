@@ -72,4 +72,5 @@ complex16: $(ZOBJ) $(OBJS)
 #
 clean:
 	$(RM) -f *.o
+	$(RM) -f $(ARPACKLIB)
 
