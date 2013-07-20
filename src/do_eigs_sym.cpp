@@ -105,6 +105,11 @@ BEGIN_RCPP
     // info < 0 means error occurs
     if (info < 0)
     {
+        delete [] workl;
+        delete [] workd;
+        delete [] ipntr;
+        delete [] iparam;
+        delete [] resid;
         ::Rf_error("Error in dsaupd subroutine of ARPACK, with code %d",
                    info);
     } else {
@@ -117,6 +122,11 @@ BEGIN_RCPP
                 lworkl, ierr);
         if (ierr < 0)
         {
+            delete [] workl;
+            delete [] workd;
+            delete [] ipntr;
+            delete [] iparam;
+            delete [] resid;
             ::Rf_error("Error in dseupd subroutine of ARPACK,"
                        "with code %d", ierr);
         } else {
