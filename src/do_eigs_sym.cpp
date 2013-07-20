@@ -1,5 +1,120 @@
 #include "do_eigs.h"
 
+// Warning and error information
+// See ARPACK/dsaupd.f for details
+static void dsaupd_warn_nonsym(int info)
+{
+    switch(info)
+    {
+        case 1:
+            ::Rf_warning("ARPACK/dsaupd: maximum number of iterations taken");
+            break;
+        case 2:
+            break;
+        case 3:
+            ::Rf_warning("ARPACK/dsaupd: no shifts could be applied, try to increase ncv");
+            break;
+    }
+}
+
+static void dsaupd_error_nonsym(int info)
+{
+    switch(info)
+    {
+        case -1:
+            ::Rf_error("ARPACK/dsaupd: n must be positive");
+            break;
+        case -2:
+            ::Rf_error("ARPACK/dsaupd: k must be positive");
+            break;
+        case -3:
+            ::Rf_error("ARPACK/dsaupd: k < ncv <= n");
+            break;
+        case -4:
+            ::Rf_error("ARPACK/dsaupd: maxitr must be positive");
+            break;
+        case -5:
+            ::Rf_error("ARPACK/dsaupd: which must be one of 'LM', 'SM', 'LA', 'SA', 'BE'");
+            break;
+        case -6:
+            ::Rf_error("ARPACK/dsaupd: error code %d", info);
+            break;
+        case -7:
+            ::Rf_error("ARPACK/dsaupd: length of private work array WORKL is not sufficient");
+            break;
+        case -8:
+            ::Rf_error("ARPACK/dsaupd: error return from trid. eigenvalue calculation\n"
+                       "informational error from LAPACK routine dsteqr");
+            break;
+        case -9:
+            ::Rf_error("ARPACK/dsaupd: starting vector is zero");
+            break;
+        case -10:
+        case -11:
+        case -12:
+        case -13:
+            ::Rf_error("ARPACK/dsaupd: error code %d", info);
+            break;
+        case -9999:
+            ::Rf_error("ARPACK/dsaupd: couldn't build an Arnoldi factorization");
+            break;
+        default:
+            ::Rf_error("ARPACK/dsaupd: error code %d", info);
+            break;
+    }
+}
+
+// Error information
+// See ARPACK/dseupd.f for details
+static void dseupd_error_nonsym(int info)
+{
+    switch(info)
+    {
+        case -1:
+            ::Rf_error("ARPACK/dseupd: n must be positive");
+            break;
+        case -2:
+            ::Rf_error("ARPACK/dseupd: k must be positive");
+            break;
+        case -3:
+            ::Rf_error("ARPACK/dseupd: k < ncv <= n");
+            break;
+        case -5:
+            ::Rf_error("ARPACK/dseupd: which must be one of 'LM', 'SM', 'LA', 'SA', 'BE'");
+            break;
+        case -6:
+            ::Rf_error("ARPACK/dseupd: error code %d", info);
+            break;
+        case -7:
+            ::Rf_error("ARPACK/dseupd: length of private work WORKL array is not sufficient");
+            break;
+        case -8:
+            ::Rf_error("ARPACK/dseupd: error return from trid. eigenvalue calculation\n"
+                       "informational error from LAPACK routine dsteqr");
+            break;
+        case -9:
+            ::Rf_error("ARPACK/dseupd: starting vector is zero");
+            break;
+        case -10:
+        case -11:
+        case -12:
+            ::Rf_error("ARPACK/dseupd: error code %d", info);
+            break;
+        case -14:
+            ::Rf_error("ARPACK/dseupd: DSAUPD did not find any eigenvalues to sufficient accuracy");
+            break;
+        case -15:
+        case -16:
+            ::Rf_error("ARPACK/dseupd: error code %d", info);
+        case -17:
+            ::Rf_error("ARPACK/dseupd: DSEUPD got a different count of the number of converged Ritz values than DSAUPD got");
+            break;
+        default:
+            ::Rf_error("ARPACK/dseupd: error code %d", info);
+            break;
+    }
+}
+
 SEXP do_eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         SEXP which_string_r, SEXP ncv_scalar_r,
         SEXP tol_scalar_r, SEXP maxitr_scalar_r,
@@ -81,6 +196,18 @@ BEGIN_RCPP
             workl, lworkl, info);
     }
     
+    // info > 0 means warning, < 0 means error
+    if(info > 0) dsaupd_warn_nonsym(info);
+    if(info < 0)
+    {
+        delete [] workl;
+        delete [] workd;
+        delete [] ipntr;
+        delete [] iparam;
+        delete [] resid;
+        dsaupd_error_nonsym(info);
+    }
+    
     // retrieve results
     //
     // whether to calculate eigenvectors or not.
@@ -102,50 +229,39 @@ BEGIN_RCPP
     // number of converged eigenvalues
     int nconv = 0;
 
-    // info < 0 means error occurs
-    if (info < 0)
+    // use neupp() to retrieve results
+    seupp(rvec, HowMny, d, Z, ldz, sigma,
+            bmat, n,
+            which, nev, tol, resid,
+            ncv, V, ldv, iparam,
+            ipntr, workd, workl,
+            lworkl, ierr);
+
+    // ierr < 0 means error
+    if (ierr < 0)
     {
         delete [] workl;
         delete [] workd;
         delete [] ipntr;
         delete [] iparam;
         delete [] resid;
-        ::Rf_error("Error in dsaupd subroutine of ARPACK, with code %d",
-                   info);
-    } else {
-        // use neupp() to retrieve results
-        seupp(rvec, HowMny, d, Z, ldz, sigma,
-                bmat, n,
-                which, nev, tol, resid,
-                ncv, V, ldv, iparam,
-                ipntr, workd, workl,
-                lworkl, ierr);
-        if (ierr < 0)
-        {
-            delete [] workl;
-            delete [] workd;
-            delete [] ipntr;
-            delete [] iparam;
-            delete [] resid;
-            ::Rf_error("Error in dseupd subroutine of ARPACK,"
-                       "with code %d", ierr);
-        } else {
-            // obtain 'nconv' converged eigenvalues
-            nconv = iparam[5 - 1];
-            Rcpp::Range range = Rcpp::Range(0, nconv - 1);
+        dseupd_error_nonsym(ierr);
+    }
+    
+    // obtain 'nconv' converged eigenvalues
+    nconv = iparam[5 - 1];
+    Rcpp::Range range = Rcpp::Range(0, nconv - 1);
 
-            d_ret.erase(nconv, d_ret.length() - 1);
-            if(rvec)
-            {
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                     Rcpp::Named("values") = d_ret,
-                                     Rcpp::Named("vectors") = v_ret(Rcpp::_, range));
-            } else {
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                     Rcpp::Named("values") = d_ret,
-                                     Rcpp::Named("vectors") = R_NilValue);
-            }
-        }
+    d_ret.erase(nconv, d_ret.length() - 1);
+    if(rvec)
+    {
+        ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                 Rcpp::Named("values") = d_ret,
+                                 Rcpp::Named("vectors") = v_ret(Rcpp::_, range));
+    } else {
+        ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                 Rcpp::Named("values") = d_ret,
+                                 Rcpp::Named("vectors") = R_NilValue);
     }
 
     delete [] workl;
