@@ -33,7 +33,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
                         sigma = sigma);
     
     # Check the value of 'which'
-    eigenv.type = c("LM", "SM", "LR", "SR", "LI", "SI");
+    eigenv.type = c("LM", "SM", "LA", "SA", "BE");
     if (!(arpack.param$which %in% eigenv.type))
     {
         stop(sprintf("argument 'which' must be one of\n%s",
@@ -45,7 +45,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     
     # Check the value of 'ncv'
     if (arpack.param$ncv < k + 2 | arpack.param$ncv > n)
-        stop("'opts$ncv' must be >= k+2 and <= nrow(A)");
+        stop("'opts$ncv' must be > k and <= nrow(A)");
     
     # Different names of calls according to the type of matrix
     if(mattype == "matrix")
