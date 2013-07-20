@@ -265,72 +265,82 @@ BEGIN_RCPP
         
     // obtain 'nconv' converged eigenvalues
     nconv = iparam[5 - 1];
-    Rcpp::Range range = Rcpp::Range(0, nconv - 1);
-    // if all eigenvalues are real
-    // equivalent R code: if (all(abs(dimag[1:nconv] < 1e-30)))
-    if (Rcpp::is_true(Rcpp::all(Rcpp::abs(dimag_ret) < 1e-30)))
+    if(nconv <= 0)
     {
-        dreal_ret.erase(nconv, dreal_ret.length() - 1);
-        if(rvec)
-        {
-            ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                     Rcpp::Named("values") = dreal_ret,
-                                     Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range));
-        } else {
-            ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                     Rcpp::Named("values") = dreal_ret,
-                                     Rcpp::Named("vectors") = R_NilValue);
-        }        
+         ::Rf_warning("no converged eigenvalues found");
+         ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                  Rcpp::Named("values") = R_NilValue,
+                                  Rcpp::Named("vectors") = R_NilValue);
     } else {
-        Rcpp::ComplexVector cmpvalues_ret(nconv);
-        int i;
-        for (i = 0; i < nconv; i++)
+        // if all eigenvalues are real
+        // equivalent R code: if (all(abs(dimag[1:nconv] < 1e-30)))
+        if (Rcpp::is_true(Rcpp::all(Rcpp::abs(dimag_ret) < 1e-30)))
         {
-            cmpvalues_ret[i].r = dreal_ret[i];
-            cmpvalues_ret[i].i = dimag_ret[i];
-        }
-        if(!rvec)
-        {
-            ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                     Rcpp::Named("values") = cmpvalues_ret,
-                                     Rcpp::Named("vectors") = R_NilValue);
+            // v.erase(start, end) removes v[start <= i < end]
+            dreal_ret.erase(nconv, dreal_ret.length());
+            if(rvec)
+            {
+                Rcpp::Range range = Rcpp::Range(0, nconv - 1);
+                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                         Rcpp::Named("values") = dreal_ret,
+                                         Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range));
+            } else {
+                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                         Rcpp::Named("values") = dreal_ret,
+                                         Rcpp::Named("vectors") = R_NilValue);
+            }        
         } else {
-            Rcpp::ComplexMatrix cmpvectors_ret(n, nconv);
-            // obtain the real and imaginary part of the eigenvectors
-            bool first = true;
-            int j;
+            Rcpp::ComplexVector cmpvalues_ret(nconv);
+            int i;
             for (i = 0; i < nconv; i++)
             {
-                if (fabs(dimag_ret[i]) > 1e-30)
+                cmpvalues_ret[i].r = dreal_ret[i];
+                cmpvalues_ret[i].i = dimag_ret[i];
+            }
+            if(!rvec)
+            {
+                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                         Rcpp::Named("values") = cmpvalues_ret,
+                                         Rcpp::Named("vectors") = R_NilValue);
+            } else {
+                Rcpp::ComplexMatrix cmpvectors_ret(n, nconv);
+                // obtain the real and imaginary part of the eigenvectors
+                bool first = true;
+                int j;
+                for (i = 0; i < nconv; i++)
                 {
-                    if (first)
+                    if (fabs(dimag_ret[i]) > 1e-30)
                     {
+                        if (first)
+                        {
+                            for (j = 0; j < n; j++)
+                            {
+                                cmpvectors_ret(j, i).r = vreal_ret(j, i);
+                                cmpvectors_ret(j, i).i = vreal_ret(j, i + 1);
+                                cmpvectors_ret(j, i + 1).r = vreal_ret(j, i);
+                                cmpvectors_ret(j, i + 1).i = -vreal_ret(j, i + 1);
+                            }
+                            first = false;
+                        } else {
+                            first = true;
+                        }
+                    } else {
                         for (j = 0; j < n; j++)
                         {
                             cmpvectors_ret(j, i).r = vreal_ret(j, i);
-                            cmpvectors_ret(j, i).i = vreal_ret(j, i + 1);
-                            cmpvectors_ret(j, i + 1).r = vreal_ret(j, i);
-                            cmpvectors_ret(j, i + 1).i = -vreal_ret(j, i + 1);
+                            cmpvectors_ret(j, i).i = 0;
                         }
-                        first = false;
-                    } else {
                         first = true;
                     }
-                } else {
-                    for (j = 0; j < n; j++)
-                    {
-                        cmpvectors_ret(j, i).r = vreal_ret(j, i);
-                        cmpvectors_ret(j, i).i = 0;
-                    }
-                    first = true;
                 }
+                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                         Rcpp::Named("values") = cmpvalues_ret,
+                                         Rcpp::Named("vectors") = cmpvectors_ret);
             }
-            ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                     Rcpp::Named("values") = cmpvalues_ret,
-                                     Rcpp::Named("vectors") = cmpvectors_ret);
-        }
             
+        }
     }
+    
 
     delete [] workv;
     delete [] workl;
