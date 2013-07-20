@@ -41,13 +41,27 @@
 ##' \item{"SR"}{The k eigenvalues with smallest real part.}
 ##' \item{"LI"}{The k eigenvalues with largest imaginary part.}
 ##' \item{"SI"}{The k eigenvalues with smallest imaginary part.}
+##' \item{"LA"}{The k largest (algebraic) eigenvalues.}
+##' \item{"SA"}{The k smallest (algebraic) eigenvalues.}
+##' \item{"BE"}{Compute k eigenvalues, half from each end of the spectrum.
+##'             When k is odd, compute more from the high and then from the low end.}
 ##' }
 ##'
+##' \code{eigs()} with matrix type "matrix" and "dgCMatrix" can use "LM",
+##' "SM", "LR", "SR", "LI" and "SI".
+##' 
+##' \code{eigs.sym()} and \code{eigs()} with matrix type "dsyMatrix"
+##' can use "LM", "SM", "LA", "SA" and "BE".
+##' 
 ##' The \code{opts} argument is a list that can supply any of the
 ##' following parameters:
 ##'
 ##' \describe{
-##' \item{\code{ncv}}{Number of Lanzcos basis vectors to use. More vectors will result in faster convergence, but with greater memory use. \code{ncv} must be satisfy \eqn{k+2\le ncv \le n}{k+2 <= ncv <= n}. Default is \code{min(n-1, max(2*k+1, 20))}.}
+##' \item{\code{ncv}}{Number of Lanzcos basis vectors to use. More vectors
+##'                   will result in faster convergence, but with greater
+##'                   memory use. \code{ncv} must be satisfy
+##'                   \eqn{k+2\le ncv \le n}{k+2 <= ncv <= n}.
+##'                   Default is \code{min(n-1, max(2*k+1, 20))}.}
 ##' \item{\code{tol}}{Precision parameter. Default is 1e-8.}
 ##' \item{\code{maxitr}}{Maximum number of iterations. Default is 300.}
 ##' \item{\code{retvec}}{Whether to compute eigenvectors. If FALSE,
