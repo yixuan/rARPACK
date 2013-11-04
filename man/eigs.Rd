@@ -3,9 +3,10 @@
 \alias{eigs.sym}
 \title{Find a few eigenvalues and eigenvectors for square matrix}
 \usage{
-  eigs(A, k, which = "LM", sigma = 0, opts = list(), ...)
+  eigs(A, k, which = "LM", sigma = NULL, opts = list(),
+    ...)
 
-  eigs.sym(A, k, which = "LM", sigma = 0, opts = list(),
+  eigs.sym(A, k, which = "LM", sigma = NULL, opts = list(),
     ..., lower = TRUE)
 }
 \arguments{
@@ -59,23 +60,29 @@
   Possible values are:
 
   \describe{ \item{"LM"}{The k eigenvalues with largest
-  magnitude.} \item{"SM"}{The k eigenvalues with smallest
-  magnitude.} \item{"LR"}{The k eigenvalues with largest
-  real part.} \item{"SR"}{The k eigenvalues with smallest
-  real part.} \item{"LI"}{The k eigenvalues with largest
-  imaginary part.} \item{"SI"}{The k eigenvalues with
-  smallest imaginary part.} \item{"LA"}{The k largest
-  (algebraic) eigenvalues.} \item{"SA"}{The k smallest
-  (algebraic) eigenvalues.} \item{"BE"}{Compute k
-  eigenvalues, half from each end of the spectrum.  When k
-  is odd, compute more from the high and then from the low
-  end.} }
+  magnitude. Here the magnitude means the euclidean norm of
+  complex numbers.} \item{"SM"}{The k eigenvalues with
+  smallest magnitude. Here the magnitude means the
+  euclidean norm of complex numbers.} \item{"LR"}{The k
+  eigenvalues with largest real part.} \item{"SR"}{The k
+  eigenvalues with smallest real part.} \item{"LI"}{The k
+  eigenvalues with largest imaginary part.} \item{"SI"}{The
+  k eigenvalues with smallest imaginary part.}
+  \item{"LA"}{The k largest (algebraic) eigenvalues,
+  considering any negative sign.} \item{"SA"}{The k
+  smallest (algebraic) eigenvalues, considering any
+  negative sign.} \item{"BE"}{Compute k eigenvalues, half
+  from each end of the spectrum.  When k is odd, compute
+  more from the high and then from the low end.} }
 
   \code{eigs()} with matrix type "matrix" and "dgCMatrix"
   can use "LM", "SM", "LR", "SR", "LI" and "SI".
 
   \code{eigs.sym()} and \code{eigs()} with matrix type
   "dsyMatrix" can use "LM", "SM", "LA", "SA" and "BE".
+
+  The \code{sigma} argument is used in the Shift-and-invert
+  mode. TODO
 
   The \code{opts} argument is a list that can supply any of
   the following parameters:

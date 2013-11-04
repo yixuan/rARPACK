@@ -35,14 +35,18 @@
 ##' Possible values are:
 ##'
 ##' \describe{
-##' \item{"LM"}{The k eigenvalues with largest magnitude.}
-##' \item{"SM"}{The k eigenvalues with smallest magnitude.}
+##' \item{"LM"}{The k eigenvalues with largest magnitude. Here the
+##'             magnitude means the euclidean norm of complex numbers.}
+##' \item{"SM"}{The k eigenvalues with smallest magnitude. Here the
+##'             magnitude means the euclidean norm of complex numbers.}
 ##' \item{"LR"}{The k eigenvalues with largest real part.}
 ##' \item{"SR"}{The k eigenvalues with smallest real part.}
 ##' \item{"LI"}{The k eigenvalues with largest imaginary part.}
 ##' \item{"SI"}{The k eigenvalues with smallest imaginary part.}
-##' \item{"LA"}{The k largest (algebraic) eigenvalues.}
-##' \item{"SA"}{The k smallest (algebraic) eigenvalues.}
+##' \item{"LA"}{The k largest (algebraic) eigenvalues, considering any
+##'             negative sign.}
+##' \item{"SA"}{The k smallest (algebraic) eigenvalues, considering any
+##'             negative sign.}
 ##' \item{"BE"}{Compute k eigenvalues, half from each end of the spectrum.
 ##'             When k is odd, compute more from the high and then from the low end.}
 ##' }
@@ -52,6 +56,8 @@
 ##' 
 ##' \code{eigs.sym()} and \code{eigs()} with matrix type "dsyMatrix"
 ##' can use "LM", "SM", "LA", "SA" and "BE".
+##' 
+##' The \code{sigma} argument is used in the Shift-and-invert mode. TODO
 ##' 
 ##' The \code{opts} argument is a list that can supply any of the
 ##' following parameters:
@@ -89,7 +95,7 @@
 ##' A2 = crossprod(A1);
 ##' eigs(A2, k);
 ##' eigs.sym(A2, k);
-eigs <- function(A, k, which = "LM", sigma = 0.0, opts = list(), ...)
+eigs <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...)
 {
     if(inherits(A, "matrix"))
     {
@@ -108,7 +114,7 @@ eigs <- function(A, k, which = "LM", sigma = 0.0, opts = list(), ...)
 
 ##' @rdname eigs
 ##' @export
-eigs.sym <- function(A, k, which = "LM", sigma = 0.0, opts = list(), ..., lower = TRUE)
+eigs.sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ..., lower = TRUE)
 {
     if(inherits(A, "matrix"))
     {

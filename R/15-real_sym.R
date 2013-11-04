@@ -24,13 +24,25 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     if (k <= 0 | k >= n - 1)
         stop("'k' must satisfy 0 < k < nrow(A) - 1.\nTo calculate all eigenvalues, try eigen()");
     
+    # Check sigma
+    # workmode == 1: ordinary
+    # workmode == 3: Shift-invert mode
+    if (is.null(sigma))
+    {
+        workmode = 1L;
+        sigma = 0;
+    } else {
+        workmode = 3L;
+    }
+    
     # Arguments to be passed to ARPACK
     arpack.param = list(which = which,
                         ncv = min(n - 1, max(2 * k + 1, 20)),
                         tol = 1e-8,
                         maxitr = 300,
                         retvec = TRUE,
-                        sigma = sigma);
+                        sigma = sigma,
+                        workmode = workmode);
     
     # Check the value of 'which'
     eigenv.type = c("LM", "SM", "LA", "SA", "BE");
@@ -50,19 +62,25 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     # Different names of calls according to the type of matrix
     if(mattype == "matrix")
     {
-        res = .Call("den_real_sym", A, as.integer(n), as.integer(k),
+        res = .Call("den_real_sym",
+                    if(workmode == 3L) solve(A - diag(rep(sigma, n))) else A,
+                    as.integer(n), as.integer(k),
                     as.character(arpack.param$which), as.integer(arpack.param$ncv),
                     as.numeric(arpack.param$tol), as.integer(arpack.param$maxitr),
                     as.logical(arpack.param$retvec),
                     as.numeric(arpack.param$sigma),
+                    as.integer(arpack.param$workmode),
                     as.logical(lower),
                     PACKAGE = "rarpack");
     } else if(mattype == "dsyMatrix") {
-        res = .Call("den_real_sym", A@x, as.integer(n), as.integer(k),
+        res = .Call("den_real_sym",
+                    if(workmode == 3L) solve(A - Diagonal(n, sigma))@x else A@x,
+                    as.integer(n), as.integer(k),
                     as.character(arpack.param$which), as.integer(arpack.param$ncv),
                     as.numeric(arpack.param$tol), as.integer(arpack.param$maxitr),
                     as.logical(arpack.param$retvec),
                     as.numeric(arpack.param$sigma),
+                    as.integer(arpack.param$workmode),
                     as.logical(A@uplo == "L"),
                     PACKAGE = "rarpack");
     } else {

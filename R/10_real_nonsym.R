@@ -23,6 +23,17 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
     if (k <= 0 | k >= n - 1)
         stop("'k' must satisfy 0 < k < nrow(A) - 1.\nTo calculate all eigenvalues, try eigen()");
     
+    # Check sigma
+    # workmode == 1: ordinary
+    # workmode == 3: Shift-invert mode
+    if (is.null(sigma))
+    {
+        workmode = 1L;
+        sigma = 0;
+    } else {
+        workmode = 3L;
+    }
+    
     # Arguments to be passed to ARPACK
     arpack.param = list(which = which,
                         ncv = min(n - 1, max(2 * k + 1, 20)),
