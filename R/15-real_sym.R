@@ -33,6 +33,8 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
         sigma = 0;
     } else {
         workmode = 3L;
+        if(is.complex(sigma)) warning("only real part of sigma is used");
+        sigma = Re(sigma);
     }
     
     # Arguments to be passed to ARPACK

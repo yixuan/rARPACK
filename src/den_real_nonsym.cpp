@@ -20,7 +20,8 @@ RcppExport SEXP den_real_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         SEXP which_string_r, SEXP ncv_scalar_r,
         SEXP tol_scalar_r, SEXP maxitr_scalar_r,
         SEXP retvec_logical_r,
-        SEXP sigmar_scalar_r, SEXP sigmai_scalar_r)
+        SEXP sigmar_scalar_r, SEXP sigmai_scalar_r,
+        SEXP workmode_scalar_r)
 {
 BEGIN_RCPP
 
@@ -29,6 +30,7 @@ BEGIN_RCPP
                    tol_scalar_r, maxitr_scalar_r,
                    retvec_logical_r,
                    sigmar_scalar_r, sigmai_scalar_r,
+                   workmode_scalar_r,
                    den_mat_v_prod, NULL);
 
 END_RCPP

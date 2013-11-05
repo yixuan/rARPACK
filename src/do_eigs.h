@@ -24,6 +24,7 @@ SEXP do_eigs_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         SEXP tol_scalar_r, SEXP maxitr_scalar_r,
         SEXP retvec_logical_r,
         SEXP sigmar_scalar_r, SEXP sigmai_scalar_r,
+        SEXP workmode_scalar_r,
         Mvfun mat_v_prod, void *data);
 
 SEXP do_eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,

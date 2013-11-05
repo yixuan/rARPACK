@@ -41,7 +41,8 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
                         maxitr = 300,
                         retvec = TRUE,
                         sigmar = Re(sigma[1]),
-                        sigmai = Im(sigma[1]));
+                        sigmai = Im(sigma[1]),
+                        workmode = workmode);
     
     # Check the value of 'which'
     eigenv.type = c("LM", "SM", "LR", "SR", "LI", "SI");
@@ -64,12 +65,27 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
                      dgCMatrix = "sparse_real_nonsym",
                      stop("invalid value of 'mattype'"));
     
+    if (workmode == 3L)
+    {
+        funname = "den_real_nonsym";
+        B = if(!is.complex(sigma)) {
+                solve(as.matrix(A) - diag(rep(sigma, n)))
+            } else {
+                Re(solve(as.matrix(A) - diag(rep(sigma, n))))
+            }
+    }
+    
     # Calling the C++ function
-    res = .Call(funname, A, as.integer(n), as.integer(k),
+    cat("funname is", funname, "\n")
+    cat("work mode is", workmode, "\n")
+    
+    res = .Call(funname, if(workmode == 3L) B else A,
+                as.integer(n), as.integer(k),
                 as.character(arpack.param$which), as.integer(arpack.param$ncv),
                 as.numeric(arpack.param$tol), as.integer(arpack.param$maxitr),
                 as.logical(arpack.param$retvec),
                 as.numeric(arpack.param$sigmar), as.numeric(arpack.param$sigmai),
+                as.integer(arpack.param$workmode),
                 PACKAGE = "rarpack");
     return(res);
 }

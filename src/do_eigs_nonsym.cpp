@@ -125,6 +125,7 @@ SEXP do_eigs_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         SEXP tol_scalar_r, SEXP maxitr_scalar_r,
         SEXP retvec_logical_r,
         SEXP sigmar_scalar_r, SEXP sigmai_scalar_r,
+        SEXP workmode_scalar_r,
         Mvfun mat_v_prod, void *data)
 {
 BEGIN_RCPP
@@ -176,7 +177,7 @@ BEGIN_RCPP
     int *iparam = new int[11]();
     iparam[1 - 1] = 1; // ishfts
     iparam[3 - 1] = INTEGER(maxitr_scalar_r)[0]; // maxitr
-    iparam[7 - 1] = 1; // mode
+    iparam[7 - 1] = INTEGER(workmode_scalar_r)[0]; // mode
     // some pointers
     int *ipntr = new int[14]();
     /* workd has 3 columns.
