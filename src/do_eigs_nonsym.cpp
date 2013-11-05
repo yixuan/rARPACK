@@ -271,7 +271,8 @@ BEGIN_RCPP
          ::Rf_warning("no converged eigenvalues found");
          ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                                   Rcpp::Named("values") = R_NilValue,
-                                  Rcpp::Named("vectors") = R_NilValue);
+                                  Rcpp::Named("vectors") = R_NilValue,
+                                  Rcpp::Named("niter") = Rcpp::wrap(iparam[9 - 1]));
     } else {
         // if all eigenvalues are real
         // equivalent R code: if (all(abs(dimag[1:nconv] < 1e-30)))
@@ -284,11 +285,13 @@ BEGIN_RCPP
                 Rcpp::Range range = Rcpp::Range(0, nconv - 1);
                 ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                                          Rcpp::Named("values") = dreal_ret,
-                                         Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range));
+                                         Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range),
+                                         Rcpp::Named("niter") = Rcpp::wrap(iparam[9 - 1]));
             } else {
                 ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                                          Rcpp::Named("values") = dreal_ret,
-                                         Rcpp::Named("vectors") = R_NilValue);
+                                         Rcpp::Named("vectors") = R_NilValue,
+                                         Rcpp::Named("niter") = Rcpp::wrap(iparam[9 - 1]));
             }        
         } else {
             Rcpp::ComplexVector cmpvalues_ret(nconv);
@@ -302,7 +305,8 @@ BEGIN_RCPP
             {
                 ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                                          Rcpp::Named("values") = cmpvalues_ret,
-                                         Rcpp::Named("vectors") = R_NilValue);
+                                         Rcpp::Named("vectors") = R_NilValue,
+                                         Rcpp::Named("niter") = Rcpp::wrap(iparam[9 - 1]));
             } else {
                 Rcpp::ComplexMatrix cmpvectors_ret(n, nconv);
                 // obtain the real and imaginary part of the eigenvectors
@@ -336,7 +340,8 @@ BEGIN_RCPP
                 }
                 ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                                          Rcpp::Named("values") = cmpvalues_ret,
-                                         Rcpp::Named("vectors") = cmpvectors_ret);
+                                         Rcpp::Named("vectors") = cmpvectors_ret,
+                                         Rcpp::Named("niter") = Rcpp::wrap(iparam[9 - 1]));
             }
             
         }

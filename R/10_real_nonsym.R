@@ -76,9 +76,6 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
     }
     
     # Calling the C++ function
-    cat("funname is", funname, "\n")
-    cat("work mode is", workmode, "\n")
-    
     res = .Call(funname, if(workmode == 3L) B else A,
                 as.integer(n), as.integer(k),
                 as.character(arpack.param$which), as.integer(arpack.param$ncv),
