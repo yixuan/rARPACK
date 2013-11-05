@@ -65,7 +65,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     if(mattype == "matrix")
     {
         res = .Call("den_real_sym",
-                    if(workmode == 3L) solve(A - diag(rep(sigma, n))) else A,
+                    if(workmode == 1L) A else A - diag(rep(sigma, n)),
                     as.integer(n), as.integer(k),
                     as.character(arpack.param$which), as.integer(arpack.param$ncv),
                     as.numeric(arpack.param$tol), as.integer(arpack.param$maxitr),
@@ -76,7 +76,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
                     PACKAGE = "rarpack");
     } else if(mattype == "dsyMatrix") {
         res = .Call("den_real_sym",
-                    if(workmode == 3L) solve(A - Diagonal(n, sigma))@x else A@x,
+                    if(workmode == 1L) A@x else (A - Diagonal(n, sigma))@x,
                     as.integer(n), as.integer(k),
                     as.character(arpack.param$which), as.integer(arpack.param$ncv),
                     as.numeric(arpack.param$tol), as.integer(arpack.param$maxitr),
