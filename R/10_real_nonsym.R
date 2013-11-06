@@ -33,6 +33,7 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
         sigmareal = TRUE;
     } else {
         workmode = 3L;
+        if(abs(Im(sigma)) < 1e-17) sigma = Re(sigma);
         sigmareal = !is.complex(sigma);
     }
     
