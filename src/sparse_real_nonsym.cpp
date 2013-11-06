@@ -25,11 +25,7 @@ void sparse_mat_v_prod(SEXP mat, double *x_in, double *y_out,
 
 
 RcppExport SEXP sparse_real_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-        SEXP which_string_r, SEXP ncv_scalar_r,
-        SEXP tol_scalar_r, SEXP maxitr_scalar_r,
-        SEXP retvec_logical_r,
-        SEXP sigmar_scalar_r, SEXP sigmai_scalar_r,
-        SEXP workmode_scalar_r)
+                                   SEXP params_list_r)
 {
 BEGIN_RCPP
     
@@ -49,12 +45,8 @@ BEGIN_RCPP
     data.y_vec = &y_vec;
     
     return do_eigs_nonsym(A_mat_r, n_scalar_r, k_scalar_r,
-                   which_string_r, ncv_scalar_r,
-                   tol_scalar_r, maxitr_scalar_r,
-                   retvec_logical_r,
-                   sigmar_scalar_r, sigmai_scalar_r,
-                   workmode_scalar_r,
-                   sparse_mat_v_prod, &data);
+                          params_list_r,
+                          sparse_mat_v_prod, &data);
 
 END_RCPP
 }

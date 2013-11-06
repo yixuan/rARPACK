@@ -1,5 +1,8 @@
 #include "do_eigs.h"
 
+using Rcpp::as;
+using Rcpp::wrap;
+
 // Warning and error information
 // See ARPACK/dnaupd.f for details
 static void dnaupd_warn_nonsym(int info)
@@ -121,64 +124,64 @@ static void dneupd_error_nonsym(int info)
 }
 
 SEXP do_eigs_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-        SEXP which_string_r, SEXP ncv_scalar_r,
-        SEXP tol_scalar_r, SEXP maxitr_scalar_r,
-        SEXP retvec_logical_r,
-        SEXP sigmar_scalar_r, SEXP sigmai_scalar_r,
-        SEXP workmode_scalar_r,
-        Mvfun mat_v_prod, void *data)
+                    SEXP params_list_r,
+                    Mvfun mat_v_prod, void *data)
 {
 BEGIN_RCPP
 
-    // begin ARPACK
+    // Retrieve parameters
+    Rcpp::List params_rcpp(params_list_r);
+    
+    // Begin ARPACK
     //
-    // initial value of ido
+    // Initial value of ido
     int ido = 0;
     // 'I' means standard eigen value problem, A * x = lambda * x
     char bmat = 'I';
-    // dimension of A (n by n)
+    // Dimension of A (n by n)
     int n = INTEGER(n_scalar_r)[0];
     // specify selection criteria
     // "LM": largest magnitude
     // "SM": smallest magnitude
     // "LR", "LI": largest real/imaginary part
     // "SR", "SI": smallest real/imaginary part
+    Rcpp::CharacterVector which_rcpp = params_rcpp["which"];
     char which[3];
-    which[0] = CHAR(STRING_ELT(which_string_r, 0))[0];
-    which[1] = CHAR(STRING_ELT(which_string_r, 0))[1];
+    which[0] = which_rcpp[0][0];
+    which[1] = which_rcpp[0][1];
     which[2] = '\0';
-    // number of eigenvalues requested
+    // Number of eigenvalues requested
     int nev = INTEGER(k_scalar_r)[0];
-    // precision
-    double tol = REAL(tol_scalar_r)[0];
-    // residual vector
+    // Precision
+    double tol = as<double>(params_rcpp["tol"]);
+    // Residual vector
     double *resid = new double[n]();
-    // related to the algorithm, large ncv results in
+    // Related to the algorithm, large ncv results in
     // faster convergence, but with greater memory use
-    int ncv = INTEGER(ncv_scalar_r)[0];
+    int ncv = as<double>(params_rcpp["ncv"]);
     
-    // variables to be returned to R
+    // Variables to be returned to R
     //
-    // vector of real part of eigenvalues
+    // Vector of real part of eigenvalues
     Rcpp::NumericVector dreal_ret(nev + 1);
-    // vector of imag part of eigenvalues
+    // Vector of imag part of eigenvalues
     Rcpp::NumericVector dimag_ret(nev + 1);
-    // matrix of real part of eigenvectors
+    // Matrix of real part of eigenvectors
     Rcpp::NumericMatrix vreal_ret(n, ncv);
-    // result list
+    // Result list
     Rcpp::List ret;
     
-    // store final results of eigenvectors
+    // Store final results of eigenvectors
     // double *V = new double[n * ncv]();
     double *V = vreal_ret.begin();
-    // leading dimension of V, required by FORTRAN
+    // Leading dimension of V, required by FORTRAN
     int ldv = n;
-    // control parameters
+    // Control parameters
     int *iparam = new int[11]();
     iparam[1 - 1] = 1; // ishfts
-    iparam[3 - 1] = INTEGER(maxitr_scalar_r)[0]; // maxitr
-    iparam[7 - 1] = INTEGER(workmode_scalar_r)[0]; // mode
-    // some pointers
+    iparam[3 - 1] = as<double>(params_rcpp["maxitr"]); // maxitr
+    iparam[7 - 1] = as<double>(params_rcpp["workmode"]); // mode
+    // Some pointers
     int *ipntr = new int[14]();
     /* workd has 3 columns.
      * ipntr[2] - 1 ==> first column to store B * X,
@@ -187,7 +190,7 @@ BEGIN_RCPP
     double *workd = new double[3 * n]();
     int lworkl = 3 * ncv * ncv + 6 * ncv;
     double *workl = new double[lworkl]();
-    // error flag, initialized to 0
+    // Error flag, initialized to 0
     int info = 0;
 
     naupp(ido, bmat, n, which, nev,
@@ -217,33 +220,33 @@ BEGIN_RCPP
         dnaupd_error_nonsym(info);
     }
     
-    // retrieve results
+    // Retrieve results
     //
-    // whether to calculate eigenvectors or not.
-    bool rvec = (bool) LOGICAL(retvec_logical_r)[0];
+    // Whether to calculate eigenvectors or not.
+    bool rvec = as<bool>(params_rcpp["retvec"]);
     // 'A' means to calculate Ritz vectors
     // 'P' to calculate Schur vectors
     char HowMny = 'A';
-    // real part of eigenvalues
+    // Real part of eigenvalues
     double *dr = dreal_ret.begin();
-    // imaginary part of eigenvalues
+    // Imaginary part of eigenvalues
     double *di = dimag_ret.begin();
-    // used to store results, will use V instead.
+    // Used to store results, will use V instead.
     double *Z = V;
-    // leading dimension of Z, required by FORTRAN
+    // Leading dimension of Z, required by FORTRAN
     int ldz = n;
-    // shift
-    double sigmar = REAL(sigmar_scalar_r)[0];
-    double sigmai = REAL(sigmai_scalar_r)[0];
-    // working space
+    // Shift
+    double sigmar = as<double>(params_rcpp["sigmar"]);
+    double sigmai = as<double>(params_rcpp["sigmai"]);
+    // Working space
     double *workv = new double[3 * ncv]();
-    // error information
+    // Error information
     int ierr = 0;
     
-    // number of converged eigenvalues
+    // Number of converged eigenvalues
     int nconv = 0;
 
-    // use neupp() to retrieve results
+    // Use neupp() to retrieve results
     neupp(rvec, HowMny, dr,
             di, Z, ldz, sigmar,
             sigmai, workv, bmat, n,
@@ -264,34 +267,34 @@ BEGIN_RCPP
         dneupd_error_nonsym(ierr);
     }
         
-    // obtain 'nconv' converged eigenvalues
+    // Obtain 'nconv' converged eigenvalues
     nconv = iparam[5 - 1];
     if(nconv <= 0)
     {
          ::Rf_warning("no converged eigenvalues found");
-         ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+         ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
                                   Rcpp::Named("values") = R_NilValue,
                                   Rcpp::Named("vectors") = R_NilValue,
-                                  Rcpp::Named("niter") = Rcpp::wrap(iparam[9 - 1]));
+                                  Rcpp::Named("niter") = wrap(iparam[9 - 1]));
     } else {
-        // if all eigenvalues are real
-        // equivalent R code: if (all(abs(dimag[1:nconv] < 1e-30)))
-        if (Rcpp::is_true(Rcpp::all(Rcpp::abs(dimag_ret) < 1e-30)))
+        // If all eigenvalues are real
+        // equivalent R code: if (all(abs(dimag[1:nconv] < 1e-17)))
+        if (Rcpp::is_true(Rcpp::all(Rcpp::abs(dimag_ret) < 1e-17)))
         {
             // v.erase(start, end) removes v[start <= i < end]
             dreal_ret.erase(nconv, dreal_ret.length());
             if(rvec)
             {
                 Rcpp::Range range = Rcpp::Range(0, nconv - 1);
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
                                          Rcpp::Named("values") = dreal_ret,
                                          Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range),
-                                         Rcpp::Named("niter") = Rcpp::wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
             } else {
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
                                          Rcpp::Named("values") = dreal_ret,
                                          Rcpp::Named("vectors") = R_NilValue,
-                                         Rcpp::Named("niter") = Rcpp::wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
             }        
         } else {
             Rcpp::ComplexVector cmpvalues_ret(nconv);
@@ -303,13 +306,13 @@ BEGIN_RCPP
             }
             if(!rvec)
             {
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
                                          Rcpp::Named("values") = cmpvalues_ret,
                                          Rcpp::Named("vectors") = R_NilValue,
-                                         Rcpp::Named("niter") = Rcpp::wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
             } else {
                 Rcpp::ComplexMatrix cmpvectors_ret(n, nconv);
-                // obtain the real and imaginary part of the eigenvectors
+                // Obtain the real and imaginary part of the eigenvectors
                 bool first = true;
                 int j;
                 for (i = 0; i < nconv; i++)
@@ -338,10 +341,10 @@ BEGIN_RCPP
                         first = true;
                     }
                 }
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
                                          Rcpp::Named("values") = cmpvalues_ret,
                                          Rcpp::Named("vectors") = cmpvectors_ret,
-                                         Rcpp::Named("niter") = Rcpp::wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
             }
             
         }

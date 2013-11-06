@@ -1,6 +1,7 @@
 #include <RcppEigen.h>
 #include "do_eigs.h"
 
+using Rcpp::as;
 using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -66,35 +67,35 @@ void denc_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
 
 
 RcppExport SEXP den_real_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-        SEXP which_string_r, SEXP ncv_scalar_r,
-        SEXP tol_scalar_r, SEXP maxitr_scalar_r,
-        SEXP retvec_logical_r,
-        SEXP sigmar_scalar_r, SEXP sigmai_scalar_r,
-        SEXP workmode_scalar_r, SEXP sigmareal_logical_r)
+                                SEXP params_list_r,
+                                SEXP sigmareal_logical_r)
 {
 BEGIN_RCPP
+
+    Rcpp::List params_rcpp(params_list_r);
+    int workmode = as<int>(params_rcpp["workmode"]);
+    
     // If we don't need shift-and-invert mode
-    if(INTEGER(workmode_scalar_r)[0] == 1)
+    if(workmode == 1)
     {
         return do_eigs_nonsym(A_mat_r, n_scalar_r, k_scalar_r,
-                   which_string_r, ncv_scalar_r,
-                   tol_scalar_r, maxitr_scalar_r,
-                   retvec_logical_r,
-                   sigmar_scalar_r, sigmai_scalar_r,
-                   workmode_scalar_r,
-                   den_mat_v_prod, NULL);
+                              params_list_r,  
+                              den_mat_v_prod, NULL);
     } else {
+        
+        double sigmar = as<double>(params_rcpp["sigmar"]);
+        double sigmai = as<double>(params_rcpp["sigmai"]);
+        int n = INTEGER(n_scalar_r)[0];
+        
         if(LOGICAL(sigmareal_logical_r)[0])
         {
-            int n = INTEGER(n_scalar_r)[0];
-        
             // Map A_mat_r to Eigen matrix
             Map<MatrixXd> A(REAL(A_mat_r), n, n);
         
             // Subtract the diagonal elements by sigma, i.e., A - sigma * I
             for(int i = 0; i < n; i++)
             {
-                A(i, i) -= REAL(sigmar_scalar_r)[0];
+                A(i, i) -= sigmar;
             }
             
             // LU decomposition
@@ -103,7 +104,7 @@ BEGIN_RCPP
             // Change A back
             for(int i = 0; i < n; i++)
             {
-                A(i, i) += REAL(sigmar_scalar_r)[0];
+                A(i, i) += sigmar;
             }
         
             // Declare Eigen vectors (hey here I mean the C++ library Eigen,
@@ -118,15 +119,9 @@ BEGIN_RCPP
             data.y_vec = &y_vec;
             
             return do_eigs_nonsym(A_mat_r, n_scalar_r, k_scalar_r,
-                       which_string_r, ncv_scalar_r,
-                       tol_scalar_r, maxitr_scalar_r,
-                       retvec_logical_r,
-                       sigmar_scalar_r, sigmai_scalar_r,
-                       workmode_scalar_r,
-                       denr_mat_v_prod_shinv, &data);
-        } else {
-            int n = INTEGER(n_scalar_r)[0];
-        
+                                  params_list_r,
+                                  denr_mat_v_prod_shinv, &data);
+        } else { 
             // Map A_mat_r to Eigen matrix
             Map<MatrixXd> AR(REAL(A_mat_r), n, n);
             
@@ -137,8 +132,7 @@ BEGIN_RCPP
             // Subtract the diagonal elements by sigma, i.e., A - sigma * I
             for(int i = 0; i < n; i++)
             {
-                A(i, i) -= std::complex<double>(REAL(sigmar_scalar_r)[0],
-                                                REAL(sigmai_scalar_r)[0]);
+                A(i, i) -= std::complex<double>(sigmar, sigmai);
             }
             
             // LU decomposition
@@ -157,12 +151,8 @@ BEGIN_RCPP
             data.y_vec = &y_vec;
             
             return do_eigs_nonsym(A_mat_r, n_scalar_r, k_scalar_r,
-                       which_string_r, ncv_scalar_r,
-                       tol_scalar_r, maxitr_scalar_r,
-                       retvec_logical_r,
-                       sigmar_scalar_r, sigmai_scalar_r,
-                       workmode_scalar_r,
-                       denc_mat_v_prod_shinv, &data);
+                                  params_list_r,
+                                  denc_mat_v_prod_shinv, &data);
         }
     }
     

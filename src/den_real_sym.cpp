@@ -1,6 +1,7 @@
 #include <RcppEigen.h>
 #include "do_eigs.h"
 
+using Rcpp::as;
 using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -10,7 +11,7 @@ typedef Eigen::Map<Eigen::VectorXd> MapVec;
 
 // Dense matrix-vector product
 void den_sym_mat_v_prod(SEXP mat, double *x_in, double *y_out,
-                    int n, void *data)
+                        int n, void *data)
 {
     char *uplo = (char *) data;
     double alpha = 1.0;
@@ -45,23 +46,22 @@ void den_sym_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
 
 
 RcppExport SEXP den_real_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-        SEXP which_string_r, SEXP ncv_scalar_r,
-        SEXP tol_scalar_r, SEXP maxitr_scalar_r,
-        SEXP retvec_logical_r, SEXP sigma_scalar_r,
-        SEXP workmode_scalar_r,
-        SEXP lower_logical_r)
+                             SEXP params_list_r,
+                             SEXP lower_logical_r)
 {
 BEGIN_RCPP
-    if(INTEGER(workmode_scalar_r)[0] == 1)
+    
+    Rcpp::List params_rcpp(params_list_r);
+    int workmode = as<int>(params_rcpp["workmode"]);
+    double sigma = as<double>(params_rcpp["sigma"]);
+    
+    if(workmode == 1)
     {
         char uplo = LOGICAL(lower_logical_r)[0] ? 'L' : 'U';
         
         return do_eigs_sym(A_mat_r, n_scalar_r, k_scalar_r,
-                   which_string_r, ncv_scalar_r,
-                   tol_scalar_r, maxitr_scalar_r,
-                   retvec_logical_r, sigma_scalar_r,
-                   workmode_scalar_r,
-                   den_sym_mat_v_prod, &uplo);
+                           params_list_r,
+                           den_sym_mat_v_prod, &uplo);
     } else {
         int n = INTEGER(n_scalar_r)[0];
         
@@ -71,7 +71,7 @@ BEGIN_RCPP
         // Subtract the diagonal elements by sigma, i.e., A - sigma * I
         for(int i = 0; i < n; i++)
         {
-            A(i, i) -= REAL(sigma_scalar_r)[0];
+            A(i, i) -= sigma;
         }
         
         // LU decomposition
@@ -80,7 +80,7 @@ BEGIN_RCPP
         // Change A back
         for(int i = 0; i < n; i++)
         {
-            A(i, i) += REAL(sigma_scalar_r)[0];
+            A(i, i) += sigma;
         }
         
         // Declare Eigen vectors (hey here I mean the C++ library Eigen,
@@ -95,11 +95,8 @@ BEGIN_RCPP
         data.y_vec = &y_vec;
               
         return do_eigs_sym(A_mat_r, n_scalar_r, k_scalar_r,
-                       which_string_r, ncv_scalar_r,
-                       tol_scalar_r, maxitr_scalar_r,
-                       retvec_logical_r, sigma_scalar_r,
-                       workmode_scalar_r,
-                       den_sym_mat_v_prod_shinv, &data);
+                           params_list_r,
+                           den_sym_mat_v_prod_shinv, &data);
     }
     
     // Should not get here

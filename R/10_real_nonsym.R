@@ -44,8 +44,7 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
                         retvec = TRUE,
                         sigmar = Re(sigma[1]),
                         sigmai = Im(sigma[1]),
-                        workmode = workmode,
-                        sigmareal = sigmareal);
+                        workmode = workmode);
     
     # Check the value of 'which'
     eigenv.type = c("LM", "SM", "LR", "SR", "LI", "SI");
@@ -71,12 +70,8 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
     # Calling the C++ function
     res = .Call(funname, A,
                 as.integer(n), as.integer(k),
-                as.character(arpack.param$which), as.integer(arpack.param$ncv),
-                as.numeric(arpack.param$tol), as.integer(arpack.param$maxitr),
-                as.logical(arpack.param$retvec),
-                as.numeric(arpack.param$sigmar), as.numeric(arpack.param$sigmai),
-                as.integer(arpack.param$workmode),
-                as.logical(arpack.param$sigmareal),
+                as.list(arpack.param),
+                as.logical(sigmareal),
                 PACKAGE = "rarpack");
     return(res);
 }
