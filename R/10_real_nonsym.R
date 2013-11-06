@@ -67,9 +67,14 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
                      matrix = "den_real_nonsym",
                      dgCMatrix = "sparse_real_nonsym",
                      stop("invalid value of 'mattype'"));
+    if (!arpack.param$sigmareal)
+    {
+        Aainv = Re(solve(A - diag(rep(sigma, n))));
+    }
     
     # Calling the C++ function
-    res = .Call(funname, A,
+    res = .Call(funname,
+                if(arpack.param$sigmareal) A else Aainv,
                 as.integer(n), as.integer(k),
                 as.character(arpack.param$which), as.integer(arpack.param$ncv),
                 as.numeric(arpack.param$tol), as.integer(arpack.param$maxitr),
