@@ -1,9 +1,9 @@
 Package: rarpack
 Type: Package
 Title: R wrapper of ARPACK for large scale eigen value/vector problems
-Version: 0.1-0
-Date: 2013-03-30
-Author: Yixuan Qiu
+Version: 0.4-0
+Date: 2013-11-25
+Author: Yixuan Qiu and authors of the ARPACK library. See file AUTHORS for details.
 Maintainer: Yixuan Qiu <yixuan.qiu@cos.name>
 Description: rarpack is an R wrapper of the ARPACK library
     (http://www.caam.rice.edu/software/ARPACK/) to solve large scale eigen
@@ -12,13 +12,13 @@ Description: rarpack is an R wrapper of the ARPACK library
     is usually more efficient than eigen() if k << n. Currently this package
     provides the function eigs() which does the similar job as in Matlab and
     Octave.
-License: GPL
+License: BSD
 URL: http://github.com/yixuan/rarpack
 Depends:
     methods,
-    Matrix (>= 1.0-1),
-    Rcpp (>= 0.10.3),
-    RcppEigen (>= 0.3.1.2.1)
+    Matrix (>= 1.1-0),
+    Rcpp (>= 0.10.5),
+    RcppEigen (>= 0.3.2.0)
 LinkingTo: Rcpp, RcppEigen
 Collate:
     'zzz.R'

@@ -1,4 +1,24 @@
-		  CHANGES IN rarpack VERSION 0.2-0
+      CHANGES IN rarpack VERSION 0.4-0
+
+NEW FEATURES
+
+    o Implement shift-and-invert mode for all supported eigen problems.
+
+
+
+
+
+      CHANGES IN rarpack VERSION 0.3-0
+
+NEW FEATURES
+
+    o Now eigs() supports real symmetric matrices.
+
+
+
+
+
+      CHANGES IN rarpack VERSION 0.2-0
 
 NEW FEATURES
 
@@ -9,7 +29,7 @@ NEW FEATURES
 
 
 
-		  CHANGES IN rarpack VERSION 0.1-0
+      CHANGES IN rarpack VERSION 0.1-0
 
 NEW FEATURES
 
