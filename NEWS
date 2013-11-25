@@ -4,6 +4,10 @@ NEW FEATURES
 
     o Implement shift-and-invert mode for all supported eigen problems.
 
+BUG FIXES
+
+    o Update arpack-ng to 3.1.4
+
 
 
 
