@@ -193,19 +193,21 @@ BEGIN_RCPP
     // Error flag, initialized to 0
     int info = 0;
 
-    naupp(ido, bmat, n, which, nev,
-            tol, resid, ncv, V,
-            ldv, iparam, ipntr, workd,
-            workl, lworkl, info);
+    naupd(ido, bmat, n, which,
+          nev, tol, resid,
+          ncv, V, ldv,
+          iparam, ipntr, workd,
+          workl, lworkl, info);
     // ido == -1 or ido == 1 means more iterations needed
     while (ido == -1 || ido == 1)
     {
         mat_v_prod(A_mat_r, &workd[ipntr[0] - 1],
                    &workd[ipntr[1] - 1], n, data);
-        naupp(ido, bmat, n, which, nev,
-            tol, resid, ncv, V,
-            ldv, iparam, ipntr, workd,
-            workl, lworkl, info);
+        naupd(ido, bmat, n, which,
+              nev, tol, resid,
+              ncv, V, ldv,
+              iparam, ipntr, workd,
+              workl, lworkl, info);
     }
     
     // info > 0 means warning, < 0 means error
@@ -226,7 +228,7 @@ BEGIN_RCPP
     bool rvec = as<bool>(params_rcpp["retvec"]);
     // 'A' means to calculate Ritz vectors
     // 'P' to calculate Schur vectors
-    char HowMny = 'A';
+    char howmny = 'A';
     // Real part of eigenvalues
     double *dr = dreal_ret.begin();
     // Imaginary part of eigenvalues
@@ -246,14 +248,12 @@ BEGIN_RCPP
     // Number of converged eigenvalues
     int nconv = 0;
 
-    // Use neupp() to retrieve results
-    neupp(rvec, HowMny, dr,
-            di, Z, ldz, sigmar,
-            sigmai, workv, bmat, n,
-            which, nev, tol, resid,
-            ncv, V, ldv, iparam,
-            ipntr, workd, workl,
-            lworkl, ierr);
+    // Use neupd() to retrieve results
+    neupd(rvec, howmny, dr, di,
+          Z, ldz, sigmar, sigmai, workv,
+          bmat, n, which, nev, tol,
+          resid, ncv, V, ldv, iparam,
+          ipntr, workd, workl, lworkl, ierr);
     // ierr > 0 means warning, < 0 means error
     if (ierr > 0) dneupd_warn_nonsym(ierr);
     if (ierr < 0)

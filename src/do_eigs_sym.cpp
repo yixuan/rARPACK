@@ -186,19 +186,21 @@ BEGIN_RCPP
     // Error flag, initialized to 0
     int info = 0;
 
-    saupp(ido, bmat, n, which, nev,
-            tol, resid, ncv, V,
-            ldv, iparam, ipntr, workd,
-            workl, lworkl, info);
+    saupd(ido, bmat, n, which,
+          nev, tol, resid,
+          ncv, V, ldv,
+          iparam, ipntr, workd,
+          workl, lworkl, info);
     // ido == -1 or ido == 1 means more iterations needed
     while (ido == -1 || ido == 1)
     {
         mat_v_prod(A_mat_r, &workd[ipntr[0] - 1],
                    &workd[ipntr[1] - 1], n, data);
-        saupp(ido, bmat, n, which, nev,
-            tol, resid, ncv, V,
-            ldv, iparam, ipntr, workd,
-            workl, lworkl, info);
+        saupd(ido, bmat, n, which,
+              nev, tol, resid,
+              ncv, V, ldv,
+              iparam, ipntr, workd,
+              workl, lworkl, info);
     }
     
     // info > 0 means warning, < 0 means error
@@ -219,7 +221,7 @@ BEGIN_RCPP
     bool rvec = as<bool>(params_rcpp["retvec"]);
     // 'A' means to calculate Ritz vectors
     // 'P' to calculate Schur vectors
-    char HowMny = 'A';
+    char howmny = 'A';
     // Vector of eigenvalues
     double *d = d_ret.begin();
     // Used to store results, will use V instead.
@@ -234,13 +236,13 @@ BEGIN_RCPP
     // Number of converged eigenvalues
     int nconv = 0;
 
-    // Use neupp() to retrieve results
-    seupp(rvec, HowMny, d, Z, ldz, sigma,
-            bmat, n,
-            which, nev, tol, resid,
-            ncv, V, ldv, iparam,
-            ipntr, workd, workl,
-            lworkl, ierr);
+    // Use seupd() to retrieve results
+    seupd(rvec, howmny, d,
+          Z, ldz, sigma, bmat,
+          n, which, nev, tol,
+          resid, ncv, V, ldv,
+          iparam, ipntr, workd, workl,
+          lworkl, ierr);
 
     // ierr < 0 means error
     if (ierr < 0)
