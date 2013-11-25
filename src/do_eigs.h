@@ -18,7 +18,7 @@ typedef void (*Mvfun)(SEXP mat, double *x_in, double *y_out,
 
 // Common function to calculate eigen values/vectors
 // mat_v_prod and data should be implemented according to
-// the problem (whether matrix is dense of sparse, for example)
+// the problem (whether matrix is dense or sparse, for example)
 SEXP do_eigs_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
                     SEXP params_list_r,
                     Mvfun mat_v_prod, void *data);
