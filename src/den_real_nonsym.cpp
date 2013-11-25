@@ -125,9 +125,10 @@ BEGIN_RCPP
             // Map A_mat_r to Eigen matrix
             Map<MatrixXd> AR(REAL(A_mat_r), n, n);
             
-            MatrixXcd A(n, n);
-            A.real() = AR;
-            A.imag().setZero();
+            //MatrixXcd A(n, n);
+            //A.real() = AR;
+            //A.imag().setZero();
+            MatrixXcd A = AR.cast< std::complex<double> >();
         
             // Subtract the diagonal elements by sigma, i.e., A - sigma * I
             for(int i = 0; i < n; i++)
