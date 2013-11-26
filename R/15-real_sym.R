@@ -40,8 +40,8 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     # Arguments to be passed to ARPACK
     arpack.param = list(which = which,
                         ncv = min(n - 1, max(2 * k + 1, 20)),
-                        tol = 1e-8,
-                        maxitr = 300,
+                        tol = 1e-10,
+                        maxitr = 1000,
                         retvec = TRUE,
                         sigma = sigma,
                         workmode = workmode);

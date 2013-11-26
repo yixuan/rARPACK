@@ -68,8 +68,8 @@
 ##'                   memory use. \code{ncv} must be satisfy
 ##'                   \eqn{k+2\le ncv \le n}{k+2 <= ncv <= n}.
 ##'                   Default is \code{min(n-1, max(2*k+1, 20))}.}
-##' \item{\code{tol}}{Precision parameter. Default is 1e-8.}
-##' \item{\code{maxitr}}{Maximum number of iterations. Default is 300.}
+##' \item{\code{tol}}{Precision parameter. Default is 1e-10.}
+##' \item{\code{maxitr}}{Maximum number of iterations. Default is 1000.}
 ##' \item{\code{retvec}}{Whether to compute eigenvectors. If FALSE,
 ##'                      only calculate and return eigenvalues.}
 ##' }
