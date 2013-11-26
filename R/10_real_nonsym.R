@@ -74,5 +74,30 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
                 as.list(arpack.param),
                 as.logical(sigmareal),
                 PACKAGE = "rarpack");
+    
+    # When workmode == 3 and sigmai != 0, we need to transform back
+    # the eigenvalues
+    # We only obtain
+    #   nu = 0.5 * (1 / (lambda - sigma)) + 1 / (lambda - conj(sigma)))
+    # So we need to solve lambda
+    #   lambda = sigmar + (1 \pm sqrt(1 - 4 * sigmai^2 * nu^2)) / (2 * nu)
+    # Use A * x = lambda * x to choose the correct root
+    if(workmode == 3L & !sigmareal)
+    {
+        nu = res$values;
+        sigmar = Re(sigma[1]);
+        sigmai = Im(sigma[1]);
+        tmp1 = sigmar + 0.5 / nu;
+        tmp2 = 0.5 * sqrt(1 / nu^2 - 4 * sigmai^2);
+        lambda1 = tmp1 + tmp2;
+        lambda2 = tmp1 - tmp2;
+        Ax.true = drop(as.numeric(A[1, ]) %*% res$vectors);
+        lambdax1 = lambda1 * res$vectors[1, ];
+        lambdax2 = lambda2 * res$vectors[1, ];
+        mod1 = Mod(Ax.true - lambdax1);
+        mod2 = Mod(Ax.true - lambdax2);
+        res$values = ifelse(mod1 < mod2, lambda1, lambda2);
+    }
+    
     return(res);
 }
