@@ -151,6 +151,10 @@ BEGIN_RCPP
     double tol = as<double>(params_rcpp["tol"]);
     // Residual vector
     double *resid = new double[n]();
+    double *initcoef = new double[n]();
+    initcoef[0] = initcoef[n - 1] = 0.5;
+    mat_v_prod(A_mat_r, initcoef, resid, n, data);
+    delete [] initcoef;
     // Related to the algorithm, large ncv results in
     // faster convergence, but with greater memory use
     int ncv = as<double>(params_rcpp["ncv"]);
@@ -183,7 +187,8 @@ BEGIN_RCPP
     double *workd = new double[3 * n]();
     int lworkl = ncv * (ncv + 8);
     double *workl = new double[lworkl]();
-    // Error flag, initialized to 0
+    // Error flag. 0 means random initialization,
+    // otherwise using resid as initial value
     int info = 0;
 
     saupd(ido, bmat, n, which,
