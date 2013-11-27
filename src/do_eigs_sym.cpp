@@ -157,7 +157,7 @@ BEGIN_RCPP
     delete [] initcoef;
     // Related to the algorithm, large ncv results in
     // faster convergence, but with greater memory use
-    int ncv = as<double>(params_rcpp["ncv"]);
+    int ncv = as<int>(params_rcpp["ncv"]);
     
     // Variables to be returned to R
     //
@@ -176,8 +176,8 @@ BEGIN_RCPP
     // Control parameters
     int *iparam = new int[11]();
     iparam[1 - 1] = 1; // ishfts
-    iparam[3 - 1] = as<double>(params_rcpp["maxitr"]); // maxitr
-    iparam[7 - 1] = as<double>(params_rcpp["workmode"]); // mode
+    iparam[3 - 1] = as<int>(params_rcpp["maxitr"]); // maxitr
+    iparam[7 - 1] = as<int>(params_rcpp["workmode"]); // mode
     // Some pointers
     int *ipntr = new int[11]();
     /* workd has 3 columns.
