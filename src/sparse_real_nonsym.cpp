@@ -45,7 +45,7 @@ void sparse_mat_v_prod(SEXP mat, double *x_in, double *y_out,
     // First map x_in and y_out to x_vec and y_vec respectively,
     // and then do the matrix product y_vec <- A * x_vec
     new (spdata->x_vec) MapVec(x_in, n);
-    new (spdata->y_vec) MapVec(y_out, n);
+    new (spdata->y_vec) MapVec(y_out, m);
     (*(spdata->y_vec)).noalias() = *(spdata->A) * *(spdata->x_vec);
 }
 
@@ -62,7 +62,7 @@ void sparser_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
     // First map x_in and y_out to x_vec and y_vec respectively,
     // and then solve the linear equation Mat * y_out = x_in
     new (sprludata->x_vec) MapVec(x_in, n);
-    new (sprludata->y_vec) MapVec(y_out, n);
+    new (sprludata->y_vec) MapVec(y_out, m);
     (*(sprludata->y_vec)).noalias() = (*(sprludata->solver)).solve(*(sprludata->x_vec));
 }
 
@@ -73,7 +73,7 @@ void sparsec_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
     // First map x_in and y_out to x_vec and y_vec respectively,
     // and then solve the linear equation Mat * y_out = x_in
     (*(spcludata->x_vec)).real() = MapVec(x_in, n);
-    new (spcludata->y_vec) MapVec(y_out, n);
+    new (spcludata->y_vec) MapVec(y_out, m);
     (*(spcludata->y_vec)).noalias() = (*(spcludata->solver)).solve(*(spcludata->x_vec)).real();
 }
 

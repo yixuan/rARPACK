@@ -22,8 +22,8 @@ void den_mat_v_prod(SEXP mat, double *x_in, double *y_out,
     int one = 1;
     double zero = 0.0;
 
-    F77_CALL(dgemv)(&trans, &n, &n,
-            &alpha, REAL(mat), &n,
+    F77_CALL(dgemv)(&trans, &m, &n,
+            &alpha, REAL(mat), &m,
             x_in, &one, &zero,
             y_out, &one);
 }
@@ -56,7 +56,7 @@ void denr_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
     // First map x_in and y_out to x_vec and y_vec respectively,
     // and then solve the linear equation Mat * y_out = x_in
     new (drludata->x_vec) MapVec(x_in, n);
-    new (drludata->y_vec) MapVec(y_out, n);
+    new (drludata->y_vec) MapVec(y_out, m);
     (*(drludata->y_vec)).noalias() = (*(drludata->solver)).solve(*(drludata->x_vec));
 }
 
@@ -67,7 +67,7 @@ void denc_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
     // First map x_in and y_out to x_vec and y_vec respectively,
     // and then solve the linear equation Mat * y_out = x_in
     (*(dcludata->x_vec)).real() = MapVec(x_in, n);
-    new (dcludata->y_vec) MapVec(y_out, n);
+    new (dcludata->y_vec) MapVec(y_out, m);
     (*(dcludata->y_vec)).noalias() = (*(dcludata->solver)).solve(*(dcludata->x_vec)).real();
 }
 
@@ -205,7 +205,7 @@ void denc_mat_v_prod_shinv2(SEXP mat, double *x_in, double *y_out,
     // First map x_in and y_out to x_vec and y_vec respectively,
     // and then solve the linear equation Mat * y_out = x_in
     new (dcludata->x_vec) MapVec(x_in, n);
-    new (dcludata->y_vec) MapVec(y_out, n);
+    new (dcludata->y_vec) MapVec(y_out, m);
     (*(dcludata->y_vec)).noalias() = (*(dcludata->solverA)).solve(*(dcludata->x_vec)) -
         (*(dcludata->solverS)).solve(*(dcludata->x_vec));
 }
