@@ -39,7 +39,7 @@ typedef struct {
 // This function calcultes y_out = Mat * x_in
 // where Mat is a sparse matrix
 void sparse_mat_v_prod(SEXP mat, double *x_in, double *y_out,
-                       int n, void *data)
+                       int m, int n, void *data)
 {
     SparseData *spdata = (SparseData *) data;
     // First map x_in and y_out to x_vec and y_vec respectively,
@@ -56,7 +56,7 @@ void sparse_mat_v_prod(SEXP mat, double *x_in, double *y_out,
 // Equivalent to calculate y_out = Inv(Mat) * x_in
 // sparsec_mat_v_prod_shinv() calculates y_out = Re(Inv(Mat)) * x_in
 void sparser_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
-                              int n, void *data)
+                              int m, int n, void *data)
 {  
     SparseRLUData *sprludata = (SparseRLUData *) data;
     // First map x_in and y_out to x_vec and y_vec respectively,
@@ -67,7 +67,7 @@ void sparser_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
 }
 
 void sparsec_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
-                              int n, void *data)
+                              int m, int n, void *data)
 {  
     SparseCLUData *spcludata = (SparseCLUData *) data;
     // First map x_in and y_out to x_vec and y_vec respectively,

@@ -158,7 +158,7 @@ BEGIN_RCPP
     double *resid = new double[n]();
     double *initcoef = new double[n]();
     initcoef[0] = initcoef[n - 1] = 0.5;
-    mat_v_prod(A_mat_r, initcoef, resid, n, data);
+    mat_v_prod(A_mat_r, initcoef, resid, n, n, data);
     delete [] initcoef;
     // Related to the algorithm, large ncv results in
     // faster convergence, but with greater memory use
@@ -207,7 +207,7 @@ BEGIN_RCPP
     while (ido == -1 || ido == 1)
     {
         mat_v_prod(A_mat_r, &workd[ipntr[0] - 1],
-                   &workd[ipntr[1] - 1], n, data);
+                   &workd[ipntr[1] - 1], n, n, data);
         naupd(ido, bmat, n, which,
               nev, tol, resid,
               ncv, V, ldv,

@@ -113,7 +113,7 @@ inline void neupd(bool rvec, char howmny, double dr[], double di[],
 // y_out: result of A * x_in
 // data: additional data passed to function
 typedef void (*Mvfun)(SEXP mat, double *x_in, double *y_out,
-                      int n, void *data);
+                      int m, int n, void *data);
 
 // Common function to calculate eigen values/vectors
 // mat_v_prod and data should be implemented according to
