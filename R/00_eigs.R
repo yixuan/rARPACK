@@ -9,7 +9,8 @@
 ##' eigenvalues and the corresponding eigenvectors.
 ##' 
 ##' Currently \code{eigs()} supports matrices of class "matrix",
-##' "dgCMatrix" and "dsyMatrix".
+##' "dgCMatrix" and "dsyMatrix". The latter two classes are defined in the
+##' \pkg{Matrix} package.
 ##' 
 ##' \code{eigs.sym()} assumes the matrix is symmetric,
 ##' and only the lower triangle (or upper triangle, which is
