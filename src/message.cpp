@@ -2,7 +2,7 @@
 
 // Warning and error information
 // See ARPACK/dsaupd.f for details
-void dsaupd_warn_nonsym(int info)
+void dsaupd_warn(int info)
 {
     switch(info)
     {
@@ -17,7 +17,7 @@ void dsaupd_warn_nonsym(int info)
     }
 }
 
-void dsaupd_error_nonsym(int info)
+void dsaupd_error(int info)
 {
     switch(info)
     {
@@ -66,7 +66,7 @@ void dsaupd_error_nonsym(int info)
 
 // Error information
 // See ARPACK/dseupd.f for details
-void dseupd_error_nonsym(int info)
+void dseupd_error(int info)
 {
     switch(info)
     {
@@ -119,7 +119,7 @@ void dseupd_error_nonsym(int info)
 
 // Warning and error information
 // See ARPACK/dnaupd.f for details
-void dnaupd_warn_nonsym(int info)
+void dnaupd_warn(int info)
 {
     switch(info)
     {
@@ -134,7 +134,7 @@ void dnaupd_warn_nonsym(int info)
     }
 }
 
-void dnaupd_error_nonsym(int info)
+void dnaupd_error(int info)
 {
     switch(info)
     {
@@ -181,7 +181,7 @@ void dnaupd_error_nonsym(int info)
 
 // Warning and error information
 // See ARPACK/dneupd.f for details
-void dneupd_warn_nonsym(int info)
+void dneupd_warn(int info)
 {
     switch(info)
     {
@@ -192,7 +192,7 @@ void dneupd_warn_nonsym(int info)
     }
 }
 
-void dneupd_error_nonsym(int info)
+void dneupd_error(int info)
 {
     switch(info)
     {

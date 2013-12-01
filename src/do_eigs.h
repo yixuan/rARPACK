@@ -128,12 +128,12 @@ SEXP do_eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
 
 
 // Warning and error messages
-void dsaupd_warn_nonsym(int info);
-void dsaupd_error_nonsym(int info);
-void dseupd_error_nonsym(int info);
-void dnaupd_warn_nonsym(int info);
-void dnaupd_error_nonsym(int info);
-void dneupd_warn_nonsym(int info);
-void dneupd_error_nonsym(int info);
+void dsaupd_warn(int info);
+void dsaupd_error(int info);
+void dseupd_error(int info);
+void dnaupd_warn(int info);
+void dnaupd_error(int info);
+void dneupd_warn(int info);
+void dneupd_error(int info);
 
 #endif // DO_EIGS_H

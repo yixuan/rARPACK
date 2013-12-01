@@ -94,7 +94,7 @@ BEGIN_RCPP
     }
     
     // info > 0 means warning, < 0 means error
-    if(info > 0) dsaupd_warn_nonsym(info);
+    if(info > 0) dsaupd_warn(info);
     if(info < 0)
     {
         delete [] workl;
@@ -102,7 +102,7 @@ BEGIN_RCPP
         delete [] ipntr;
         delete [] iparam;
         delete [] resid;
-        dsaupd_error_nonsym(info);
+        dsaupd_error(info);
     }
     
     // Retrieve results
@@ -142,7 +142,7 @@ BEGIN_RCPP
         delete [] ipntr;
         delete [] iparam;
         delete [] resid;
-        dseupd_error_nonsym(ierr);
+        dseupd_error(ierr);
     }
     
     // Obtain 'nconv' converged eigenvalues

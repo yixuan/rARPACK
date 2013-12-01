@@ -96,7 +96,7 @@ BEGIN_RCPP
     }
     
     // info > 0 means warning, < 0 means error
-    if(info > 0) dnaupd_warn_nonsym(info);
+    if(info > 0) dnaupd_warn(info);
     if(info < 0)
     {
         delete [] workl;
@@ -104,7 +104,7 @@ BEGIN_RCPP
         delete [] ipntr;
         delete [] iparam;
         delete [] resid;
-        dnaupd_error_nonsym(info);
+        dnaupd_error(info);
     }
     
     // Retrieve results
@@ -140,7 +140,7 @@ BEGIN_RCPP
           resid, ncv, V, ldv, iparam,
           ipntr, workd, workl, lworkl, ierr);
     // ierr > 0 means warning, < 0 means error
-    if (ierr > 0) dneupd_warn_nonsym(ierr);
+    if (ierr > 0) dneupd_warn(ierr);
     if (ierr < 0)
     {
         delete [] workv;
@@ -149,7 +149,7 @@ BEGIN_RCPP
         delete [] ipntr;
         delete [] iparam;
         delete [] resid;
-        dneupd_error_nonsym(ierr);
+        dneupd_error(ierr);
     }
         
     // Obtain 'nconv' converged eigenvalues
