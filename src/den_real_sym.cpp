@@ -13,8 +13,8 @@ typedef Eigen::Map<Eigen::MatrixXd> MapMat;
 // Dense matrix-vector product
 // This function uses BLAS to calculte y_out = Mat * x_in
 // where Mat is a symmetric matrix
-void den_sym_mat_v_prod(SEXP mat, double *x_in, double *y_out,
-                        int m, int n, void *data)
+static void den_sym_mat_v_prod(SEXP mat, double *x_in, double *y_out,
+                               int m, int n, void *data)
 {
     // *data is eigher 'L' or 'U'
     char *uplo = (char *) data;
@@ -40,8 +40,8 @@ typedef struct {
 // It uses LU decomposition to solve the linear equation
 //                      Mat * y_out = x_in
 // Equivalent to calculate y_out = Inv(Mat) * x_in
-void den_sym_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
-                              int m, int n, void *data)
+static void den_sym_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
+                                     int m, int n, void *data)
 {
     SymLUData *symludata = (SymLUData *) data;
     // First map x_in and y_out to x_vec and y_vec respectively,

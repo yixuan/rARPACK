@@ -14,8 +14,8 @@ typedef Eigen::Map<Eigen::MatrixXd> MapMat;
 
 // Dense matrix-vector product
 // This function uses BLAS to calculte y_out = Mat * x_in
-void den_mat_v_prod(SEXP mat, double *x_in, double *y_out,
-                    int m, int n, void *data)
+static void den_mat_v_prod(SEXP mat, double *x_in, double *y_out,
+                           int m, int n, void *data)
 {
     char trans = 'N';
     double alpha = 1.0;
@@ -49,8 +49,8 @@ typedef struct {
 //                      Mat * y_out = x_in
 // Equivalent to calculate y_out = Inv(Mat) * x_in
 // denc_mat_v_prod_shinv() calculates y_out = Re(Inv(Mat)) * x_in
-void denr_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
-                           int m, int n, void *data)
+static void denr_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
+                                  int m, int n, void *data)
 {
     DenRLUData *drludata = (DenRLUData *) data;
     // First map x_in and y_out to x_vec and y_vec respectively,
@@ -60,8 +60,8 @@ void denr_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
     (*(drludata->y_vec)).noalias() = (*(drludata->solver)).solve(*(drludata->x_vec));
 }
 
-void denc_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
-                           int m, int n, void *data)
+static void denc_mat_v_prod_shinv(SEXP mat, double *x_in, double *y_out,
+                                  int m, int n, void *data)
 {
     DenCLUData *dcludata = (DenCLUData *) data;
     // First map x_in and y_out to x_vec and y_vec respectively,
@@ -198,8 +198,8 @@ typedef struct {
 } DenCLUData2;
 
 // Shift-and-invert mode
-void denc_mat_v_prod_shinv2(SEXP mat, double *x_in, double *y_out,
-                            int m, int n, void *data)
+static void denc_mat_v_prod_shinv2(SEXP mat, double *x_in, double *y_out,
+                                   int m, int n, void *data)
 {
     DenCLUData2 *dcludata = (DenCLUData2 *) data;
     // First map x_in and y_out to x_vec and y_vec respectively,
