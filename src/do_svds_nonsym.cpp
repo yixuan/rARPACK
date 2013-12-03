@@ -47,15 +47,14 @@ BEGIN_RCPP
     // Residual vector
     double *resid = new double[dim]();
     int ncoef = m > n ? m : n;
-    double *initcoef = new double[ncoef]();
-    initcoef[0] = initcoef[ncoef - 1] = 0.5;
+    double *tmp = new double[ncoef]();
+    tmp[0] = tmp[ncoef - 1] = 0.5;
     if (m > n)
     {
-        mat_t_v_prod(A_mat_r, initcoef, resid, m, n, data);
+        mat_t_v_prod(A_mat_r, tmp, resid, m, n, data);
     } else {
-        mat_v_prod(A_mat_r, initcoef, resid, m, n, data);
+        mat_v_prod(A_mat_r, tmp, resid, m, n, data);
     }
-    delete [] initcoef;
     // Related to the algorithm, large ncv results in
     // faster convergence, but with greater memory use
     int ncv = as<int>(params_rcpp["ncv"]);
@@ -84,7 +83,6 @@ BEGIN_RCPP
      * ipntr[1] - 1 ==> second to store Y,
      * ipntr[0] - 1 ==> third to store X. */
     double *workd = new double[3 * dim]();
-    double *tmp = new double[dim]();
     int lworkl = ncv * (ncv + 8);
     double *workl = new double[lworkl]();
     // Error flag. 0 means random initialization,
@@ -117,12 +115,13 @@ BEGIN_RCPP
             mat_v_prod(A_mat_r, tmp,
                        &workd[ipntr[1] - 1], m, n, data);
         }
-        saupd(ido, bmat, n, which,
+        saupd(ido, bmat, dim, which,
               nev, tol, resid,
               ncv, V, ldv,
               iparam, ipntr, workd,
               workl, lworkl, info);
     }
+    delete [] tmp;
     
     // info > 0 means warning, < 0 means error
     if (info > 0) dsaupd_warn(info);
@@ -160,7 +159,7 @@ BEGIN_RCPP
     // Use seupd() to retrieve results
     seupd(rvec, howmny, d,
           Z, ldz, sigma, bmat,
-          n, which, nev, tol,
+          dim, which, nev, tol,
           resid, ncv, V, ldv,
           iparam, ipntr, workd, workl,
           lworkl, ierr);
