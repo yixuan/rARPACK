@@ -5,3 +5,5 @@ EXPORTS
  den_real_nonsym3
  sparse_real_nonsym
  den_real_sym
+ den_real_nonsym_svd
+ sparse_real_nonsym_svd

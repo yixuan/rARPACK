@@ -26,3 +26,4 @@ Collate:
     '10_real_nonsym.R'
     '00_eigs.R'
     '15_real_sym.R'
+    '30_svds.R'
