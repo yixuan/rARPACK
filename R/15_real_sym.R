@@ -80,5 +80,15 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     } else {
         stop("invalid value of 'mattype'");
     }
+    
+    # Returned eigenvalues are in ascending order, but usually
+    # we need descending
+    if(!is.null(res$values))
+    {
+        ord = order(res$values, decreasing = TRUE);
+        res$values = res$values[ord];
+        res$vectors = res$vectors[, ord];
+    }
+    
     return(res);
 }
