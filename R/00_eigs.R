@@ -1,4 +1,4 @@
-##' Find a few eigenvalues and eigenvectors for square matrix
+##' Find a specified number of eigenvalues and eigenvectors for square matrix
 ##'
 ##' @description
 ##' Given an \code{n} by \code{n} matrix \code{A},
@@ -8,8 +8,10 @@
 ##' \code{which}, e.g., choosing the \code{k} largest or smallest
 ##' eigenvalues and the corresponding eigenvectors.
 ##' 
-##' Currently \code{eigs()} supports matrices of class "matrix",
-##' "dgCMatrix" and "dsyMatrix". The latter two classes are defined in the
+##' Currently \code{eigs()} supports matrices of class "matrix"
+##' (the most commonly used matrix type),
+##' "dgCMatrix" (sparse matrix) and "dsyMatrix" (symmetric matrix).
+##' The latter two classes are defined in the
 ##' \pkg{Matrix} package.
 ##' 
 ##' \code{eigs.sym()} assumes the matrix is symmetric,
@@ -23,10 +25,10 @@
 ##' 
 ##' @param A The matrix whose eigen values/vectors are to be computed.
 ##' @param k Number of eigenvalues requested.
-##' @param which Selection criteria. See Details below.
-##' @param sigma Shift parameter. See Details below.
+##' @param which Selection criteria. See \sQuote{Details} below.
+##' @param sigma Shift parameter. See \sQuote{Details} below.
 ##' @param opts Control parameters related to the computing
-##' algorithm. See Details below.
+##' algorithm. See \sQuote{Details} below.
 ##' @param \dots Currently not used.
 ##' @param lower For symmetric matrices, should the lower triangle
 ##'              or upper triangle be used. 

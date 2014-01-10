@@ -4,7 +4,7 @@
 \alias{eigs.dsyMatrix}
 \alias{eigs.matrix}
 \alias{eigs.sym}
-\title{Find a few eigenvalues and eigenvectors for square matrix}
+\title{Find a specified number of eigenvalues and eigenvectors for square matrix}
 \usage{
 eigs(A, k, which = "LM", sigma = NULL, opts = list(), ...)
 
@@ -26,12 +26,14 @@ eigs.sym(A, k, which = "LM", sigma = NULL, opts = list(),
 
   \item{k}{Number of eigenvalues requested.}
 
-  \item{which}{Selection criteria. See Details below.}
+  \item{which}{Selection criteria. See \sQuote{Details}
+  below.}
 
-  \item{sigma}{Shift parameter. See Details below.}
+  \item{sigma}{Shift parameter. See \sQuote{Details}
+  below.}
 
   \item{opts}{Control parameters related to the computing
-  algorithm. See Details below.}
+  algorithm. See \sQuote{Details} below.}
 
   \item{\dots}{Currently not used.}
 
@@ -53,8 +55,9 @@ selection criteria by argument \code{which}, e.g., choosing
 the \code{k} largest or smallest eigenvalues and the
 corresponding eigenvectors.
 
-Currently \code{eigs()} supports matrices of class
-"matrix", "dgCMatrix" and "dsyMatrix". The latter two
+Currently \code{eigs()} supports matrices of class "matrix"
+(the most commonly used matrix type), "dgCMatrix" (sparse
+matrix) and "dsyMatrix" (symmetric matrix). The latter two
 classes are defined in the \pkg{Matrix} package.
 
 \code{eigs.sym()} assumes the matrix is symmetric, and only
