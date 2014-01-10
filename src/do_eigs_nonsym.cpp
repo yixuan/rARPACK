@@ -191,6 +191,10 @@ BEGIN_RCPP
             }
             if(!rvec)
             {
+                // It seems that when rvec is false, ARPACK will return
+                // the eigenvalues in ascending order. So here we reverse
+                // the vector
+                std::reverse(cmpvalues_ret.begin(), cmpvalues_ret.end());
                 ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
                                          Rcpp::Named("values") = cmpvalues_ret,
                                          Rcpp::Named("vectors") = R_NilValue,
