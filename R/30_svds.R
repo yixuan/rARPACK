@@ -31,13 +31,14 @@
 ##' \item{\code{ncv}}{Number of Lanzcos basis vectors to use. More vectors
 ##'                   will result in faster convergence, but with greater
 ##'                   memory use. \code{ncv} must be satisfy
-##'                   \eqn{k+1\le ncv \le n}{k+1 <= ncv <= n}.
-##'                   Default is \code{min(n-1, max(2*k+1, 20))}.}
+##'                   \eqn{k+1 < ncv \le p}{k+1 < ncv <= p} where
+##'                   \code{p = min(m, n)}.
+##'                   Default is \code{min(p-1, max(2*k+1, 20))}.}
 ##' \item{\code{tol}}{Precision parameter. Default is 1e-10.}
 ##' \item{\code{maxitr}}{Maximum number of iterations. Default is 1000.}
 ##' }
 ##' 
-##' @return A list with three components:
+##' @return A list with the following components:
 ##' \item{d}{A vector of the computed singular values.}
 ##' \item{u}{An \code{m} by \code{nu} matrix whose columns contain
 ##'          the left singular vectors. If \code{nu == 0}, \code{NULL}
@@ -45,6 +46,8 @@
 ##' \item{v}{An \code{n} by \code{nv} matrix whose columns contain
 ##'          the right singular vectors. If \code{nv == 0}, \code{NULL}
 ##'          will be returned.}
+##' \item{nconv}{Number of converged singular values.}
+##' \item{niter}{Number of iterations.}
 ##' @author Yixuan Qiu <\url{http://statr.me}>
 ##' @seealso \code{\link[base]{eigen}()}, \code{\link[base]{svd}()},
 ##' \code{\link{eigs}()}.
@@ -60,22 +63,18 @@
 ##' svds(A, k);
 ##' svds(A, k, nu = 0, nv = 3);
 svds <- function(A, k, nu = k, nv = k, opts = list(), ...)
-{
-    m = nrow(A);
-    n = ncol(A);
-    wd = min(m, n);
-    
-    # Arguments to be passed to ARPACK
-    arpack.param = list(ncv = min(wd - 1, max(2 * k + 1, 20)),
-                        tol = 1e-10,
-                        maxitr = 1000);
-    
-    res = .Call("den_real_nonsym_svd",
-                A,
-                as.integer(m), as.integer(n),
-                as.integer(k), as.integer(nu), as.integer(nv),
-                as.list(arpack.param),
-                PACKAGE = "rarpack");
-    
-    return(res);
-}
+    UseMethod("svds");
+
+##' @rdname svds
+##' @method svds matrix
+##' @S3method svds matrix
+##' @export
+svds.matrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
+    svds.real_nonsym(A, k, nu, nv, opts, ..., mattype = "matrix");
+
+##' @rdname svds
+##' @method svds dgCMatrix
+##' @S3method svds dgCMatrix
+##' @export
+svds.dgCMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
+    svds.real_nonsym(A, k, nu, nv, opts, ..., mattype = "dgCMatrix");
