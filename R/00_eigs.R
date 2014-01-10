@@ -78,9 +78,10 @@
 ##' }
 ##' 
 ##' @return A list of converged eigenvalues and eigenvectors.
-##' \item{nconv}{Number of converged eigenvalues.}
 ##' \item{values}{Computed eigenvalues.}
 ##' \item{vectors}{Computed eigenvectors. \code{vectors[, j]} corresponds to \code{values[j]}.}
+##' \item{nconv}{Number of converged eigenvalues.}
+##' \item{niter}{Number of iterations in the computation.}
 ##' @author Yixuan Qiu <\url{http://statr.me}>
 ##' @seealso \code{\link[base]{eigen}()}, \code{\link[base]{svd}()}
 ##'
