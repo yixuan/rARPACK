@@ -1,3 +1,6 @@
+S3method(eigs,dgCMatrix)
+S3method(eigs,dsyMatrix)
+S3method(eigs,matrix)
 export(eigs)
 export(eigs.sym)
 export(svds)

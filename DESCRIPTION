@@ -21,9 +21,3 @@ Depends:
     Rcpp (>= 0.10.5),
     RcppEigen (>= 0.3.2.0)
 LinkingTo: Rcpp, RcppEigen
-Collate:
-    'zzz.R'
-    '10_real_nonsym.R'
-    '00_eigs.R'
-    '15_real_sym.R'
-    '30_svds.R'
