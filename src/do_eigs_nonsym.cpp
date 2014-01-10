@@ -157,9 +157,9 @@ BEGIN_RCPP
     if(nconv <= 0)
     {
          ::Rf_warning("no converged eigenvalues found");
-         ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
-                                  Rcpp::Named("values") = R_NilValue,
+         ret = Rcpp::List::create(Rcpp::Named("values") = R_NilValue,
                                   Rcpp::Named("vectors") = R_NilValue,
+                                  Rcpp::Named("nconv") = wrap(nconv),
                                   Rcpp::Named("niter") = wrap(iparam[9 - 1]));
     } else {
         // Sometimes there are nconv = nev + 1 converged eigenvalues,
@@ -175,14 +175,14 @@ BEGIN_RCPP
             if(rvec)
             {
                 Rcpp::Range range = Rcpp::Range(0, nconv - 1);
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("values") = dreal_ret,
+                ret = Rcpp::List::create(Rcpp::Named("values") = dreal_ret,
                                          Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range),
+                                         Rcpp::Named("nconv") = wrap(nconv),
                                          Rcpp::Named("niter") = wrap(iparam[9 - 1]));
             } else {
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("values") = dreal_ret,
+                ret = Rcpp::List::create(Rcpp::Named("values") = dreal_ret,
                                          Rcpp::Named("vectors") = R_NilValue,
+                                         Rcpp::Named("nconv") = wrap(nconv),
                                          Rcpp::Named("niter") = wrap(iparam[9 - 1]));
             }        
         } else {
@@ -199,9 +199,9 @@ BEGIN_RCPP
                 // the eigenvalues in ascending order. So here we reverse
                 // the vector
                 std::reverse(cmpvalues_ret.begin(), cmpvalues_ret.end());
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("values") = cmpvalues_ret,
+                ret = Rcpp::List::create(Rcpp::Named("values") = cmpvalues_ret,
                                          Rcpp::Named("vectors") = R_NilValue,
+                                         Rcpp::Named("nconv") = wrap(nconv),
                                          Rcpp::Named("niter") = wrap(iparam[9 - 1]));
             } else {
                 Rcpp::ComplexMatrix cmpvectors_ret(n, nconv);
@@ -234,9 +234,9 @@ BEGIN_RCPP
                         first = true;
                     }
                 }
-                ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("values") = cmpvalues_ret,
+                ret = Rcpp::List::create(Rcpp::Named("values") = cmpvalues_ret,
                                          Rcpp::Named("vectors") = cmpvectors_ret,
+                                         Rcpp::Named("nconv") = wrap(nconv),
                                          Rcpp::Named("niter") = wrap(iparam[9 - 1]));
             }
             
