@@ -1,8 +1,14 @@
 \name{svds}
 \alias{svds}
+\alias{svds.dgCMatrix}
+\alias{svds.matrix}
 \title{(Truncated) Singular Value Decomposition of a Matrix}
 \usage{
 svds(A, k, nu = k, nv = k, opts = list(), ...)
+
+\method{svds}{matrix}(A, k, nu = k, nv = k, opts = list(), ...)
+
+\method{svds}{dgCMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
 }
 \arguments{
   \item{A}{The matrix whose SVD is to be computed.}
@@ -21,13 +27,15 @@ svds(A, k, nu = k, nv = k, opts = list(), ...)
   \item{\dots}{Currently not used.}
 }
 \value{
-A list with three components: \item{d}{A vector of the
-computed singular values.} \item{u}{An \code{m} by
+A list with the following components: \item{d}{A vector of
+the computed singular values.} \item{u}{An \code{m} by
 \code{nu} matrix whose columns contain the left singular
 vectors. If \code{nu == 0}, \code{NULL} will be returned.}
 \item{v}{An \code{n} by \code{nv} matrix whose columns
 contain the right singular vectors. If \code{nv == 0},
-\code{NULL} will be returned.}
+\code{NULL} will be returned.} \item{nconv}{Number of
+converged singular values.} \item{niter}{Number of
+iterations.}
 }
 \description{
 Given an \code{m} by \code{n} matrix \code{A}, function
@@ -51,11 +59,11 @@ the following parameters:
 \describe{ \item{\code{ncv}}{Number of Lanzcos basis
 vectors to use. More vectors will result in faster
 convergence, but with greater memory use. \code{ncv} must
-be satisfy \eqn{k+1\le ncv \le n}{k+1 <= ncv <= n}.
-Default is \code{min(n-1, max(2*k+1, 20))}.}
-\item{\code{tol}}{Precision parameter. Default is 1e-10.}
-\item{\code{maxitr}}{Maximum number of iterations. Default
-is 1000.} }
+be satisfy \eqn{k+1 < ncv \le p}{k+1 < ncv <= p} where
+\code{p = min(m, n)}.  Default is \code{min(p-1, max(2*k+1,
+20))}.} \item{\code{tol}}{Precision parameter. Default is
+1e-10.} \item{\code{maxitr}}{Maximum number of iterations.
+Default is 1000.} }
 }
 \examples{
 m = 100;
