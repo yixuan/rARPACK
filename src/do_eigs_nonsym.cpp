@@ -162,6 +162,10 @@ BEGIN_RCPP
                                   Rcpp::Named("vectors") = R_NilValue,
                                   Rcpp::Named("niter") = wrap(iparam[9 - 1]));
     } else {
+        // Sometimes there are nconv = nev + 1 converged eigenvalues,
+        // mainly due to pairs of complex eigenvalues.
+        // We will truncate at nev
+        if (nconv > nev)  nconv = nev;
         // If all eigenvalues are real
         // equivalent R code: if (all(abs(dimag[1:nconv] < 1e-17)))
         if (Rcpp::is_true(Rcpp::all(Rcpp::abs(dimag_ret) < 1e-17)))
