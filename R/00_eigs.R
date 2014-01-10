@@ -97,27 +97,41 @@
 ##' eigs(A2, k);
 ##' eigs.sym(A2, k);
 eigs <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...)
-{
-    if(inherits(A, "matrix"))
-    {
-        eigs.real_nonsym(A, k, which, sigma, opts, ...,
-                         mattype = "matrix");
-    } else if(inherits(A, "dgCMatrix")) {
-        eigs.real_nonsym(A, k, which, sigma, opts, ...,
-                         mattype = "dgCMatrix");
-    } else if(inherits(A, "dsyMatrix")){
-        eigs.real_sym(A, k, which, sigma, opts, ...,
-                      mattype = "dsyMatrix")
-    } else {
-        stop("unsupported matrix type");
-    }
-}
+    UseMethod("eigs");
 
 ##' @rdname eigs
+##' @method eigs matrix
+##' @S3method eigs matrix
 ##' @export
+eigs.matrix <- function(A, k, which = "LM", sigma = NULL,
+                        opts = list(), ...)
+    eigs.real_nonsym(A, k, which, sigma, opts, ..., mattype = "matrix");
+
+##' @rdname eigs
+##' @method eigs dgCMatrix
+##' @S3method eigs dgCMatrix
+##' @export
+eigs.dgCMatrix <- function(A, k, which = "LM", sigma = NULL,
+                           opts = list(), ...)
+    eigs.real_nonsym(A, k, which, sigma, opts, ..., mattype = "dgCMatrix");
+
+##' @rdname eigs
+##' @method eigs dsyMatrix
+##' @S3method eigs dsyMatrix
+##' @export
+eigs.dsyMatrix <- function(A, k, which = "LM", sigma = NULL,
+                           opts = list(), ...)
+    eigs.real_sym(A, k, which, sigma, opts, ..., mattype = "dsyMatrix")
+
+
+
+##' @rdname eigs
+##' @usage eigs.sym(A, k, which = "LM", sigma = NULL, opts = list(),
+##'   ..., lower = TRUE)
+##' @export eigs.sym
 eigs.sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ..., lower = TRUE)
 {
-    if(inherits(A, "matrix"))
+    if(is.matrix(A))
     {
         eigs.real_sym(A, k, which, sigma, opts, ...,
                       mattype = "matrix", lower = lower);
