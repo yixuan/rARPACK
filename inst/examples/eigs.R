@@ -48,6 +48,10 @@ eigen_resid(x, res1.8);
 res1.9 = eigs(x, k, sigma = 1 + 1i);
 eigen_resid(x, res1.9);
 
+# only return eigenvalues
+res1.10 = eigs(x, k, opts = list(retvec = FALSE));
+range(abs(Mod(res1.10$values) - Mod(res1.1$values)));         # WRONG ORDER
+
 ######################################
 #
 # Test for sparse, non-symmetric matrix
@@ -83,6 +87,10 @@ eigen_resid(x, res2.8);
 # sigma = 1 + 1i
 res2.9 = eigs(xsp, k, sigma = 1 + 1i);
 eigen_resid(x, res2.9);
+
+# only return eigenvalues
+res2.10 = eigs(xsp, k, opts = list(retvec = FALSE));
+range(abs(Mod(res2.10$values) - Mod(res2.1$values)));
 
 
 ######################################
@@ -129,4 +137,10 @@ res3.13 = eigs.sym(y, k, sigma = 2);
 res3.14 = eigs(ysy, k, sigma = 2);
 eigen_resid(y, res3.13);
 eigen_resid(y, res3.14);
+
+# only return eigenvalues
+res3.15 = eigs.sym(y, k, opts = list(retvec = FALSE));
+res3.16 = eigs(ysy, k, opts = list(retvec = FALSE));
+range(abs(res3.15$values - res3.1$values));
+range(abs(res3.16$values - res3.2$values));
 
