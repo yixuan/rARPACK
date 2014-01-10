@@ -14,7 +14,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     # ARPACK only supports matrices in float or double, so we need
     # to do the conversion if A is stored other than double.
     #
-    # However, for sparse matrices defined in Matrix package,
+    # However, for dsyMatrix matrices defined in Matrix package,
     # they are always double, so we can omit this check. 
     if (mattype == "matrix" & typeof(A) != "double")
     {
@@ -61,7 +61,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     if (arpack.param$ncv < k + 2 | arpack.param$ncv > n)
         stop("'opts$ncv' must be > k and <= nrow(A)");
     
-    # Different names of calls according to the type of matrix
+    # Different arguments according to the type of matrix
     if(mattype == "matrix")
     {
         res = .Call("den_real_sym",
