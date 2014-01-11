@@ -193,6 +193,9 @@ BEGIN_RCPP
 
     // Singular value is the square root of the eigenvalue of OP
     Rcpp::NumericVector s_ret = Rcpp::sqrt(d_ret);
+    // ARPACK gives eigenvalues in increasing order.
+    // We need decreasing one.
+    std::reverse(s_ret.begin(), s_ret.end());
     // If we don't need singular vectors
     if (!rvec)
     {
@@ -202,16 +205,20 @@ BEGIN_RCPP
                                   Rcpp::Named("nconv") = wrap(nconv),
                                   Rcpp::Named("niter") = wrap(iparam[9 - 1]));
     } else if (m > n) {
+        // Change the order of columns of ev, since singular values are reversed
+        for(int i = 0; i < nev / 2; i++)
+        {
+            std::swap_ranges(&ev(0, i), &ev(0, i + 1), &ev(0, nev - i - 1));
+        }
         // A = UDV', OP = A'A
         // AV = UD, u = Av / sigma
         // ev contains V, we are now computing u_ret which contains U
-        Rcpp::Range range = Rcpp::Range(0, nv - 1);
-        Rcpp::NumericMatrix v_ret = ev(Rcpp::_, range);
         if (nu == 0)
         {
+            // Here nv will not be 0
             ret = Rcpp::List::create(Rcpp::Named("d") = s_ret,
                                      Rcpp::Named("u") = R_NilValue,
-                                     Rcpp::Named("v") = v_ret,
+                                     Rcpp::Named("v") = ev(Rcpp::_, Rcpp::Range(0, nv - 1)),
                                      Rcpp::Named("nconv") = wrap(nconv),
                                      Rcpp::Named("niter") = wrap(iparam[9 - 1]));
         } else {
@@ -227,22 +234,33 @@ BEGIN_RCPP
                 u += m;
                 v += n;
             }
-            ret = Rcpp::List::create(Rcpp::Named("d") = s_ret,
-                                     Rcpp::Named("u") = u_ret,
-                                     Rcpp::Named("v") = v_ret,
-                                     Rcpp::Named("nconv") = wrap(nconv),
-                                     Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+            if (nv == 0)
+                ret = Rcpp::List::create(Rcpp::Named("d") = s_ret,
+                                         Rcpp::Named("u") = u_ret,
+                                         Rcpp::Named("v") = R_NilValue,
+                                         Rcpp::Named("nconv") = wrap(nconv),
+                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+            else
+                ret = Rcpp::List::create(Rcpp::Named("d") = s_ret,
+                                         Rcpp::Named("u") = u_ret,
+                                         Rcpp::Named("v") = ev(Rcpp::_, Rcpp::Range(0, nv - 1)),
+                                         Rcpp::Named("nconv") = wrap(nconv),
+                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
         }
     } else {
+        // Change the order of columns of ev, since singular values are reversed
+        for(int i = 0; i < nev / 2; i++)
+        {
+            std::swap_ranges(&ev(0, i), &ev(0, i + 1), &ev(0, nev - i - 1));
+        }
         // A = UDV', OP = AA'
         // A'U = VD, v = A'u / sigma
         // ev contains U, we are now computing v_ret which contains V
-        Rcpp::Range range = Rcpp::Range(0, nu - 1);
-        Rcpp::NumericMatrix u_ret = ev(Rcpp::_, range);
         if (nv == 0)
         {
+            // Here nu will not be 0
             ret = Rcpp::List::create(Rcpp::Named("d") = s_ret,
-                                     Rcpp::Named("u") = u_ret,
+                                     Rcpp::Named("u") = ev(Rcpp::_, Rcpp::Range(0, nu - 1)),
                                      Rcpp::Named("v") = R_NilValue,
                                      Rcpp::Named("nconv") = wrap(nconv),
                                      Rcpp::Named("niter") = wrap(iparam[9 - 1]));
@@ -259,11 +277,18 @@ BEGIN_RCPP
                 u += m;
                 v += n;
             }
-            ret = Rcpp::List::create(Rcpp::Named("d") = s_ret,
-                                     Rcpp::Named("u") = u_ret,
-                                     Rcpp::Named("v") = v_ret,
-                                     Rcpp::Named("nconv") = wrap(nconv),
-                                     Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+            if (nu == 0)
+                ret = Rcpp::List::create(Rcpp::Named("d") = s_ret,
+                                         Rcpp::Named("u") = R_NilValue,
+                                         Rcpp::Named("v") = v_ret,
+                                         Rcpp::Named("nconv") = wrap(nconv),
+                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+            else
+                ret = Rcpp::List::create(Rcpp::Named("d") = s_ret,
+                                         Rcpp::Named("u") = ev(Rcpp::_, Rcpp::Range(0, nu - 1)),
+                                         Rcpp::Named("v") = v_ret,
+                                         Rcpp::Named("nconv") = wrap(nconv),
+                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
         }
     }
 
