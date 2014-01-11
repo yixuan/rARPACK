@@ -150,9 +150,9 @@ BEGIN_RCPP
     if(nconv <= 0)
     {
          ::Rf_warning("no converged eigenvalues found");
-         ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
-                                  Rcpp::Named("values") = R_NilValue,
+         ret = Rcpp::List::create(Rcpp::Named("values") = R_NilValue,
                                   Rcpp::Named("vectors") = R_NilValue,
+                                  Rcpp::Named("nconv") = wrap(nconv),
                                   Rcpp::Named("niter") = wrap(iparam[9 - 1]));
     } else {
         // v.erase(start, end) removes v[start <= i < end]
@@ -169,14 +169,14 @@ BEGIN_RCPP
                                  &v_ret(0, nconv - i - 1));
             }
             Rcpp::Range range = Rcpp::Range(0, nconv - 1);
-            ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
-                                     Rcpp::Named("values") = d_ret,
+            ret = Rcpp::List::create(Rcpp::Named("values") = d_ret,
                                      Rcpp::Named("vectors") = v_ret(Rcpp::_, range),
+                                     Rcpp::Named("nconv") = wrap(nconv),
                                      Rcpp::Named("niter") = wrap(iparam[9 - 1]));
         } else {
-            ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
-                                     Rcpp::Named("values") = d_ret,
+            ret = Rcpp::List::create(Rcpp::Named("values") = d_ret,
                                      Rcpp::Named("vectors") = R_NilValue,
+                                     Rcpp::Named("nconv") = wrap(nconv),
                                      Rcpp::Named("niter") = wrap(iparam[9 - 1]));
         }
     }
