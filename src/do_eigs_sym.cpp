@@ -157,8 +157,17 @@ BEGIN_RCPP
     } else {
         // v.erase(start, end) removes v[start <= i < end]
         d_ret.erase(nconv, d_ret.length());
+        // ARPACK gives eigenvalues in increasing order.
+        // We need decreasing one.
+        std::reverse(d_ret.begin(), d_ret.end());
         if(rvec)
         {
+            // Also change the order of columns of v_ret
+            for(int i = 0; i < nconv / 2; i++)
+            {
+                std::swap_ranges(&v_ret(0, i), &v_ret(0, i + 1),
+                                 &v_ret(0, nconv - i - 1));
+            }
             Rcpp::Range range = Rcpp::Range(0, nconv - 1);
             ret = Rcpp::List::create(Rcpp::Named("nconv") = wrap(nconv),
                                      Rcpp::Named("values") = d_ret,
