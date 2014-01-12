@@ -13,7 +13,8 @@ Description: rarpack is an R wrapper of the ARPACK library
     is usually more efficient than eigen() if k << n. This package
     provides the eigs() function which does the similar job as in Matlab,
     Octave, Python Scipy and Julia. It also provides the svds() function
-    to calculate the largest k singular value/vector triplets.
+    to calculate the largest k singular values and corresponding
+    singular vectors of a real matrix.
 License: BSD
 URL: https://github.com/yixuan/rarpack
 Depends:
