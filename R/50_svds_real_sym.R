@@ -1,0 +1,56 @@
+svds.real_sym <- function(A, k, nu = k, nv = k, opts = list(), ...,
+                             mattype = c("dsyMatrix"))
+{
+    n = nrow(A);
+ 
+    # Check for matrices that are too small
+    if (n < 3)
+        stop("nrow(A) and ncol(A) should be at least 3");
+    
+    # Matrix will be passed to C++, so we need to check the type.
+    # ARPACK only supports matrices in float or double, so we need
+    # to do the conversion if A is stored other than double.
+    #
+    # However, for symmetric matrices defined in Matrix package,
+    # they are always double, so we can omit this check. 
+    if (mattype == "matrix" & typeof(A) != "double")
+    {
+        mode(A) = "double";
+    }
+    
+    # Check the value of 'k'
+    if (k <= 0 | k >= n - 1)
+        stop("'k' must satisfy 0 < k < min(nrow(A), ncol(A)) - 1.\nTo calculate all singular values, try svd()");
+    
+    # Check the values of 'nu' and 'nv'
+    if (nu < 0 | nv < 0 | nu > k | nv > k)
+        stop("'nu' and 'nv' must satisfy 0 <= nu <= k and 0 <= nv <= k");
+    
+    # Arguments to be passed to ARPACK
+    arpack.param = list(ncv = min(n - 1, max(2 * k + 1, 20)),
+                        tol = 1e-10,
+                        maxitr = 1000);
+    
+    # Update parameters from 'opts' argument
+    arpack.param[names(opts)] = opts;
+    
+    # Check the value of 'ncv'
+    if (arpack.param$ncv < k + 2 | arpack.param$ncv > n)
+        stop("'opts$ncv' must be >= k+2 and <= min(nrow(A), ncol(A))");
+    
+    # Different names of calls according to the type of matrix
+    funname = switch(mattype,
+                     dsyMatrix = "den_real_sym_svd",
+                     stop("invalid matrix type"));
+    
+    # Calling the C++ function
+    res = .Call(funname,
+                A@x,
+                as.integer(n),
+                as.integer(k), as.integer(nu), as.integer(nv),
+                as.list(arpack.param),
+                as.logical(A@uplo == "L"),
+                PACKAGE = "rarpack");
+    
+    return(res);
+}
