@@ -155,6 +155,8 @@ BEGIN_RCPP
                                   Rcpp::Named("nconv") = wrap(nconv),
                                   Rcpp::Named("niter") = wrap(iparam[9 - 1]));
     } else {
+        if (nconv < nev)
+            ::Rf_warning("only %d eigenvalues converged, less than k", nconv);
         // v.erase(start, end) removes v[start <= i < end]
         d_ret.erase(nconv, d_ret.length());
         // ARPACK gives eigenvalues in increasing order.

@@ -162,6 +162,8 @@ BEGIN_RCPP
                                   Rcpp::Named("nconv") = wrap(nconv),
                                   Rcpp::Named("niter") = wrap(iparam[9 - 1]));
     } else {
+        if (nconv < nev)
+            ::Rf_warning("only %d eigenvalues converged, less than k", nconv);
         // Sometimes there are nconv = nev + 1 converged eigenvalues,
         // mainly due to pairs of complex eigenvalues.
         // We will truncate at nev
