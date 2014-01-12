@@ -132,6 +132,10 @@ SEXP do_svds_nonsym(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
                     SEXP params_list_r, Mvfun mat_v_prod, Mvfun mat_t_v_prod,
                     void *data);
 
+SEXP do_svds_sym(SEXP A_mat_r, SEXP n_scalar_r,
+                 SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
+                 SEXP params_list_r, Mvfun mat_v_prod,
+                 void *data);
 
 // Warning and error messages
 void dsaupd_warn(int info);
