@@ -1,3 +1,17 @@
+      CHANGES IN rarpack VERSION 0.5-0
+
+NEW FEATURES
+
+    o Add svds() function to calculate truncated SVD.
+
+BUG FIXES
+
+    o Now sort eigenvalues in decreasing order.
+
+
+
+
+
       CHANGES IN rarpack VERSION 0.4-0
 
 NEW FEATURES
