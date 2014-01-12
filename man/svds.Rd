@@ -1,6 +1,7 @@
 \name{svds}
 \alias{svds}
 \alias{svds.dgCMatrix}
+\alias{svds.dsyMatrix}
 \alias{svds.matrix}
 \title{(Truncated) Singular Value Decomposition of a Matrix}
 \usage{
@@ -9,6 +10,8 @@ svds(A, k, nu = k, nv = k, opts = list(), ...)
 \method{svds}{matrix}(A, k, nu = k, nv = k, opts = list(), ...)
 
 \method{svds}{dgCMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
+
+\method{svds}{dsyMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
 }
 \arguments{
   \item{A}{The matrix whose SVD is to be computed.}
