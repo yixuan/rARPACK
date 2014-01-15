@@ -106,6 +106,7 @@
 ##' k = 5;
 ##' 
 ##' ## Will have complex eigenvalues
+##' set.seed(123);
 ##' A1 = matrix(rnorm(n^2), n);
 ##' eigs(A1, k);
 ##' 

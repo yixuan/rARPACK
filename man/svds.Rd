@@ -72,6 +72,7 @@ Default is 1000.} }
 m = 100;
 n = 20;
 k = 5;
+set.seed(123);
 A = matrix(rnorm(m * n), m);
 svds(A, k);
 svds(A, k, nu = 0, nv = 3);
