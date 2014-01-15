@@ -1,0 +1,17 @@
+This packge includes the source code of arpack-ng
+(http://forge.scilab.org/index.php/p/arpack-ng/)
+which derives from the ARPACK library
+(http://www.caam.rice.edu/software/ARPACK/)
+
+The original authors of ARPACK are
+    Rich Lehoucq
+    Kristi Maschhoff
+    Danny Sorensen
+    Chao Yang 
+
+The development team admins of arpack-ng are
+    Sylvestre Ledru
+    Jordi Gutiérrez Hermoso
+    Andreas Kloeckner
+
+Other part of this package is written by Yixuan Qiu.
