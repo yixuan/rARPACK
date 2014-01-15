@@ -1,6 +1,6 @@
 Package: rarpack
 Type: Package
-Title: R wrapper of ARPACK for large scale eigen value/vector problems,
+Title: R wrapper of ARPACK for large scale eigenvalue/vector problems,
     on both dense and sparse matrices
 Version: 0.5-0
 Date: 2014-01-14
@@ -8,12 +8,12 @@ Author: Yixuan Qiu and authors of the ARPACK library. See file AUTHORS for
     details.
 Maintainer: Yixuan Qiu <yixuan.qiu@cos.name>
 Description: rarpack is an R wrapper of the ARPACK library
-    (http://www.caam.rice.edu/software/ARPACK/) to solve large scale eigen
-    value/vector problems. It is typically used to compute a few eigen
-    values/vectors of an n by n matrix, e.g., the k largest eigen values, which
-    is usually more efficient than eigen() if k << n. This package
+    (http://www.caam.rice.edu/software/ARPACK/) to solve large scale
+    eigenvalue/vector problems. It is typically used to compute a few
+    eigenvalues/vectors of an n by n matrix, e.g., the k largest eigenvalues,
+    which is usually more efficient than eigen() if k << n. This package
     provides the eigs() function which does the similar job as in Matlab,
-    Octave, Python Scipy and Julia. It also provides the svds() function
+    Octave, Python SciPy and Julia. It also provides the svds() function
     to calculate the largest k singular values and corresponding
     singular vectors of a real matrix. Matrices can be given in either dense
     or sparse form.
@@ -22,7 +22,8 @@ Copyright: see file COPYRIGHTS
 URL: https://github.com/yixuan/rarpack
 BugReports: https://github.com/yixuan/rarpack/issues
 Depends:
-    Matrix (>= 1.1-0),
     Rcpp (>= 0.10.5),
     RcppEigen (>= 0.3.2.0)
+Imports:
+    Matrix (>= 1.1-0)
 LinkingTo: Rcpp, RcppEigen
