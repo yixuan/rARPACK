@@ -18,6 +18,7 @@ Description: rarpack is an R wrapper of the ARPACK library
     singular vectors of a real matrix. Matrices can be given in either dense
     or sparse form.
 License: BSD
+Copyright: see file COPYRIGHTS
 URL: https://github.com/yixuan/rarpack
 BugReports: https://github.com/yixuan/rarpack/issues
 Depends:
