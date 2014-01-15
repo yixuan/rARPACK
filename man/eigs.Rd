@@ -3,7 +3,7 @@
 \alias{eigs.dgCMatrix}
 \alias{eigs.dsyMatrix}
 \alias{eigs.matrix}
-\alias{eigs.sym}
+\alias{eigs_sym}
 \title{Find a Specified Number of Eigenvalues/vectors for Square Matrix}
 \usage{
 eigs(A, k, which = "LM", sigma = NULL, opts = list(), ...)
@@ -17,7 +17,7 @@ eigs(A, k, which = "LM", sigma = NULL, opts = list(), ...)
 \method{eigs}{dsyMatrix}(A, k, which = "LM", sigma = NULL, opts = list(),
   ...)
 
-eigs.sym(A, k, which = "LM", sigma = NULL, opts = list(),
+eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
   ..., lower = TRUE)
 }
 \arguments{
@@ -61,11 +61,11 @@ Currently \code{eigs()} supports matrices of class "matrix"
 matrix) and "dsyMatrix" (symmetric matrix). The latter two
 classes are defined in the \pkg{Matrix} package.
 
-\code{eigs.sym()} assumes the matrix is symmetric, and only
+\code{eigs_sym()} assumes the matrix is symmetric, and only
 the lower triangle (or upper triangle, which is controlled
 by the argument \code{lower}) is used for computation,
 which in general reduces the workload. Notice that
-\code{eigs.sym()} only applies to "ordinary" matrix, i.e.,
+\code{eigs_sym()} only applies to "ordinary" matrix, i.e.,
 of class "matrix". If you want to calculate eigen
 values/vectors of matrix of "dsyMatrix" class, use
 \code{eigs()} instead.
@@ -94,7 +94,7 @@ odd, compute more from the high and then from the low end.}
 \code{eigs()} with matrix type "matrix" and "dgCMatrix" can
 use "LM", "SM", "LR", "SR", "LI" and "SI".
 
-\code{eigs.sym()} and \code{eigs()} with matrix type
+\code{eigs_sym()} and \code{eigs()} with matrix type
 "dsyMatrix" can use "LM", "SM", "LA", "SA" and "BE".
 
 The \code{sigma} argument is used in the shift-and-invert
@@ -138,12 +138,12 @@ eigs(A1, k);
 ## since A2 is symmetric
 A2 = crossprod(A1);
 eigs(A2, k);
-eigs.sym(A2, k);
+eigs_sym(A2, k);
 
 ## Find the smallest (in absolute value) k eigenvalues of A2
-eigs.sym(A2, k, which = "SM")
+eigs_sym(A2, k, which = "SM")
 ## Another way to do this: use the sigma argument
-eigs.sym(A2, k, sigma = 0)
+eigs_sym(A2, k, sigma = 0)
 ## The results should be the same,
 ## but the latter method is far more stable on large matrices
 
