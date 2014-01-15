@@ -17,7 +17,7 @@ Description: rarpack is an R wrapper of the ARPACK library
     to calculate the largest k singular values and corresponding
     singular vectors of a real matrix. Matrices can be given in either dense
     or sparse form.
-License: BSD
+License: BSD_3_clause + file LICENSE
 Copyright: see file COPYRIGHTS
 URL: https://github.com/yixuan/rarpack
 BugReports: https://github.com/yixuan/rarpack/issues
