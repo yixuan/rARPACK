@@ -1,4 +1,4 @@
-##' Find a specified number of eigenvalues and eigenvectors for square matrix
+##' Find a Specified Number of Eigenvalues/vectors for Square Matrix
 ##'
 ##' @description
 ##' Given an \code{n} by \code{n} matrix \code{A},
@@ -60,7 +60,19 @@
 ##' \code{eigs.sym()} and \code{eigs()} with matrix type "dsyMatrix"
 ##' can use "LM", "SM", "LA", "SA" and "BE".
 ##' 
-##' The \code{sigma} argument is used in the Shift-and-invert mode. TODO
+##' The \code{sigma} argument is used in the shift-and-invert mode.
+##' When \code{sigma} is not \code{NULL}, the selection criteria specified
+##' by argument \code{which} will apply to
+##' \eqn{1/(\lambda-\sigma)}{1/(lambda - sigma)}
+##' where \eqn{\lambda}{lambda} are the eigenvalues of \eqn{A}{A}.
+##' For example, if \eqn{A}{A} is positive definite and
+##' \eqn{\sigma=0}{sigma = 0}, then \code{which = "LM"} will select the
+##' largest values of \eqn{1/\lambda}{1/lambda}, which turns out to select
+##' the smallest eigenvalues of \eqn{A}{A}. This method is preferable
+##' to \code{which = "SM"} in that ARPACK is good at finding large
+##' eigenvalues rather than finding small ones. More explanation of the
+##' shift-and-invert mode can be found in the SciPy document,
+##' \url{http://docs.scipy.org/doc/scipy/reference/tutorial/arpack.html}.
 ##' 
 ##' The \code{opts} argument is a list that can supply any of the
 ##' following parameters:
@@ -83,7 +95,8 @@
 ##' \item{nconv}{Number of converged eigenvalues.}
 ##' \item{niter}{Number of iterations in the computation.}
 ##' @author Yixuan Qiu <\url{http://statr.me}>
-##' @seealso \code{\link[base]{eigen}()}, \code{\link[base]{svd}()}
+##' @seealso \code{\link[base]{eigen}()}, \code{\link[base]{svd}()},
+##'          \code{\link[rarpack]{svds}()}
 ##'
 ##' @export
 ##' @rdname eigs
@@ -91,14 +104,25 @@
 ##' @examples
 ##' n = 20;
 ##' k = 5;
-##' ## will have complex eigenvalues
+##' 
+##' ## Will have complex eigenvalues
 ##' A1 = matrix(rnorm(n^2), n);
 ##' eigs(A1, k);
-##' ## only have real eigenvalues,
+##' 
+##' ## Only have real eigenvalues,
 ##' ## since A2 is symmetric
 ##' A2 = crossprod(A1);
 ##' eigs(A2, k);
 ##' eigs.sym(A2, k);
+##' 
+##' ## Find the smallest (in absolute value) k eigenvalues of A2
+##' eigs.sym(A2, k, which = "SM")
+##' ## Another way to do this: use the sigma argument
+##' eigs.sym(A2, k, sigma = 0)
+##' ## The results should be the same,
+##' ## but the latter method is far more stable on large matrices
+##'
+##' ### more examples in examples/eigs.R ###
 eigs <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...)
     UseMethod("eigs");
 
