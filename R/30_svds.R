@@ -62,6 +62,8 @@
 ##' A = matrix(rnorm(m * n), m);
 ##' svds(A, k);
 ##' svds(A, k, nu = 0, nv = 3);
+##'
+##' ### more examples in examples/svds.R ###
 svds <- function(A, k, nu = k, nv = k, opts = list(), ...)
     UseMethod("svds");
 

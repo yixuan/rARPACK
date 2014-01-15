@@ -75,6 +75,8 @@ k = 5;
 A = matrix(rnorm(m * n), m);
 svds(A, k);
 svds(A, k, nu = 0, nv = 3);
+
+### more examples in examples/svds.R ###
 }
 \author{
 Yixuan Qiu <\url{http://statr.me}>
