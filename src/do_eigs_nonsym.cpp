@@ -132,6 +132,8 @@ BEGIN_RCPP
     
     // Number of converged eigenvalues
     int nconv = 0;
+    // Number of iterations
+    int niter = 0;
 
     // Use neupd() to retrieve results
     neupd(rvec, howmny, dr, di,
@@ -139,28 +141,31 @@ BEGIN_RCPP
           bmat, n, which, nev, tol,
           resid, ncv, V, ldv, iparam,
           ipntr, workd, workl, lworkl, ierr);
-    // ierr > 0 means warning, < 0 means error
-    if (ierr > 0) dneupd_warn(ierr);
-    if (ierr < 0)
-    {
-        delete [] workv;
-        delete [] workl;
-        delete [] workd;
-        delete [] ipntr;
-        delete [] iparam;
-        delete [] resid;
-        dneupd_error(ierr);
-    }
-        
+
     // Obtain 'nconv' converged eigenvalues
     nconv = iparam[5 - 1];
+    // 'niter' number of iterations
+    niter = iparam[9 - 1];
+
+    // Free memory of temp arrays
+    delete [] workv;
+    delete [] workl;
+    delete [] workd;
+    delete [] ipntr;
+    delete [] iparam;
+    delete [] resid;
+
+    // ierr > 0 means warning, < 0 means error
+    if (ierr > 0) dneupd_warn(ierr);
+    if (ierr < 0) dneupd_error(ierr);
+
     if(nconv <= 0)
     {
          ::Rf_warning("no converged eigenvalues found");
          ret = Rcpp::List::create(Rcpp::Named("values") = R_NilValue,
                                   Rcpp::Named("vectors") = R_NilValue,
                                   Rcpp::Named("nconv") = wrap(nconv),
-                                  Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                  Rcpp::Named("niter") = wrap(niter));
     } else {
         if (nconv < nev)
             ::Rf_warning("only %d eigenvalues converged, less than k", nconv);
@@ -180,12 +185,12 @@ BEGIN_RCPP
                 ret = Rcpp::List::create(Rcpp::Named("values") = dreal_ret,
                                          Rcpp::Named("vectors") = vreal_ret(Rcpp::_, range),
                                          Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(niter));
             } else {
                 ret = Rcpp::List::create(Rcpp::Named("values") = dreal_ret,
                                          Rcpp::Named("vectors") = R_NilValue,
                                          Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(niter));
             }        
         } else {
             Rcpp::ComplexVector cmpvalues_ret(nconv);
@@ -204,7 +209,7 @@ BEGIN_RCPP
                 ret = Rcpp::List::create(Rcpp::Named("values") = cmpvalues_ret,
                                          Rcpp::Named("vectors") = R_NilValue,
                                          Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(niter));
             } else {
                 Rcpp::ComplexMatrix cmpvectors_ret(n, nconv);
                 // Obtain the real and imaginary part of the eigenvectors
@@ -239,19 +244,11 @@ BEGIN_RCPP
                 ret = Rcpp::List::create(Rcpp::Named("values") = cmpvalues_ret,
                                          Rcpp::Named("vectors") = cmpvectors_ret,
                                          Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(niter));
             }
             
         }
     }
-    
-
-    delete [] workv;
-    delete [] workl;
-    delete [] workd;
-    delete [] ipntr;
-    delete [] iparam;
-    delete [] resid;
 
     return ret;
 
