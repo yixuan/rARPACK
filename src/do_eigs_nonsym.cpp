@@ -225,8 +225,10 @@ BEGIN_RCPP
                             {
                                 cmpvectors_ret(j, i).r = vreal_ret(j, i);
                                 cmpvectors_ret(j, i).i = vreal_ret(j, i + 1);
-                                cmpvectors_ret(j, i + 1).r = vreal_ret(j, i);
-                                cmpvectors_ret(j, i + 1).i = -vreal_ret(j, i + 1);
+                                if(i + 1 < nconv)
+                                    cmpvectors_ret(j, i + 1).r = vreal_ret(j, i);
+                                if(i + 1 < nconv)
+                                    cmpvectors_ret(j, i + 1).i = -vreal_ret(j, i + 1);
                             }
                             first = false;
                         } else {
