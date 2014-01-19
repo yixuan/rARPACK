@@ -1,6 +1,6 @@
 ### R wrapper of ARPACK for large scale eigen value/vector problems
 
-**rarpack** is an R wrapper of the
+**rARPACK** is an R wrapper of the
 [ARPACK library](http://www.caam.rice.edu/software/ARPACK/)
 to solve large scale eigen
 value/vector problems. It is typically used to compute a few eigen

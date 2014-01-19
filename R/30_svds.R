@@ -50,7 +50,7 @@
 ##' \item{niter}{Number of iterations.}
 ##' @author Yixuan Qiu <\url{http://statr.me}>
 ##' @seealso \code{\link[base]{eigen}()}, \code{\link[base]{svd}()},
-##' \code{\link{eigs}()}.
+##' \code{\link[rARPACK]{eigs}()}.
 ##'
 ##' @export
 ##' @rdname svds

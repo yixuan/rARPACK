@@ -52,7 +52,7 @@ svds.real_nonsym <- function(A, k, nu = k, nv = k, opts = list(), ...,
                 as.integer(m), as.integer(n),
                 as.integer(k), as.integer(nu), as.integer(nv),
                 as.list(arpack.param),
-                PACKAGE = "rarpack");
+                PACKAGE = "rARPACK");
     
     return(res);
 }

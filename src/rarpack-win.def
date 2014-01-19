@@ -1,4 +1,4 @@
-LIBRARY rarpack.dll
+LIBRARY rARPACK.dll
 EXPORTS
  den_real_nonsym
  den_real_nonsym2

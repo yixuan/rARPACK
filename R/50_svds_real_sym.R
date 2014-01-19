@@ -50,7 +50,7 @@ svds.real_sym <- function(A, k, nu = k, nv = k, opts = list(), ...,
                 as.integer(k), as.integer(nu), as.integer(nv),
                 as.list(arpack.param),
                 as.logical(A@uplo == "L"),
-                PACKAGE = "rarpack");
+                PACKAGE = "rARPACK");
     
     return(res);
 }

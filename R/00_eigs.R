@@ -96,7 +96,7 @@
 ##' \item{niter}{Number of iterations in the computation.}
 ##' @author Yixuan Qiu <\url{http://statr.me}>
 ##' @seealso \code{\link[base]{eigen}()}, \code{\link[base]{svd}()},
-##'          \code{\link[rarpack]{svds}()}
+##'          \code{\link[rARPACK]{svds}()}
 ##'
 ##' @export
 ##' @rdname eigs

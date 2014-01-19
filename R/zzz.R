@@ -1,7 +1,7 @@
 .onLoad <- function(libname, pkgname) {
-    library.dynam("rarpack", pkgname, libname);
+    library.dynam("rARPACK", pkgname, libname);
 }
 
 .onUnload <- function(libpath) {
-    library.dynam.unload("rarpack", libpath);
+    library.dynam.unload("rARPACK", libpath);
 }

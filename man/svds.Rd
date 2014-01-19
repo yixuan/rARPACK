@@ -84,7 +84,7 @@ Yixuan Qiu <\url{http://statr.me}>
 }
 \seealso{
 \code{\link[base]{eigen}()}, \code{\link[base]{svd}()},
-\code{\link{eigs}()}.
+\code{\link[rARPACK]{eigs}()}.
 }
 \keyword{array}
 

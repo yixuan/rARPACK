@@ -69,14 +69,14 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
                     as.integer(n), as.integer(k),
                     as.list(arpack.param),
                     as.logical(lower),
-                    PACKAGE = "rarpack");
+                    PACKAGE = "rARPACK");
     } else if(mattype == "dsyMatrix") {
         res = .Call("den_real_sym",
                     A@x,
                     as.integer(n), as.integer(k),
                     as.list(arpack.param),
                     as.logical(A@uplo == "L"),
-                    PACKAGE = "rarpack");
+                    PACKAGE = "rARPACK");
     } else {
         stop("invalid value of 'mattype'");
     }

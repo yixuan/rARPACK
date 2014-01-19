@@ -73,7 +73,7 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
                 as.integer(n), as.integer(k),
                 as.list(arpack.param),
                 as.logical(sigmareal),
-                PACKAGE = "rarpack");
+                PACKAGE = "rARPACK");
     
     # When workmode == 3 and sigmai != 0, we need to transform back
     # the eigenvalues

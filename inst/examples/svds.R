@@ -1,4 +1,4 @@
-library(rarpack);
+library(rARPACK);
 n = 100;
 p = 50;
 k = 5;
