@@ -8,6 +8,7 @@ BUG FIXES
 
     o Now sort eigenvalues in decreasing order.
     o Rename eigs.sym() to eigs_sym() to avoid confusion.
+    o Fix a matrix out-of-bound error.
 
 
 
