@@ -155,6 +155,8 @@ BEGIN_RCPP
     
     // Number of converged eigenvalues
     int nconv = 0;
+    // Number of iterations
+    int niter = 0;
 
     // Use seupd() to retrieve results
     seupd(rvec, howmny, d,
@@ -164,28 +166,22 @@ BEGIN_RCPP
           iparam, ipntr, workd, workl,
           lworkl, ierr);
 
-    // ierr < 0 means error
-    if (ierr < 0)
-    {
-        delete [] workl;
-        delete [] workd;
-        delete [] ipntr;
-        delete [] iparam;
-        delete [] resid;
-        dseupd_error(ierr);
-    }
-    
     // Obtain 'nconv' converged eigenvalues
     nconv = iparam[5 - 1];
-    if (nconv <= 0)
-    {
-        delete [] workl;
-        delete [] workd;
-        delete [] ipntr;
-        delete [] iparam;
-        delete [] resid;
-        ::Rf_error("no converged singular values found");
-    }
+    // 'niter' number of iterations
+    niter = iparam[9 - 1];
+
+    // Free memory of temp arrays
+    delete [] workl;
+    delete [] workd;
+    delete [] ipntr;
+    delete [] iparam;
+    delete [] resid;
+
+    // ierr < 0 means error
+    if (ierr < 0)  dseupd_error(ierr);
+
+    if (nconv <= 0) ::Rf_error("no converged singular values found");
 
     // Give a warning if less singular values than requested converged
     if (nconv < nev)
@@ -203,7 +199,7 @@ BEGIN_RCPP
                                   Rcpp::Named("u") = R_NilValue,
                                   Rcpp::Named("v") = R_NilValue,
                                   Rcpp::Named("nconv") = wrap(nconv),
-                                  Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                  Rcpp::Named("niter") = wrap(niter));
     } else if (m > n) {
         // Change the order of columns of ev, since singular values are reversed
         for(int i = 0; i < nev / 2; i++)
@@ -220,7 +216,7 @@ BEGIN_RCPP
                                      Rcpp::Named("u") = R_NilValue,
                                      Rcpp::Named("v") = ev(Rcpp::_, Rcpp::Range(0, nv - 1)),
                                      Rcpp::Named("nconv") = wrap(nconv),
-                                     Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                     Rcpp::Named("niter") = wrap(niter));
         } else {
             Rcpp::NumericMatrix u_ret(m, nu);
             double *u = u_ret.begin();
@@ -239,13 +235,13 @@ BEGIN_RCPP
                                          Rcpp::Named("u") = u_ret,
                                          Rcpp::Named("v") = R_NilValue,
                                          Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(niter));
             else
                 ret = Rcpp::List::create(Rcpp::Named("d") = s_ret,
                                          Rcpp::Named("u") = u_ret,
                                          Rcpp::Named("v") = ev(Rcpp::_, Rcpp::Range(0, nv - 1)),
                                          Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(niter));
         }
     } else {
         // Change the order of columns of ev, since singular values are reversed
@@ -263,7 +259,7 @@ BEGIN_RCPP
                                      Rcpp::Named("u") = ev(Rcpp::_, Rcpp::Range(0, nu - 1)),
                                      Rcpp::Named("v") = R_NilValue,
                                      Rcpp::Named("nconv") = wrap(nconv),
-                                     Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                     Rcpp::Named("niter") = wrap(niter));
         } else {
             Rcpp::NumericMatrix v_ret(n, nv);
             double *u = ev.begin();
@@ -282,21 +278,15 @@ BEGIN_RCPP
                                          Rcpp::Named("u") = R_NilValue,
                                          Rcpp::Named("v") = v_ret,
                                          Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(niter));
             else
                 ret = Rcpp::List::create(Rcpp::Named("d") = s_ret,
                                          Rcpp::Named("u") = ev(Rcpp::_, Rcpp::Range(0, nu - 1)),
                                          Rcpp::Named("v") = v_ret,
                                          Rcpp::Named("nconv") = wrap(nconv),
-                                         Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                         Rcpp::Named("niter") = wrap(niter));
         }
     }
-
-    delete [] workl;
-    delete [] workd;
-    delete [] ipntr;
-    delete [] iparam;
-    delete [] resid;
 
     return ret;
 
