@@ -125,6 +125,8 @@ BEGIN_RCPP
     
     // Number of converged eigenvalues
     int nconv = 0;
+    // Number of iterations
+    int niter = 0;
 
     // Use seupd() to retrieve results
     seupd(rvec, howmny, d,
@@ -134,26 +136,28 @@ BEGIN_RCPP
           iparam, ipntr, workd, workl,
           lworkl, ierr);
 
-    // ierr < 0 means error
-    if (ierr < 0)
-    {
-        delete [] workl;
-        delete [] workd;
-        delete [] ipntr;
-        delete [] iparam;
-        delete [] resid;
-        dseupd_error(ierr);
-    }
-    
     // Obtain 'nconv' converged eigenvalues
     nconv = iparam[5 - 1];
+    // 'niter' number of iterations
+    niter = iparam[9 - 1];
+
+    // Free memory of temp arrays
+    delete [] workl;
+    delete [] workd;
+    delete [] ipntr;
+    delete [] iparam;
+    delete [] resid;
+
+    // ierr < 0 means error
+    if (ierr < 0) dseupd_error(ierr);
+
     if(nconv <= 0)
     {
          ::Rf_warning("no converged eigenvalues found");
          ret = Rcpp::List::create(Rcpp::Named("values") = R_NilValue,
                                   Rcpp::Named("vectors") = R_NilValue,
                                   Rcpp::Named("nconv") = wrap(nconv),
-                                  Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                  Rcpp::Named("niter") = wrap(niter));
     } else {
         if (nconv < nev)
             ::Rf_warning("only %d eigenvalues converged, less than k", nconv);
@@ -174,20 +178,14 @@ BEGIN_RCPP
             ret = Rcpp::List::create(Rcpp::Named("values") = d_ret,
                                      Rcpp::Named("vectors") = v_ret(Rcpp::_, range),
                                      Rcpp::Named("nconv") = wrap(nconv),
-                                     Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                     Rcpp::Named("niter") = wrap(niter));
         } else {
             ret = Rcpp::List::create(Rcpp::Named("values") = d_ret,
                                      Rcpp::Named("vectors") = R_NilValue,
                                      Rcpp::Named("nconv") = wrap(nconv),
-                                     Rcpp::Named("niter") = wrap(iparam[9 - 1]));
+                                     Rcpp::Named("niter") = wrap(niter));
         }
     }
-
-    delete [] workl;
-    delete [] workd;
-    delete [] ipntr;
-    delete [] iparam;
-    delete [] resid;
 
     return ret;
 
