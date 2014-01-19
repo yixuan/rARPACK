@@ -50,7 +50,7 @@ eigen_resid(x, res1.9);
 
 # only return eigenvalues
 res1.10 = eigs(x, k, opts = list(retvec = FALSE));
-range(abs(Mod(res1.10$values) - Mod(res1.1$values)));         # WRONG ORDER
+range(abs(Mod(res1.10$values) - Mod(res1.1$values)));     # WRONG ORDER
 
 ######################################
 #
@@ -90,7 +90,7 @@ eigen_resid(x, res2.9);
 
 # only return eigenvalues
 res2.10 = eigs(xsp, k, opts = list(retvec = FALSE));
-range(abs(Mod(res2.10$values) - Mod(res2.1$values)));
+range(abs(Mod(res2.10$values) - Mod(res2.1$values)));     # WRONG ORDER
 
 
 ######################################
