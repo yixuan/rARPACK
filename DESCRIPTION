@@ -22,9 +22,9 @@ Copyright: see file COPYRIGHTS
 URL: https://github.com/yixuan/rARPACK
 BugReports: https://github.com/yixuan/rARPACK/issues
 Depends:
-    R (>= 3.0.0),
+    R (>= 3.0.0)
+Imports:
+    Matrix (>= 1.1-0),
     Rcpp (>= 0.10.5),
     RcppEigen (>= 0.3.2.0)
-Imports:
-    Matrix (>= 1.1-0)
 LinkingTo: Rcpp, RcppEigen
