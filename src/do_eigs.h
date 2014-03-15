@@ -56,7 +56,7 @@ void F77_NAME(dneupdwr)(int *rvec, int *howmnyi, int *select, double *dr, double
 
 // Map char *which to enum type
 // WHICH_LM is the default if unusual case happens
-inline int whichenum(char *which)
+inline int whichenum(const char *which)
 {
     switch(which[0])
     {
@@ -102,7 +102,7 @@ inline int whichenum(char *which)
 
 
 // C++ Wrapper of the functions above
-inline void saupd(int& ido, char bmat, int n, char* which,
+inline void saupd(int& ido, char bmat, int n, const char* which,
                   int nev, double& tol, double resid[],
                   int ncv, double v[], int ldv,
                   int iparam[], int ipntr[], double workd[],
@@ -120,7 +120,7 @@ inline void saupd(int& ido, char bmat, int n, char* which,
 
 inline void seupd(bool rvec, char howmny, double d[],
                   double z[], int ldz, double sigma, char bmat,
-                  int n, char *which, int nev, double tol,
+                  int n, const char *which, int nev, double tol,
                   double resid[], int ncv, double v[], int ldv,
                   int iparam[], int ipntr[], double workd[], double workl[],
                   int lworkl, int& info)
@@ -143,7 +143,7 @@ inline void seupd(bool rvec, char howmny, double d[],
     delete [] select_pass;
 }
 
-inline void naupd(int& ido, char bmat, int n, char* which,
+inline void naupd(int& ido, char bmat, int n, const char* which,
                   int nev, double& tol, double resid[],
                   int ncv, double v[], int ldv,
                   int iparam[], int ipntr[], double workd[],
@@ -161,7 +161,7 @@ inline void naupd(int& ido, char bmat, int n, char* which,
 
 inline void neupd(bool rvec, char howmny, double dr[], double di[],
                   double z[], int ldz, double sigmar, double sigmai, double workev[],
-                  char bmat, int n, char *which, int nev, double tol,
+                  char bmat, int n, const char *which, int nev, double tol,
                   double resid[], int ncv, double v[], int ldv, int iparam[],
                   int ipntr[], double workd[], double workl[], int lworkl, int& info)
 {
