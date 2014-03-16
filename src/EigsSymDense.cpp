@@ -6,10 +6,10 @@ const double EigsSymDense::BLAS_zero = 0.0;
 
 EigsSymDense::EigsSymDense(int n_, int nev_, int ncv_,
                            const string & which_, int workmode_,
-                           double sigmar_, double sigmai_,
+                           double sigmar_,
                            char bmat_, double tol_, int maxitr_) :
     EigsSym(n_, nev_, ncv_, which_, workmode_,
-            sigmar_, sigmai_, bmat_, tol_, maxitr_),
+            sigmar_, bmat_, tol_, maxitr_),
     x_vec(NULL, n, n),
     y_vec(NULL, n, n)
 {

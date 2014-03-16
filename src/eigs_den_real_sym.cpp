@@ -31,7 +31,7 @@ RcppExport SEXP den_real_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     char uplo = LOGICAL(lower_logical_r)[0] ? 'L' : 'U';
 
     EigsSymDense eig(n, nev, ncv, which, workmode,
-                     sigma, 0, bmat, tol, maxitr);
+                     sigma, bmat, tol, maxitr);
     eig.BindMatrix(A_mat_r, uplo);
     eig.AllocMem();
     eig.Update();
