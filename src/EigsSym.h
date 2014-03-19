@@ -37,7 +37,6 @@ public:
             const string & which_ = "LM", int workmode_ = 1, 
             double sigmar_ = 0,
             char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
-    void AllocMem();
     virtual void Update();
     virtual Rcpp::List Extract(bool rvec = true);
     virtual ~EigsSym();

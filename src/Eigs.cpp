@@ -20,7 +20,7 @@ Eigs::Eigs(int n_, int nev_, int ncv_,
     info = 0;
     ierr = 0;
 
-    memalloc = false;
+    matrix_linked = false;
     
     for(int i = 0; i < 11; i++)
         iparam[i] = 0;

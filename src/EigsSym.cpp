@@ -5,7 +5,8 @@ EigsSym::EigsSym(int n_, int nev_, int ncv_,
                  double sigmar_,
                  char bmat_, double tol_, int maxitr_) :
     Eigs(n_, nev_, ncv_, which_, workmode_,
-         sigmar_, 0, bmat_, tol_, maxitr_)
+         sigmar_, 0, bmat_, tol_, maxitr_),
+    eigV(n, ncv), eigd(nev)
 {
     lworkl = ncv * (ncv + 8);
     workl = new double[lworkl]();
@@ -40,20 +41,11 @@ void EigsSym::Warning(int stage, int errorcode)
     }
 }
 
-void EigsSym::AllocMem()
-{
-    eigV = Rcpp::NumericMatrix(n, ncv);
-    eigd = Rcpp::NumericVector(nev);
-
-    InitResid();
-
-    memalloc = true;
-}
-
 void EigsSym::Update()
 {
-    if (!MemAllocated())
-        Rcpp::stop("need to allocate memory using AllocMem() first");
+    if (!MatrixLinked())
+        Rcpp::stop("need to bind matrix first using BindMatrix()");
+    InitResid();
 
     while (ido != 99)
     {

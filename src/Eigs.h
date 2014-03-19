@@ -72,9 +72,8 @@ protected:
     int lworkl;
     double *workl;
 
-    // Flag to indicate whether memories of result objects are
-    // properly allocated
-    bool memalloc;
+    // Flag to indicate whether matrix has been linked
+    bool matrix_linked;
 
     // stage = 1: _aupd
     // stage = 2: _eupd
@@ -84,6 +83,10 @@ protected:
     // Generate initial residual vector
     void InitResid();
 
+    // Whether the matrix has been linked to internal structure
+    bool MatrixLinked() { return matrix_linked; }
+    bool MatrixLinked(bool linked) { matrix_linked = linked;
+                                     return matrix_linked; }
 public:
     // Constructor
     Eigs(int n_, int nev_, int ncv_,
@@ -92,10 +95,6 @@ public:
          char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
     // Map matrix in R to internal structures
     virtual void BindMatrix(SEXP mat_) = 0;
-    // Allocate memory for result objects
-    virtual void AllocMem() = 0;
-    // Whether the memory is allocated
-    bool MemAllocated() { return memalloc; }
     // y_out = A * x_in
     virtual void MultVector(double *x_in, double *y_out) = 0;
     // y_out = inv(A - sigma * I) * x_in

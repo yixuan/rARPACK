@@ -31,7 +31,10 @@ void EigsSymDense::BindMatrix(SEXP mat_, char uplo_)
 
     // If we don't need shift-and-invert mode
     if (workmode == 1)
+    {
+        MatrixLinked(true);
         return;
+    }
 
     // Map mat_ to Eigen matrix
     MapMat A(A_pntr, n, n);
@@ -47,6 +50,7 @@ void EigsSymDense::BindMatrix(SEXP mat_, char uplo_)
     {
         A(i, i) += sigmar;
     }
+    MatrixLinked(true);
 }
 
 void EigsSymDense::BindMatrix(SEXP mat_)
