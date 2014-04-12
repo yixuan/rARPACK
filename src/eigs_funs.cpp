@@ -1,7 +1,9 @@
 #include <RcppEigen.h>
-#include "EigsSymDense.h"
-#include "EigsGenDense.h"
-#include "EIgsGenSparse.h"
+#include "EigsSym.h"
+#include "EigsGen.h"
+#include "MatOpMatrix.h"
+#include "MatOpSymMatrix.h"
+#include "MatOpDGCMatrix.h"
 
 using Rcpp::as;
 
@@ -24,10 +26,11 @@ RcppExport SEXP den_real_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     double tol = as<double>(params_rcpp["tol"]);
     int maxitr = as<int>(params_rcpp["maxitr"]);
     char uplo = LOGICAL(lower_logical_r)[0] ? 'L' : 'U';
+    bool needSolve = (workmode != 1);
 
-    EigsSymDense eig(n, nev, ncv, which, workmode,
-                     sigma, bmat, tol, maxitr);
-    eig.BindMatrix(A_mat_r, uplo);
+    MatOpSymMatrix op(A_mat_r, uplo, sigma, needSolve);
+    EigsSym eig(n, nev, ncv, &op, which, workmode,
+                bmat, tol, maxitr);
     eig.Update();
 
     return eig.Extract();
@@ -53,10 +56,11 @@ RcppExport SEXP den_real_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     char bmat = 'I';
     double tol = as<double>(params_rcpp["tol"]);
     int maxitr = as<int>(params_rcpp["maxitr"]);
+    bool needSolve = (workmode != 1);
 
-    EigsGenDense eig(n, nev, ncv, which, workmode,
-                     sigmar, sigmai, bmat, tol, maxitr);
-    eig.BindMatrix(A_mat_r);
+    MatOpMatrix op(A_mat_r, sigmar, sigmai, needSolve);
+    EigsGen eig(n, nev, ncv, &op, which, workmode,
+                bmat, tol, maxitr);
     eig.Update();
 
     return eig.Extract();
@@ -82,10 +86,11 @@ RcppExport SEXP sparse_real_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     char bmat = 'I';
     double tol = as<double>(params_rcpp["tol"]);
     int maxitr = as<int>(params_rcpp["maxitr"]);
+    bool needSolve = (workmode != 1);
 
-    EigsGenSparse eig(n, nev, ncv, which, workmode,
-                      sigmar, sigmai, bmat, tol, maxitr);
-    eig.BindMatrix(A_mat_r);
+    MatOpDGCMatrix op(A_mat_r, sigmar, sigmai, needSolve);
+    EigsGen eig(n, nev, ncv, &op, which, workmode,
+                bmat, tol, maxitr);
     eig.Update();
 
     return eig.Extract();
