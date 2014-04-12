@@ -8,7 +8,6 @@
 // Implemented:
 //     Error()
 //     Warning()
-//     AllocMem()
 //     Update()
 //     Extract()
 //
