@@ -34,6 +34,8 @@ public:
         if(!canSolve)
             Rcpp::stop("This matrix doesn't support solving linear equation");
     }
+    double getsigmar() { return sigmar; }
+    double getsigmai() { return sigmai; }
     // Destructor
     virtual ~MatOp() {}
 };
