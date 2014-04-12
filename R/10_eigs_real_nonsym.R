@@ -64,15 +64,15 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
     
     # Different names of calls according to the type of matrix
     funname = switch(mattype,
-                     matrix = "den_real_nonsym",
-                     dgCMatrix = "sparse_real_nonsym",
+                     matrix = "den_real_gen",
+                     dgCMatrix = "sparse_real_gen",
                      stop("invalid value of 'mattype'"));
     
     # Calling the C++ function
     res = .Call(funname, A,
                 as.integer(n), as.integer(k),
                 as.list(arpack.param),
-                as.logical(sigmareal),
+                #as.logical(sigmareal),
                 PACKAGE = "rARPACK");
     
     # When workmode == 3 and sigmai != 0, we need to transform back
