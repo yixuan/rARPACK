@@ -1,11 +1,10 @@
 #include "EigsGen.h"
 
-EigsGen::EigsGen(int n_, int nev_, int ncv_,
+EigsGen::EigsGen(int n_, int nev_, int ncv_, MatOp *op_,
                  const string & which_, int workmode_,
-                 double sigmar_, double sigmai_,
                  char bmat_, double tol_, int maxitr_) :
-    Eigs(n_, nev_, ncv_, which_, workmode_,
-         sigmar_, sigmai_, bmat_, tol_, maxitr_),
+    Eigs(n_, nev_, ncv_, op_, which_, workmode_,
+         bmat_, tol_, maxitr_),
     eigV(n, ncv), eigdr(nev + 1), eigdi(nev + 1)
 {
     lworkl = 3 * ncv * ncv + 6 * ncv;
@@ -45,8 +44,6 @@ void EigsGen::Warning(int stage, int errorcode)
 
 void EigsGen::Update()
 {
-    if (!MatrixLinked())
-        Rcpp::stop("need to bind matrix first using BindMatrix()");
     InitResid();
 
     while (ido != 99)
@@ -62,9 +59,9 @@ void EigsGen::Update()
             case 1:
                 // Shift-and-invert
                 if (workmode == 3)
-                    MultVectorShift(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
+                    op->shiftSolve(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
                 else
-                    MultVector(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
+                    op->prod(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
                 break;
             default:
                 break;
@@ -105,7 +102,7 @@ Rcpp::List EigsGen::Extract(bool rvec)
 
     // Use seupd() to retrieve results
     neupd(rvec, howmny, eigdr.begin(), eigdi.begin(),
-          Z, ldz, sigmar, sigmai, workv,
+          Z, ldz, op->getsigmar(), op->getsigmai(), workv,
           bmat, n, which.c_str(), nev, tol,
           resid, ncv, eigV.begin(), n,
           iparam, ipntr, workd, workl,

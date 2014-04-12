@@ -1,17 +1,15 @@
 #include "Eigs.h"
 
-Eigs::Eigs(int n_, int nev_, int ncv_,
+Eigs::Eigs(int n_, int nev_, int ncv_, MatOp *op_,
            const string & which_, int workmode_,
-           double sigmar_, double sigmai_,
            char bmat_, double tol_, int maxitr_)
 {
     n = n_;
     nev = nev_;
     ncv = ncv_;
+    op = op_;
     which = which_;
     workmode = workmode_;
-    sigmar = sigmar_;
-    sigmai = sigmai_;
     bmat = bmat_;
     tol = tol_;
     maxitr = maxitr_;
@@ -20,8 +18,6 @@ Eigs::Eigs(int n_, int nev_, int ncv_,
     info = 0;
     ierr = 0;
 
-    matrix_linked = false;
-    
     for(int i = 0; i < 11; i++)
         iparam[i] = 0;
 
@@ -49,7 +45,7 @@ void Eigs::InitResid()
         initcoef[i] = sin(i + 0.5);
 
     // resid = A * initcoef
-    MultVector(initcoef, resid);
+    op->prod(initcoef, resid);
     delete [] initcoef;
 }
 

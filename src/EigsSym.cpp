@@ -1,11 +1,10 @@
 #include "EigsSym.h"
 
-EigsSym::EigsSym(int n_, int nev_, int ncv_,
+EigsSym::EigsSym(int n_, int nev_, int ncv_, MatOp *op_,
                  const string & which_, int workmode_,
-                 double sigmar_,
                  char bmat_, double tol_, int maxitr_) :
-    Eigs(n_, nev_, ncv_, which_, workmode_,
-         sigmar_, 0, bmat_, tol_, maxitr_),
+    Eigs(n_, nev_, ncv_, op_, which_, workmode_,
+        bmat_, tol_, maxitr_),
     eigV(n, ncv), eigd(nev)
 {
     lworkl = ncv * (ncv + 8);
@@ -43,8 +42,6 @@ void EigsSym::Warning(int stage, int errorcode)
 
 void EigsSym::Update()
 {
-    if (!MatrixLinked())
-        Rcpp::stop("need to bind matrix first using BindMatrix()");
     InitResid();
 
     while (ido != 99)
@@ -60,9 +57,9 @@ void EigsSym::Update()
             case 1:
                 // Shift-and-invert
                 if (workmode == 3)
-                    MultVectorShift(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
+                    op->shiftSolve(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
                 else
-                    MultVector(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
+                    op->prod(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
                 break;
             default:
                 break;
@@ -103,7 +100,7 @@ Rcpp::List EigsSym::Extract(bool rvec)
 
     // Use seupd() to retrieve results
     seupd(rvec, howmny, eigd.begin(),
-          Z, ldz, sigmar, bmat,
+          Z, ldz, op->getsigmar(), bmat,
           n, which.c_str(), nev, tol,
           resid, ncv, eigV.begin(), n,
           iparam, ipntr, workd, workl,

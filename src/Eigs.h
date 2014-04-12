@@ -2,16 +2,14 @@
 #define EIGS_H
 
 #include <Rcpp.h>
+#include "MatOp.h"
+
 using std::string;
 
 
 // Need to be implemented:
 //     Error()
 //     Warning()
-//     MultVector()
-//     MultVectorShift()
-//     BindMatrix()
-//     AllocMem()
 //     Update()
 //     Extract()
 //
@@ -47,11 +45,9 @@ protected:
     int maxitr;
     // Workmode
     int workmode;
-    // Shift parameter, real part
-    double sigmar;
-    // Shift parameter, imaginary part
-    double sigmai;
 
+    // Matrix operation
+    MatOp *op;
 
     // Variables for computation in ARPACK
     //
@@ -72,9 +68,6 @@ protected:
     int lworkl;
     double *workl;
 
-    // Flag to indicate whether matrix has been linked
-    bool matrix_linked;
-
     // stage = 1: _aupd
     // stage = 2: _eupd
     virtual void Error(int stage, int errorcode) = 0;
@@ -82,23 +75,11 @@ protected:
     
     // Generate initial residual vector
     void InitResid();
-
-    // Whether the matrix has been linked to internal structure
-    bool MatrixLinked() { return matrix_linked; }
-    bool MatrixLinked(bool linked) { matrix_linked = linked;
-                                     return matrix_linked; }
 public:
     // Constructor
-    Eigs(int n_, int nev_, int ncv_,
+    Eigs(int n_, int nev_, int ncv_, MatOp *op_,
          const string & which_ = "LM", int workmode_ = 1,
-         double sigmar_ = 0, double sigmai_ = 0,
          char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
-    // Map matrix in R to internal structures
-    virtual void BindMatrix(SEXP mat_) = 0;
-    // y_out = A * x_in
-    virtual void MultVector(double *x_in, double *y_out) = 0;
-    // y_out = inv(A - sigma * I) * x_in
-    virtual void MultVectorShift(double *x_in, double *y_out) = 0;
     // _aupd step
     virtual void Update() = 0;
     // _eupd step, to extract results

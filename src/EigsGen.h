@@ -11,11 +11,6 @@
 //     Update()
 //     Extract()
 //
-// Need to be implemented:
-//     MultVector()
-//     MultVectorShift()
-//     BindMatrix()
-//
 class EigsGen: public Eigs
 {
 protected:
@@ -36,9 +31,8 @@ protected:
     Rcpp::NumericVector eigdr;
     Rcpp::NumericVector eigdi;
 public:
-    EigsGen(int n_, int nev_, int ncv_,
+    EigsGen(int n_, int nev_, int ncv_, MatOp *op_,
             const string & which_ = "LM", int workmode_ = 1, 
-            double sigmar_ = 0, double sigmai_ = 0,
             char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
     virtual void Update();
     virtual Rcpp::List Extract(bool rvec = true);

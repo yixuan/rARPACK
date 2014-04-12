@@ -11,11 +11,6 @@
 //     Update()
 //     Extract()
 //
-// Need to be implemented:
-//     MultVector()
-//     MultVectorShift()
-//     BindMatrix()
-//
 class EigsSym: public Eigs
 {
 protected:
@@ -32,9 +27,8 @@ protected:
     // Conceptually it is a vector of length nev
     Rcpp::NumericVector eigd;
 public:
-    EigsSym(int n_, int nev_, int ncv_,
+    EigsSym(int n_, int nev_, int ncv_, MatOp *op_,
             const string & which_ = "LM", int workmode_ = 1, 
-            double sigmar_ = 0,
             char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
     virtual void Update();
     virtual Rcpp::List Extract(bool rvec = true);
