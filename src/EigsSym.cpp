@@ -112,7 +112,7 @@ Rcpp::List EigsSym::extract(bool rvec)
     niter = iparam[9 - 1];
 
     // ierr < 0 means error
-    if (ierr < 0)  Error(2, ierr);
+    if (ierr < 0)  error(2, ierr);
 
     if (nconv <= 0)
     {

@@ -114,8 +114,8 @@ Rcpp::List EigsGen::extract(bool rvec)
     niter = iparam[9 - 1];
 
     // ierr > 0 means warning, < 0 means error
-    if (ierr > 0) Warning(2, ierr);
-    if (ierr < 0) Error(2, ierr);
+    if (ierr > 0) warning(2, ierr);
+    if (ierr < 0) error(2, ierr);
 
     /*********************************************/
     //
