@@ -42,8 +42,8 @@ svds.real_nonsym <- function(A, k, nu = k, nv = k, opts = list(), ...,
     
     # Different names of calls according to the type of matrix
     funname = switch(mattype,
-                     matrix = "den_real_nonsym_svd",
-                     dgCMatrix = "sparse_real_nonsym_svd",
+                     matrix = "den_real_gen_svd",
+                     dgCMatrix = "sparse_real_gen_svd",
                      stop("invalid matrix type"));
     
     # Calling the C++ function
