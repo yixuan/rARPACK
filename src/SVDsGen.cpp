@@ -1,5 +1,6 @@
 #include <RcppEigen.h>
 #include "do_eigs.h"
+#include "MatOp.h"
 
 using Rcpp::as;
 using Rcpp::wrap;
@@ -8,10 +9,9 @@ using Rcpp::wrap;
 // If A = UDV', then A'A = V(D^2)V', AA' = U(D^2)U'
 // So if m >= n, we calculate V first, by solving A'A * v = lambda * v
 // If m < n, we calculate U first, by solving AA' * u = lambda * u
-SEXP do_svds_nonsym(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
-                    SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
-                    SEXP params_list_r, Mvfun mat_v_prod, Mvfun mat_t_v_prod,
-                    void *data)
+SEXP do_svds_gen(MatOp *op, SEXP m_scalar_r, SEXP n_scalar_r,
+                 SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
+                 SEXP params_list_r)
 {
 BEGIN_RCPP
 
@@ -48,13 +48,12 @@ BEGIN_RCPP
     double *resid = new double[dim]();
     int ncoef = m > n ? m : n;
     double *tmp = new double[ncoef]();
-    tmp[0] = tmp[ncoef - 1] = 0.5;
+    for(int i = 0; i < ncoef; i++)
+        tmp[i] = sin(i + 0.5);
     if (m > n)
-    {
-        mat_t_v_prod(A_mat_r, tmp, resid, m, n, data);
-    } else {
-        mat_v_prod(A_mat_r, tmp, resid, m, n, data);
-    }
+        op->prod(tmp, resid);
+    else
+        op->tprod(tmp, resid);
     // Related to the algorithm, large ncv results in
     // faster convergence, but with greater memory use
     int ncv = as<int>(params_rcpp["ncv"]);
@@ -101,19 +100,15 @@ BEGIN_RCPP
         {
             // OP = A'A
             // First do tmp = A * x_in
-            mat_v_prod(A_mat_r, &workd[ipntr[0] - 1],
-                       tmp, m, n, data);
+            op->prod(&workd[ipntr[0] - 1], tmp);
             // Then do y_out = A' * tmp
-            mat_t_v_prod(A_mat_r, tmp,
-                         &workd[ipntr[1] - 1], m, n, data);
+            op->tprod(tmp, &workd[ipntr[1] - 1]);
         } else {
             // OP = AA'
             // First do tmp = A' * x_in
-            mat_t_v_prod(A_mat_r, &workd[ipntr[0] - 1],
-                         tmp, m, n, data);
+            op->tprod(&workd[ipntr[0] - 1], tmp);
             // Then do y_out = A * tmp
-            mat_v_prod(A_mat_r, tmp,
-                       &workd[ipntr[1] - 1], m, n, data);
+            op->prod(tmp, &workd[ipntr[1] - 1]);
         }
         saupd(ido, bmat, dim, which,
               nev, tol, resid,
@@ -121,8 +116,7 @@ BEGIN_RCPP
               iparam, ipntr, workd,
               workl, lworkl, info);
     }
-    delete [] tmp;
-    
+    delete [] tmp;  
     // info > 0 means warning, < 0 means error
     if (info > 0) dsaupd_warn(info);
     if (info < 0)
@@ -165,7 +159,6 @@ BEGIN_RCPP
           resid, ncv, V, ldv,
           iparam, ipntr, workd, workl,
           lworkl, ierr);
-
     // Obtain 'nconv' converged eigenvalues
     nconv = iparam[5 - 1];
     // 'niter' number of iterations
@@ -223,8 +216,7 @@ BEGIN_RCPP
             double *v = ev.begin();
             for (int i = 0; i < nu; i++)
             {
-                mat_v_prod(A_mat_r, v,
-                           u, m, n, data);
+                op->prod(v, u);
                 for (int j = 0; j < m; j++)
                     u[j] /= s_ret[i];
                 u += m;
@@ -266,8 +258,7 @@ BEGIN_RCPP
             double *v = v_ret.begin();
             for (int i = 0; i < nv; i++)
             {
-                mat_t_v_prod(A_mat_r, u,
-                             v, m, n, data);
+                op->tprod(u, v);
                 for (int j = 0; j < n; j++)
                     v[j] /= s_ret[i];
                 u += m;
