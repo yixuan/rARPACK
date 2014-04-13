@@ -6,10 +6,11 @@ const double MatOpSymMatrix::BLAS_zero = 0.0;
 
 MatOpSymMatrix::MatOpSymMatrix(SEXP mat_, char uplo_, double sigma_,
                                bool needSolve_) :
-    A_pntr(REAL(mat_)), A(as<MapMat>(mat_)), uplo(uplo_),
+    A_pntr(REAL(mat_)), A(NULL, 1, 1), uplo(uplo_),
     x_vec(NULL, n), y_vec(NULL, n)
 {
-    m = n = A.rows();
+    m = n = sqrt(LENGTH(mat_));
+    new (&A) MapMat(A_pntr, n, n);
     sigmar = sigma_;
     sigmai = 0;
     canTprod = true;

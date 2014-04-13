@@ -46,6 +46,8 @@ MatOpMatrix::MatOpMatrix(SEXP mat_, double sigmar_, double sigmai_,
         }
         // LU decomposition
         csolver.compute(cA);
+
+        cx_vec.resize(n);
         cx_vec.setZero();
     }
 }
