@@ -2,7 +2,7 @@
 #define EIGSSYM_H
 
 #include "Eigs.h"
-#include "do_eigs.h"
+#include "ARPACK.h"
 
 
 // Implemented:

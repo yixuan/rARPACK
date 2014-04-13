@@ -3,7 +3,7 @@
 
 #include <RcppEigen.h>
 #include "MatOp.h"
-#include "do_eigs.h"
+#include "ARPACK.h"
 
 using Rcpp::as;
 using Eigen::MatrixXd;

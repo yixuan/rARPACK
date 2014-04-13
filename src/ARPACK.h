@@ -1,5 +1,5 @@
-#ifndef DO_EIGS_H
-#define DO_EIGS_H
+#ifndef ARPACK_H
+#define ARPACK_H
 
 #include <Rcpp.h>
 // R_ext/BLAS.h also includes R_ext/RS.h,
@@ -182,38 +182,6 @@ inline void neupd(bool rvec, char howmny, double dr[], double di[],
     delete [] select_pass;
 }
 
-
-// Prototype of function to calculate
-// matrix(n, n) * vector(n) product
-// A: an n*n matrix, may be sparse
-// x_in: an array of length n
-// y_out: result of A * x_in
-// data: additional data passed to function
-typedef void (*Mvfun)(SEXP mat, double *x_in, double *y_out,
-                      int m, int n, void *data);
-
-// Common function to calculate eigen values/vectors
-// mat_v_prod and data should be implemented according to
-// the problem (whether matrix is dense or sparse, for example)
-SEXP do_eigs_nonsym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-                    SEXP params_list_r,
-                    Mvfun mat_v_prod, void *data);
-
-SEXP do_eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-                 SEXP params_list_r,
-                 Mvfun mat_v_prod, void *data);
-
-// Common function to calculate singular values/vectors
-SEXP do_svds_nonsym(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
-                    SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
-                    SEXP params_list_r, Mvfun mat_v_prod, Mvfun mat_t_v_prod,
-                    void *data);
-
-SEXP do_svds_sym(SEXP A_mat_r, SEXP n_scalar_r,
-                 SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
-                 SEXP params_list_r, Mvfun mat_v_prod,
-                 void *data);
-
 // Warning and error messages
 void dsaupd_warn(int info);
 void dsaupd_error(int info);
@@ -223,4 +191,4 @@ void dnaupd_error(int info);
 void dneupd_warn(int info);
 void dneupd_error(int info);
 
-#endif // DO_EIGS_H
+#endif // ARPACK_H

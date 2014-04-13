@@ -1,5 +1,5 @@
 #include <RcppEigen.h>
-#include "do_eigs.h"
+#include "ARPACK.h"
 #include "EigsSym.h"
 #include "MatOpMatrix.h"
 #include "MatOpSymMatrix.h"

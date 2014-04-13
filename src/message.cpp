@@ -1,4 +1,4 @@
-#include "do_eigs.h"
+#include "ARPACK.h"
 using std::string;
 
 // Warning and error information
