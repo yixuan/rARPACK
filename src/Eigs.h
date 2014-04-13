@@ -8,10 +8,10 @@ using std::string;
 
 
 // Need to be implemented:
-//     Error()
-//     Warning()
-//     Update()
-//     Extract()
+//     error()
+//     warning()
+//     update()
+//     extract()
 //
 class Eigs
 {
@@ -70,20 +70,20 @@ protected:
 
     // stage = 1: _aupd
     // stage = 2: _eupd
-    virtual void Error(int stage, int errorcode) = 0;
-    virtual void Warning(int stage, int errorcode) = 0;
+    virtual void error(int stage, int errorcode) = 0;
+    virtual void warning(int stage, int errorcode) = 0;
     
     // Generate initial residual vector
-    void InitResid();
+    void initResid();
 public:
     // Constructor
     Eigs(int n_, int nev_, int ncv_, MatOp *op_,
          const string & which_ = "LM", int workmode_ = 1,
          char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
     // _aupd step
-    virtual void Update() = 0;
+    virtual void update() = 0;
     // _eupd step, to extract results
-    virtual Rcpp::List Extract(bool rvec = true) = 0;
+    virtual Rcpp::List extract(bool rvec = true) = 0;
     // Destructor
     virtual ~Eigs();
 };

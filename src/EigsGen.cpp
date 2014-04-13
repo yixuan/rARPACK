@@ -22,7 +22,7 @@ EigsGen::~EigsGen()
     delete [] resid;
 }
 
-void EigsGen::Error(int stage, int errorcode)
+void EigsGen::error(int stage, int errorcode)
 {
     if (stage == 1) // dnaupd
     {
@@ -32,7 +32,7 @@ void EigsGen::Error(int stage, int errorcode)
     }
 }
 
-void EigsGen::Warning(int stage, int errorcode)
+void EigsGen::warning(int stage, int errorcode)
 {
     if (stage == 1) // dnaupd
     {
@@ -42,9 +42,9 @@ void EigsGen::Warning(int stage, int errorcode)
     }
 }
 
-void EigsGen::Update()
+void EigsGen::update()
 {
-    InitResid();
+    initResid();
 
     while (ido != 99)
     {
@@ -70,20 +70,20 @@ void EigsGen::Update()
     }
 }
 
-void EigsGen::CheckUpdateError()
+void EigsGen::checkUpdateError()
 {
     // Ensure that Update() is called at least once
     if (updatecount < 1)
         Rcpp::stop("need to call Update() first");
 
     // info > 0 means warning, < 0 means error
-    if (info > 0)  Warning(1, info);
-    if (info < 0)  Error(1, info);
+    if (info > 0)  warning(1, info);
+    if (info < 0)  error(1, info);
 }
 
-Rcpp::List EigsGen::Extract(bool rvec)
+Rcpp::List EigsGen::extract(bool rvec)
 {
-    CheckUpdateError();
+    checkUpdateError();
 
     // 'A' means to calculate Ritz vectors
     // 'P' to calculate Schur vectors

@@ -6,18 +6,18 @@
 
 
 // Implemented:
-//     Error()
-//     Warning()
-//     Update()
-//     Extract()
+//     error()
+//     warning()
+//     update()
+//     extract()
 //
 class EigsSym: public Eigs
 {
 protected:
-    virtual void Error(int stage, int errorcode);
-    virtual void Warning(int stage, int errorcode);
+    virtual void error(int stage, int errorcode);
+    virtual void warning(int stage, int errorcode);
     // Check any error after the _aupd step
-    void CheckUpdateError();
+    void checkUpdateError();
     int updatecount;
 
     // Store final results of eigenvectors
@@ -30,8 +30,8 @@ public:
     EigsSym(int n_, int nev_, int ncv_, MatOp *op_,
             const string & which_ = "LM", int workmode_ = 1, 
             char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
-    virtual void Update();
-    virtual Rcpp::List Extract(bool rvec = true);
+    virtual void update();
+    virtual Rcpp::List extract(bool rvec = true);
     virtual ~EigsSym();
 };
 

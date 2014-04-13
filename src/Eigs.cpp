@@ -35,7 +35,7 @@ Eigs::Eigs(int n_, int nev_, int ncv_, MatOp *op_,
     // Classes derived from Eigs should do this.
 }
 
-void Eigs::InitResid()
+void Eigs::initResid()
 {
     // Create initial residual vector
     // info = 1 means using the residual vector we provide

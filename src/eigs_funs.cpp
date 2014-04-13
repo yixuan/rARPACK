@@ -31,9 +31,9 @@ RcppExport SEXP den_real_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     MatOpSymMatrix op(A_mat_r, uplo, sigma, needSolve);
     EigsSym eig(n, nev, ncv, &op, which, workmode,
                 bmat, tol, maxitr);
-    eig.Update();
+    eig.update();
 
-    return eig.Extract();
+    return eig.extract();
 
     END_RCPP
 }
@@ -61,9 +61,9 @@ RcppExport SEXP den_real_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     MatOpMatrix op(A_mat_r, sigmar, sigmai, needSolve);
     EigsGen eig(n, nev, ncv, &op, which, workmode,
                 bmat, tol, maxitr);
-    eig.Update();
+    eig.update();
 
-    return eig.Extract();
+    return eig.extract();
 
     END_RCPP
 }
@@ -91,9 +91,9 @@ RcppExport SEXP sparse_real_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     MatOpDGCMatrix op(A_mat_r, sigmar, sigmai, needSolve);
     EigsGen eig(n, nev, ncv, &op, which, workmode,
                 bmat, tol, maxitr);
-    eig.Update();
+    eig.update();
 
-    return eig.Extract();
+    return eig.extract();
 
     END_RCPP
 }

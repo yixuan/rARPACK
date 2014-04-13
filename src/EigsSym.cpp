@@ -20,7 +20,7 @@ EigsSym::~EigsSym()
     delete [] resid;
 }
 
-void EigsSym::Error(int stage, int errorcode)
+void EigsSym::error(int stage, int errorcode)
 {
     if (stage == 1) // dsaupd
     {
@@ -30,7 +30,7 @@ void EigsSym::Error(int stage, int errorcode)
     }
 }
 
-void EigsSym::Warning(int stage, int errorcode)
+void EigsSym::warning(int stage, int errorcode)
 {
     if (stage == 1) // dsaupd
     {
@@ -40,9 +40,9 @@ void EigsSym::Warning(int stage, int errorcode)
     }
 }
 
-void EigsSym::Update()
+void EigsSym::update()
 {
-    InitResid();
+    initResid();
 
     while (ido != 99)
     {
@@ -68,20 +68,20 @@ void EigsSym::Update()
     }
 }
 
-void EigsSym::CheckUpdateError()
+void EigsSym::checkUpdateError()
 {
     // Ensure that Update() is called at least once
     if (updatecount < 1)
         Rcpp::stop("need to call Update() first");
 
     // info > 0 means warning, < 0 means error
-    if (info > 0)  Warning(1, info);
-    if (info < 0)  Error(1, info);
+    if (info > 0)  warning(1, info);
+    if (info < 0)  error(1, info);
 }
 
-Rcpp::List EigsSym::Extract(bool rvec)
+Rcpp::List EigsSym::extract(bool rvec)
 {
-    CheckUpdateError();
+    checkUpdateError();
 
     // 'A' means to calculate Ritz vectors
     // 'P' to calculate Schur vectors
