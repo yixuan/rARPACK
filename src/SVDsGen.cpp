@@ -51,9 +51,9 @@ BEGIN_RCPP
     for(int i = 0; i < ncoef; i++)
         tmp[i] = sin(i + 0.5);
     if (m > n)
-        op->prod(tmp, resid);
-    else
         op->tprod(tmp, resid);
+    else
+        op->prod(tmp, resid);
     // Related to the algorithm, large ncv results in
     // faster convergence, but with greater memory use
     int ncv = as<int>(params_rcpp["ncv"]);
