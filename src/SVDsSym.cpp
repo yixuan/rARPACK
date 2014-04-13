@@ -1,5 +1,7 @@
 #include <RcppEigen.h>
 #include "do_eigs.h"
+#include "EigsSym.h"
+#include "MatOp.h"
 
 using Rcpp::as;
 using Rcpp::wrap;
@@ -8,43 +10,35 @@ using Rcpp::wrap;
 // so many steps can be simplified.
 //
 // Main function to calculate real, symmetric SVD
-SEXP do_svds_sym(SEXP A_mat_r, SEXP n_scalar_r,
-                 SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
-                 SEXP params_list_r, Mvfun mat_v_prod,
-                 void *data)
+SEXP do_svds_sym(MatOp *op, SEXP n_scalar_r, SEXP k_scalar_r,
+                 SEXP nu_scalar_r, SEXP nv_scalar_r,
+                 SEXP params_list_r)
 {
 BEGIN_RCPP
 
-    // We will use do_eigs_sym() to calculate the results,
+    // We will use EigsSym to calculate the results,
     // but the parameters list is slightly different between
     // eigs() and svds().
-    //
-    // We create a new list params_eigs to be passed to
-    // do_eigs_sym().
 
     // Retrieve parameters
     Rcpp::List params_svds(params_list_r);
     int n = INTEGER(n_scalar_r)[0];
     int k = INTEGER(k_scalar_r)[0];
+    int ncv = as<int>(params_svds["ncv"]);
+    std::string which = "LM";
+    int workmode = 1;
+    char bmat = 'I';
+    double tol = as<double>(params_svds["tol"]);
+    int maxitr = as<int>(params_svds["maxitr"]);
     // Whether to calculate singular vectors or not.
     int nu = INTEGER(nu_scalar_r)[0];
     int nv = INTEGER(nv_scalar_r)[0];
     bool rvec = (nu > 0) | (nv > 0);
-    // Create list for do_eigs_sym()
-    Rcpp::List params_eigs =
-        Rcpp::List::create(Rcpp::Named("which") = wrap("LM"),
-                           Rcpp::Named("ncv") = params_svds["ncv"],
-                           Rcpp::Named("tol") = params_svds["tol"],
-                           Rcpp::Named("maxitr") = params_svds["maxitr"],
-                           Rcpp::Named("retvec") = wrap(rvec),
-                           Rcpp::Named("sigma") = wrap(0.0),
-                           Rcpp::Named("workmode") = wrap(1L));
-    // Result from do_eigs_sum()
-    SEXP eigs_res = do_eigs_sym(A_mat_r, n_scalar_r, k_scalar_r,
-                                params_eigs, mat_v_prod, data);
 
-    // Result list
-    Rcpp::List ret(eigs_res);
+    EigsSym eig(n, k, ncv, op, which, workmode,
+                bmat, tol, maxitr);
+    eig.update();
+    Rcpp::List ret = eig.extract(rvec);
 
     int nconv = as<int>(ret["nconv"]);
     if (nconv < k)
