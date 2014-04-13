@@ -72,7 +72,7 @@ void EigsGen::update()
 
 void EigsGen::checkUpdateError()
 {
-    // Ensure that Update() is called at least once
+    // Ensure that update() is called at least once
     if (updatecount < 1)
         Rcpp::stop("need to call Update() first");
 

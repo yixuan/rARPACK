@@ -44,9 +44,12 @@ protected:
     // Maximum number of iterations
     int maxitr;
     // Workmode
+    // workmode = 1: regular mode, we only need matrix product
+    // workmode = 3: shift-and-invert mode,
+    //               need to solve linear equation
     int workmode;
 
-    // Matrix operation
+    // Matrix operation object
     MatOp *op;
 
     // Variables for computation in ARPACK

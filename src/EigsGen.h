@@ -18,8 +18,10 @@ protected:
     virtual void warning(int stage, int errorcode);
     // Check any error after the _aupd step
     void checkUpdateError();
+    // Number of calls of naupd(). Give an error if
+    // extract() is called but updatecount == 0
     int updatecount;
-    // Working space
+    // Working space, unique to eigs() with general matrices
     double *workv;
 
     // Store final results of eigenvectors

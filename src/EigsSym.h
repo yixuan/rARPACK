@@ -18,6 +18,8 @@ protected:
     virtual void warning(int stage, int errorcode);
     // Check any error after the _aupd step
     void checkUpdateError();
+    // Number of calls of saupd(). Give an error if
+    // extract() is called but updatecount == 0
     int updatecount;
 
     // Store final results of eigenvectors
