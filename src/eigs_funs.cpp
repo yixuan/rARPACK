@@ -27,13 +27,14 @@ RcppExport SEXP den_real_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     int maxitr = as<int>(params_rcpp["maxitr"]);
     char uplo = LOGICAL(lower_logical_r)[0] ? 'L' : 'U';
     bool needSolve = (workmode != 1);
+    bool retvec = as<bool>(params_rcpp["retvec"]);
 
     MatOpSymMatrix op(A_mat_r, uplo, sigma, needSolve);
     EigsSym eig(n, nev, ncv, &op, which, workmode,
                 bmat, tol, maxitr);
     eig.update();
 
-    return eig.extract();
+    return eig.extract(retvec);
 
     END_RCPP
 }
@@ -57,13 +58,14 @@ RcppExport SEXP den_real_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     double tol = as<double>(params_rcpp["tol"]);
     int maxitr = as<int>(params_rcpp["maxitr"]);
     bool needSolve = (workmode != 1);
+    bool retvec = as<bool>(params_rcpp["retvec"]);
 
     MatOpMatrix op(A_mat_r, sigmar, sigmai, needSolve);
     EigsGen eig(n, nev, ncv, &op, which, workmode,
                 bmat, tol, maxitr);
     eig.update();
 
-    return eig.extract();
+    return eig.extract(retvec);
 
     END_RCPP
 }
@@ -87,13 +89,14 @@ RcppExport SEXP sparse_real_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     double tol = as<double>(params_rcpp["tol"]);
     int maxitr = as<int>(params_rcpp["maxitr"]);
     bool needSolve = (workmode != 1);
+    bool retvec = as<bool>(params_rcpp["retvec"]);
 
     MatOpDGCMatrix op(A_mat_r, sigmar, sigmai, needSolve);
     EigsGen eig(n, nev, ncv, &op, which, workmode,
                 bmat, tol, maxitr);
     eig.update();
 
-    return eig.extract();
+    return eig.extract(retvec);
 
     END_RCPP
 }
