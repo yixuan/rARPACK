@@ -61,25 +61,17 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     if (arpack.param$ncv < k + 2 | arpack.param$ncv > n)
         stop("'opts$ncv' must be > k and <= nrow(A)");
     
-    # Different arguments according to the type of matrix
-    if(mattype == "matrix")
-    {
-        res = .Call("den_real_sym",
-                    A,
-                    as.integer(n), as.integer(k),
-                    as.list(arpack.param),
-                    as.logical(lower),
-                    PACKAGE = "rARPACK");
-    } else if(mattype == "dsyMatrix") {
-        res = .Call("den_real_sym",
-                    A@x,
-                    as.integer(n), as.integer(k),
-                    as.list(arpack.param),
-                    as.logical(A@uplo == "L"),
-                    PACKAGE = "rARPACK");
-    } else {
-        stop("invalid value of 'mattype'");
-    }
+    # Matrix type
+    types = c("matrix" = 0L, "dsyMatrix" = 1L);
+    
+    # Call the C++ function
+    res = .Call("eigs_sym",
+                A,
+                as.integer(n), as.integer(k),
+                as.list(arpack.param),
+                as.logical(lower),
+                as.integer(types[mattype]),
+                PACKAGE = "rARPACK");
     
     return(res);
 }

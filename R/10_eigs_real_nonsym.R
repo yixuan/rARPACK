@@ -62,17 +62,15 @@ eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
     if (arpack.param$ncv < k + 2 | arpack.param$ncv > n)
         stop("'opts$ncv' must be >= k+2 and <= nrow(A)");
     
-    # Different names of calls according to the type of matrix
-    funname = switch(mattype,
-                     matrix = "den_real_gen",
-                     dgCMatrix = "sparse_real_gen",
-                     stop("invalid value of 'mattype'"));
+    # Matrix type
+    types = c("matrix" = 0L, "dgCMatrix" = 1L);
     
-    # Calling the C++ function
-    res = .Call(funname, A,
+    # Call the C++ function
+    res = .Call("eigs_gen",
+                A,
                 as.integer(n), as.integer(k),
                 as.list(arpack.param),
-                #as.logical(sigmareal),
+                as.integer(types[mattype]),
                 PACKAGE = "rARPACK");
     
     # When workmode == 3 and sigmai != 0, we need to transform back
