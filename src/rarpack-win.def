@@ -2,6 +2,5 @@ LIBRARY rARPACK.dll
 EXPORTS
  eigs_sym
  eigs_gen
- den_real_sym_svd
- den_real_gen_svd
- sparse_real_gen_svd
+ svds_sym
+ svds_gen

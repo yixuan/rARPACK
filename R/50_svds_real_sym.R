@@ -38,18 +38,16 @@ svds.real_sym <- function(A, k, nu = k, nv = k, opts = list(), ...,
     if (arpack.param$ncv < k + 2 | arpack.param$ncv > n)
         stop("'opts$ncv' must be >= k+2 and <= min(nrow(A), ncol(A))");
     
-    # Different names of calls according to the type of matrix
-    funname = switch(mattype,
-                     dsyMatrix = "den_real_sym_svd",
-                     stop("invalid matrix type"));
+    # Matrix type
+    types = c("dsyMatrix" = 0L);
     
-    # Calling the C++ function
-    res = .Call(funname,
-                A@x,
+    # Call the C++ function
+    res = .Call("svds_sym",
+                A,
                 as.integer(n),
                 as.integer(k), as.integer(nu), as.integer(nv),
                 as.list(arpack.param),
-                as.logical(A@uplo == "L"),
+                as.integer(types[mattype]),
                 PACKAGE = "rARPACK");
     
     return(res);

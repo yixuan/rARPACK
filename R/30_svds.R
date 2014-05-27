@@ -73,14 +73,14 @@ svds <- function(A, k, nu = k, nv = k, opts = list(), ...)
 ##' @S3method svds matrix
 ##' @export
 svds.matrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    svds.real_nonsym(A, k, nu, nv, opts, ..., mattype = "matrix");
+    svds.real_gen(A, k, nu, nv, opts, ..., mattype = "matrix");
 
 ##' @rdname svds
 ##' @method svds dgCMatrix
 ##' @S3method svds dgCMatrix
 ##' @export
 svds.dgCMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    svds.real_nonsym(A, k, nu, nv, opts, ..., mattype = "dgCMatrix");
+    svds.real_gen(A, k, nu, nv, opts, ..., mattype = "dgCMatrix");
 
 ##' @rdname svds
 ##' @method svds dsyMatrix

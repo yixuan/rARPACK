@@ -1,5 +1,5 @@
-svds.real_nonsym <- function(A, k, nu = k, nv = k, opts = list(), ...,
-                             mattype = c("matrix", "dgCMatrix"))
+svds.real_gen <- function(A, k, nu = k, nv = k, opts = list(), ...,
+                          mattype = c("matrix", "dgCMatrix"))
 {
     m = nrow(A);
     n = ncol(A);
@@ -40,18 +40,16 @@ svds.real_nonsym <- function(A, k, nu = k, nv = k, opts = list(), ...,
     if (arpack.param$ncv < k + 2 | arpack.param$ncv > wd)
         stop("'opts$ncv' must be >= k+2 and <= min(nrow(A), ncol(A))");
     
-    # Different names of calls according to the type of matrix
-    funname = switch(mattype,
-                     matrix = "den_real_gen_svd",
-                     dgCMatrix = "sparse_real_gen_svd",
-                     stop("invalid matrix type"));
+    # Matrix type
+    types = c("matrix" = 0L, "dgCMatrix" = 1L);
     
-    # Calling the C++ function
-    res = .Call(funname,
+    # Call the C++ function
+    res = .Call("svds_gen",
                 A,
                 as.integer(m), as.integer(n),
                 as.integer(k), as.integer(nu), as.integer(nv),
                 as.list(arpack.param),
+                as.integer(types[mattype]),
                 PACKAGE = "rARPACK");
     
     return(res);
