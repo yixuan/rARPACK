@@ -1,7 +1,7 @@
-#include "MatOpDGCMatrix.h"
+#include "MatOp_dgCMatrix.h"
 
-MatOpDGCMatrix::MatOpDGCMatrix(SEXP mat_, double sigmar_, double sigmai_,
-                               bool needSolve_) :
+MatOp_dgCMatrix::MatOp_dgCMatrix(SEXP mat_, double sigmar_, double sigmai_,
+                                 bool needSolve_) :
     A(as<MapSpMat>(mat_)),
     x_vec(NULL, n), y_vec(NULL, n)
 {
@@ -41,21 +41,21 @@ MatOpDGCMatrix::MatOpDGCMatrix(SEXP mat_, double sigmar_, double sigmai_,
     }
 }
 
-void MatOpDGCMatrix::prod(double *x_in, double *y_out)
+void MatOp_dgCMatrix::prod(double *x_in, double *y_out)
 {
     new (&x_vec) MapVec(x_in, n);
     new (&y_vec) MapVec(y_out, m);
     y_vec = A * x_vec;
 }
 
-void MatOpDGCMatrix::tprod(double *x_in, double *y_out)
+void MatOp_dgCMatrix::tprod(double *x_in, double *y_out)
 {
     new (&x_vec) MapVec(x_in, m);
     new (&y_vec) MapVec(y_out, n);
     y_vec = A.transpose() * x_vec;
 }
 
-void MatOpDGCMatrix::shiftSolve(double *x_in, double *y_out)
+void MatOp_dgCMatrix::shiftSolve(double *x_in, double *y_out)
 {
     if(m != n)
         Rcpp::stop("matrix must be square");

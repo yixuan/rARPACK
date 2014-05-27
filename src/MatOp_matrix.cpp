@@ -1,13 +1,13 @@
-#include "MatOpMatrix.h"
+#include "MatOp_matrix.h"
 
-const char MatOpMatrix::BLAS_notrans = 'N';
-const char MatOpMatrix::BLAS_trans = 'T';
-const double MatOpMatrix::BLAS_alpha = 1.0;
-const int MatOpMatrix::BLAS_one = 1;
-const double MatOpMatrix::BLAS_zero = 0.0;
+const char MatOp_matrix::BLAS_notrans = 'N';
+const char MatOp_matrix::BLAS_trans = 'T';
+const double MatOp_matrix::BLAS_alpha = 1.0;
+const int MatOp_matrix::BLAS_one = 1;
+const double MatOp_matrix::BLAS_zero = 0.0;
 
-MatOpMatrix::MatOpMatrix(SEXP mat_, double sigmar_, double sigmai_,
-                         bool needSolve_) :
+MatOp_matrix::MatOp_matrix(SEXP mat_, double sigmar_, double sigmai_,
+                          bool needSolve_) :
     A_pntr(REAL(mat_)), A(as<MapMat>(mat_)),
     x_vec(NULL, n), y_vec(NULL, n)
 {
@@ -52,7 +52,7 @@ MatOpMatrix::MatOpMatrix(SEXP mat_, double sigmar_, double sigmai_,
     }
 }
 
-void MatOpMatrix::prod(double *x_in, double *y_out)
+void MatOp_matrix::prod(double *x_in, double *y_out)
 {
     F77_CALL(dgemv)(&BLAS_notrans, &m, &n,
             &BLAS_alpha, A_pntr, &m,
@@ -60,7 +60,7 @@ void MatOpMatrix::prod(double *x_in, double *y_out)
             y_out, &BLAS_one);
 }
 
-void MatOpMatrix::tprod(double *x_in, double *y_out)
+void MatOp_matrix::tprod(double *x_in, double *y_out)
 {
     F77_CALL(dgemv)(&BLAS_trans, &m, &n,
             &BLAS_alpha, A_pntr, &m,
@@ -68,7 +68,7 @@ void MatOpMatrix::tprod(double *x_in, double *y_out)
             y_out, &BLAS_one);
 }
 
-void MatOpMatrix::shiftSolve(double *x_in, double *y_out)
+void MatOp_matrix::shiftSolve(double *x_in, double *y_out)
 {
     if(m != n)
         Rcpp::stop("matrix must be square");

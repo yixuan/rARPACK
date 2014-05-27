@@ -17,7 +17,7 @@ typedef Eigen::MappedSparseMatrix<double> MapSpMat;
 typedef Eigen::Map<VectorXd> MapVec;
 typedef Eigen::Map<MatrixXd> MapMat;
 
-class MatOpDGCMatrix : public MatOp
+class MatOp_dgCMatrix : public MatOp
 {
 private:
     // Sparse matrix structure
@@ -31,8 +31,8 @@ private:
     MapVec y_vec;
 public:
     // Constructor
-    MatOpDGCMatrix(SEXP mat_, double sigmar_ = 0, double sigmai_ = 0,
-                   bool needSolve_ = false);
+    MatOp_dgCMatrix(SEXP mat_, double sigmar_ = 0, double sigmai_ = 0,
+                    bool needSolve_ = false);
     // y_out = A * x_in
     void prod(double *x_in, double *y_out);
     // y_out = A' * x_in
@@ -40,7 +40,7 @@ public:
     // y_out = inv(A - sigma * I) * x_in
     void shiftSolve(double *x_in, double *y_out);
     // Destructor
-    ~MatOpDGCMatrix() {}
+    virtual ~MatOp_dgCMatrix() {}
 };
 
 

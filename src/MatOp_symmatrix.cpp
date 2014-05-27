@@ -1,15 +1,15 @@
-#include "MatOpSymMatrix.h"
+#include "MatOp_symmatrix.h"
 
-const double MatOpSymMatrix::BLAS_alpha = 1.0;
-const int MatOpSymMatrix::BLAS_one = 1;
-const double MatOpSymMatrix::BLAS_zero = 0.0;
+const double MatOp_symmatrix::BLAS_alpha = 1.0;
+const int MatOp_symmatrix::BLAS_one = 1;
+const double MatOp_symmatrix::BLAS_zero = 0.0;
 
-MatOpSymMatrix::MatOpSymMatrix(SEXP mat_, char uplo_, double sigma_,
-                               bool needSolve_) :
+MatOp_symmatrix::MatOp_symmatrix(SEXP mat_, char uplo_, double sigma_,
+                                 bool needSolve_) :
     A_pntr(REAL(mat_)), A(NULL, 1, 1), uplo(uplo_),
     x_vec(NULL, n), y_vec(NULL, n)
 {
-    m = n = sqrt(LENGTH(mat_));
+    m = n = (int) sqrt(LENGTH(mat_));
     new (&A) MapMat(A_pntr, n, n);
     sigmar = sigma_;
     sigmai = 0;
@@ -32,7 +32,7 @@ MatOpSymMatrix::MatOpSymMatrix(SEXP mat_, char uplo_, double sigma_,
     }
 }
 
-void MatOpSymMatrix::prod(double *x_in, double *y_out)
+void MatOp_symmatrix::prod(double *x_in, double *y_out)
 {
     F77_CALL(dsymv)(&uplo, &n,
             &BLAS_alpha, A_pntr, &n,
@@ -40,7 +40,7 @@ void MatOpSymMatrix::prod(double *x_in, double *y_out)
             y_out, &BLAS_one);
 }
 
-void MatOpSymMatrix::tprod(double *x_in, double *y_out)
+void MatOp_symmatrix::tprod(double *x_in, double *y_out)
 {
     F77_CALL(dsymv)(&uplo, &n,
             &BLAS_alpha, A_pntr, &n,
@@ -48,7 +48,7 @@ void MatOpSymMatrix::tprod(double *x_in, double *y_out)
             y_out, &BLAS_one);
 }
 
-void MatOpSymMatrix::shiftSolve(double *x_in, double *y_out)
+void MatOp_symmatrix::shiftSolve(double *x_in, double *y_out)
 {
     if(!canSolve)
         Rcpp::stop("this matrix doesn't support solving linear equation");

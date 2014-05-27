@@ -1,9 +1,9 @@
 #include <RcppEigen.h>
 #include "ARPACK.h"
 #include "EigsSym.h"
-#include "MatOpMatrix.h"
-#include "MatOpSymMatrix.h"
-#include "MatOpDGCMatrix.h"
+#include "MatOp_matrix.h"
+#include "MatOp_symmatrix.h"
+#include "MatOp_dgCMatrix.h"
 
 SEXP do_svds_sym(MatOp *op, SEXP n_scalar_r,
                  SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
@@ -24,7 +24,7 @@ RcppExport SEXP den_real_sym_svd(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
 BEGIN_RCPP
 
     char uplo = LOGICAL(lower_logical_r)[0] ? 'L' : 'U';
-    MatOpSymMatrix op(A_mat_r, uplo, 0, false);
+    MatOp_symmatrix op(A_mat_r, uplo, 0, false);
 
     return do_svds_sym(&op, n_scalar_r, k_scalar_r,
                        nu_scalar_r, nv_scalar_r,
@@ -41,7 +41,7 @@ RcppExport SEXP den_real_gen_svd(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
 {
 BEGIN_RCPP
 
-    MatOpMatrix op(A_mat_r, 0, 0, false);
+    MatOp_matrix op(A_mat_r, 0, 0, false);
 
     return do_svds_gen(&op, m_scalar_r, n_scalar_r, k_scalar_r,
                        nu_scalar_r, nv_scalar_r,
@@ -58,7 +58,7 @@ RcppExport SEXP sparse_real_gen_svd(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar
 {
 BEGIN_RCPP
 
-    MatOpDGCMatrix op(A_mat_r, 0, 0, false);
+    MatOp_dgCMatrix op(A_mat_r, 0, 0, false);
 
     return do_svds_gen(&op, m_scalar_r, n_scalar_r, k_scalar_r,
                        nu_scalar_r, nv_scalar_r,

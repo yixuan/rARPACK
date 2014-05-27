@@ -1,9 +1,9 @@
 #include <RcppEigen.h>
 #include "EigsSym.h"
 #include "EigsGen.h"
-#include "MatOpMatrix.h"
-#include "MatOpSymMatrix.h"
-#include "MatOpDGCMatrix.h"
+#include "MatOp_matrix.h"
+#include "MatOp_symmatrix.h"
+#include "MatOp_dgCMatrix.h"
 
 using Rcpp::as;
 
@@ -29,7 +29,7 @@ RcppExport SEXP den_real_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool needSolve = (workmode != 1);
     bool retvec = as<bool>(params_rcpp["retvec"]);
 
-    MatOpSymMatrix op(A_mat_r, uplo, sigma, needSolve);
+    MatOp_symmatrix op(A_mat_r, uplo, sigma, needSolve);
     EigsSym eig(n, nev, ncv, &op, which, workmode,
                 bmat, tol, maxitr);
     eig.update();
@@ -60,7 +60,7 @@ RcppExport SEXP den_real_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool needSolve = (workmode != 1);
     bool retvec = as<bool>(params_rcpp["retvec"]);
 
-    MatOpMatrix op(A_mat_r, sigmar, sigmai, needSolve);
+    MatOp_matrix op(A_mat_r, sigmar, sigmai, needSolve);
     EigsGen eig(n, nev, ncv, &op, which, workmode,
                 bmat, tol, maxitr);
     eig.update();
@@ -91,7 +91,7 @@ RcppExport SEXP sparse_real_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool needSolve = (workmode != 1);
     bool retvec = as<bool>(params_rcpp["retvec"]);
 
-    MatOpDGCMatrix op(A_mat_r, sigmar, sigmai, needSolve);
+    MatOp_dgCMatrix op(A_mat_r, sigmar, sigmai, needSolve);
     EigsGen eig(n, nev, ncv, &op, which, workmode,
                 bmat, tol, maxitr);
     eig.update();
