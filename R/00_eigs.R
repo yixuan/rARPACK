@@ -133,7 +133,7 @@ eigs <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...)
 ##' @export
 eigs.matrix <- function(A, k, which = "LM", sigma = NULL,
                         opts = list(), ...)
-    eigs.real_nonsym(A, k, which, sigma, opts, ..., mattype = "matrix");
+    eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "matrix");
 
 ##' @rdname eigs
 ##' @method eigs dgCMatrix
@@ -141,7 +141,7 @@ eigs.matrix <- function(A, k, which = "LM", sigma = NULL,
 ##' @export
 eigs.dgCMatrix <- function(A, k, which = "LM", sigma = NULL,
                            opts = list(), ...)
-    eigs.real_nonsym(A, k, which, sigma, opts, ..., mattype = "dgCMatrix");
+    eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgCMatrix");
 
 ##' @rdname eigs
 ##' @method eigs dsyMatrix

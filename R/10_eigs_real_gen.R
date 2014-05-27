@@ -1,5 +1,5 @@
-eigs.real_nonsym <- function(A, k, which, sigma, opts = list(), ...,
-                             mattype = c("matrix", "dgCMatrix"))
+eigs.real_gen <- function(A, k, which, sigma, opts = list(), ...,
+                          mattype = c("matrix", "dgCMatrix"))
 {
     n = nrow(A);
     # Check whether 'A' is a square matrix
