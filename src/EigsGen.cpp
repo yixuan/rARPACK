@@ -18,8 +18,6 @@ EigsGen::~EigsGen()
 {
     delete [] workv;
     delete [] workl;
-    delete [] workd;
-    delete [] resid;
 }
 
 void EigsGen::error(int stage, int errorcode)

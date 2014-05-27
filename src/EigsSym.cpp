@@ -16,8 +16,6 @@ EigsSym::EigsSym(int n_, int nev_, int ncv_, MatOp *op_,
 EigsSym::~EigsSym()
 {
     delete [] workl;
-    delete [] workd;
-    delete [] resid;
 }
 
 void EigsSym::error(int stage, int errorcode)
