@@ -3,7 +3,7 @@
 MatOp_dgCMatrix::MatOp_dgCMatrix(SEXP mat_, double sigmar_, double sigmai_,
                                  bool needSolve_) :
     A(as<MapSpMat>(mat_)),
-    x_vec(NULL, n), y_vec(NULL, n)
+    x_vec(NULL, 1), y_vec(NULL, 1)
 {
     m = A.rows();
     n = A.cols();

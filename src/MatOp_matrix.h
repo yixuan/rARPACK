@@ -36,10 +36,15 @@ private:
     // Mapped vector
     MapVec x_vec;
     MapVec y_vec;
+    // Function called by constructors
+    void init(int m_, int n_, double sigmar_, double sigmai_, bool needSolve_);
 public:
     // Constructor
     MatOp_matrix(SEXP mat_, double sigmar_ = 0, double sigmai_ = 0,
                  bool needSolve_ = false);
+    // Another constructor, useful for creating MatOp_dgeMatrix object
+    MatOp_matrix(double *data_, int m_, int n_,
+                 double sigmar_ = 0, double sigmai_ = 0, bool needSolve_ = false);
     // y_out = A * x_in
     void prod(double *x_in, double *y_out);
     // y_out = A' * x_in

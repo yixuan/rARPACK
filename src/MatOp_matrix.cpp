@@ -6,13 +6,10 @@ const double MatOp_matrix::BLAS_alpha = 1.0;
 const int MatOp_matrix::BLAS_one = 1;
 const double MatOp_matrix::BLAS_zero = 0.0;
 
-MatOp_matrix::MatOp_matrix(SEXP mat_, double sigmar_, double sigmai_,
-                          bool needSolve_) :
-    A_pntr(REAL(mat_)), A(as<MapMat>(mat_)),
-    x_vec(NULL, n), y_vec(NULL, n)
+void MatOp_matrix::init(int m_, int n_, double sigmar_, double sigmai_, bool needSolve_)
 {
-    m = A.rows();
-    n = A.cols();
+    m = m_;
+    n = n_;
     sigmar = sigmar_;
     sigmai = sigmai_;
     canTprod = true;
@@ -50,6 +47,24 @@ MatOp_matrix::MatOp_matrix(SEXP mat_, double sigmar_, double sigmai_,
         cx_vec.resize(n);
         cx_vec.setZero();
     }
+}
+
+MatOp_matrix::MatOp_matrix(double *data_, int m_, int n_,
+                           double sigmar_, double sigmai_, bool needSolve_) :
+    A_pntr(data_), A(data_, m_, n_),
+    // x_vec and y_vec are only used in shiftSolve(),
+    // where their lengths will be renewed
+    x_vec(NULL, 1), y_vec(NULL, 1)
+{
+    init(m_, n_, sigmar_, sigmai_, needSolve_);
+}
+
+MatOp_matrix::MatOp_matrix(SEXP mat_, double sigmar_, double sigmai_,
+                           bool needSolve_) :
+    A_pntr(REAL(mat_)), A(as<MapMat>(mat_)),
+    x_vec(NULL, 1), y_vec(NULL, 1)
+{
+    init(A.rows(), A.cols(), sigmar_, sigmai_, needSolve_);
 }
 
 void MatOp_matrix::prod(double *x_in, double *y_out)
