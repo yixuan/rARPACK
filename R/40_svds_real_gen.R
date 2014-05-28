@@ -1,5 +1,5 @@
 svds.real_gen <- function(A, k, nu = k, nv = k, opts = list(), ...,
-                          mattype = c("matrix", "dgCMatrix"))
+                          mattype = c("matrix", "dgeMatrix", "dgCMatrix"))
 {
     m = nrow(A);
     n = ncol(A);
@@ -41,7 +41,7 @@ svds.real_gen <- function(A, k, nu = k, nv = k, opts = list(), ...,
         stop("'opts$ncv' must be >= k+2 and <= min(nrow(A), ncol(A))");
     
     # Matrix type
-    types = c("matrix" = 0L, "dgCMatrix" = 1L);
+    types = c("matrix" = 0L, "dgeMatrix" = 1L, "dgCMatrix" = 2L);
     
     # Call the C++ function
     res = .Call("svds_gen",

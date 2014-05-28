@@ -4,6 +4,7 @@
 #include "EigsSym.h"
 #include "MatOp_matrix.h"
 #include "MatOp_symmatrix.h"
+#include "MatOp_dgeMatrix.h"
 #include "MatOp_dsyMatrix.h"
 #include "MatOp_dgCMatrix.h"
 
@@ -21,6 +22,7 @@ enum SVDSSYMMAT {
 
 enum SVDSGENMAT {
     MATRIX = 0,
+    DGEMATRIX,
     DGCMATRIX
 };
 
@@ -67,6 +69,9 @@ BEGIN_RCPP
     {
         case (int) MATRIX:
             op = new MatOp_matrix(A_mat_r, 0, 0, false);
+            break;
+        case (int) DGEMATRIX:
+            op = new MatOp_dgeMatrix(A_mat_r, 0, 0, false);
             break;
         case (int) DGCMATRIX:
             op = new MatOp_dgCMatrix(A_mat_r, 0, 0, false);
