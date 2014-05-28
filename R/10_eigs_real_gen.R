@@ -1,5 +1,5 @@
 eigs.real_gen <- function(A, k, which, sigma, opts = list(), ...,
-                          mattype = c("matrix", "dgCMatrix"))
+                          mattype = c("matrix", "dgeMatrix", "dgCMatrix"))
 {
     n = nrow(A);
     # Check whether 'A' is a square matrix
@@ -63,7 +63,7 @@ eigs.real_gen <- function(A, k, which, sigma, opts = list(), ...,
         stop("'opts$ncv' must be >= k+2 and <= nrow(A)");
     
     # Matrix type
-    types = c("matrix" = 0L, "dgCMatrix" = 1L);
+    types = c("matrix" = 0L, "dgeMatrix" = 1L, "dgCMatrix" = 2L);
     
     # Call the C++ function
     res = .Call("eigs_gen",

@@ -4,6 +4,7 @@
 #include "EigsGen.h"
 #include "MatOp_matrix.h"
 #include "MatOp_symmatrix.h"
+#include "MatOp_dgeMatrix.h"
 #include "MatOp_dsyMatrix.h"
 #include "MatOp_dgCMatrix.h"
 
@@ -16,7 +17,8 @@ enum EIGSSYMMAT {
 
 enum EIGSGENMAT {
     // MATRIX = 0,
-    DGCMATRIX = 1
+    DGEMATRIX = 1,
+    DGCMATRIX = 2
 };
 
 RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
@@ -93,6 +95,9 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     {
         case (int) MATRIX:
             op = new MatOp_matrix(A_mat_r, sigmar, sigmai, needSolve);
+            break;
+        case (int) DGEMATRIX:
+            op = new MatOp_dgeMatrix(A_mat_r, sigmar, sigmai, needSolve);
             break;
         case (int) DGCMATRIX:
             op = new MatOp_dgCMatrix(A_mat_r, sigmar, sigmai, needSolve);

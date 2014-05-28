@@ -136,6 +136,14 @@ eigs.matrix <- function(A, k, which = "LM", sigma = NULL,
     eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "matrix");
 
 ##' @rdname eigs
+##' @method eigs dgeMatrix
+##' @S3method eigs dgeMatrix
+##' @export
+eigs.dgeMatrix <- function(A, k, which = "LM", sigma = NULL,
+                           opts = list(), ...)
+    eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgeMatrix");
+
+##' @rdname eigs
 ##' @method eigs dgCMatrix
 ##' @S3method eigs dgCMatrix
 ##' @export
