@@ -10,8 +10,9 @@
 ##' 
 ##' Currently \code{eigs()} supports matrices of class "matrix"
 ##' (the most commonly used matrix type),
+##' "dgeMatrix" (general matrix, equivalent to "matrix"),
 ##' "dgCMatrix" (sparse matrix) and "dsyMatrix" (symmetric matrix).
-##' The latter two classes are defined in the
+##' All classes above except "matrix" are defined in the
 ##' \pkg{Matrix} package.
 ##' 
 ##' \code{eigs_sym()} assumes the matrix is symmetric,
@@ -54,7 +55,7 @@
 ##'             When k is odd, compute more from the high and then from the low end.}
 ##' }
 ##'
-##' \code{eigs()} with matrix type "matrix" and "dgCMatrix" can use "LM",
+##' \code{eigs()} with matrix type "matrix", "dgeMatrix" and "dgCMatrix" can use "LM",
 ##' "SM", "LR", "SR", "LI" and "SI".
 ##' 
 ##' \code{eigs_sym()} and \code{eigs()} with matrix type "dsyMatrix"

@@ -1,3 +1,17 @@
+      CHANGES IN rARPACK VERSION 0.6-0
+
+NEW FEATURES
+
+    o Add support for new matrix types: dgeMatrix.
+
+BUG FIXES
+
+    o Rewrite C++ code in OOP style.
+
+
+
+
+
       CHANGES IN rARPACK VERSION 0.5-0
 
 NEW FEATURES

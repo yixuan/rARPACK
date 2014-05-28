@@ -17,6 +17,7 @@ typedef Eigen::MappedSparseMatrix<double> MapSpMat;
 typedef Eigen::Map<VectorXd> MapVec;
 typedef Eigen::Map<MatrixXd> MapMat;
 
+// Operations on "dgCMatrix" class, defined in Matrix package
 class MatOp_dgCMatrix : public MatOp
 {
 private:

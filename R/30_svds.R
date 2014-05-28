@@ -8,9 +8,11 @@
 ##' since it only contains a subset of the whole singular triplets.
 ##' 
 ##' Currently \code{svds()} supports matrices of class "matrix",
-##' "dgCMatrix" and "dsyMatrix". The latter two classes are defined
-##' in the \pkg{Matrix} package, representing sparse matrix and
-##' symmetric matrix respectively. Note that when \code{A} is symmetric,
+##' "dgeMatrix", "dgCMatrix" and "dsyMatrix". 
+##' All classes above except "matrix" are defined
+##' in the \pkg{Matrix} package, representing general matrix,
+##' sparse matrix and symmetric matrix respectively.
+##' Note that when \code{A} is symmetric,
 ##' SVD reduces to eigen decomposition, so you may consider using
 ##' \code{\link{eigs}()} instead.
 ##' 

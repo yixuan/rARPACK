@@ -9,6 +9,7 @@ inline char get_uplo(SEXP dsyMatrix)
     return CHAR(STRING_ELT(str, 0))[0];
 }
 
+// Operations on "dsyMatrix" class, defined in Matrix package
 class MatOp_dsyMatrix : public MatOp_symmatrix
 {
 public:
