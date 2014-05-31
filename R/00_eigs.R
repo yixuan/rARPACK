@@ -176,3 +176,7 @@ eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ..., lower
         stop("unsupported matrix type");
     }
 }
+
+# Matrix types
+MATTYPES = c("matrix" = 0L, "dgeMatrix" = 1L, "dsyMatrix" = 2L,
+             "dgCMatrix" = 3L);
