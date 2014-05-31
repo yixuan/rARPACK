@@ -8,7 +8,7 @@
 // Implemented:
 //     error()
 //     warning()
-//     update()
+//     aupd()
 //     extract()
 //
 class EigsGen: public Eigs
@@ -16,11 +16,7 @@ class EigsGen: public Eigs
 protected:
     virtual void error(int stage, int errorcode);
     virtual void warning(int stage, int errorcode);
-    // Check any error after the _aupd step
-    void checkUpdateError();
-    // Number of calls of naupd(). Give an error if
-    // extract() is called but updatecount == 0
-    int updatecount;
+
     // Working space, unique to eigs() with general matrices
     double *workv;
 
@@ -32,11 +28,12 @@ protected:
     // Conceptually they are vectors of length nev + 1
     Rcpp::NumericVector eigdr;
     Rcpp::NumericVector eigdi;
+
+    virtual void aupd();
 public:
     EigsGen(int n_, int nev_, int ncv_, MatOp *op_,
             const string & which_ = "LM", int workmode_ = 1, 
             char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
-    virtual void update();
     virtual Rcpp::List extract(bool rvec = true);
     virtual ~EigsGen();
 };

@@ -9,7 +9,6 @@ EigsSym::EigsSym(int n_, int nev_, int ncv_, MatOp *op_,
 {
     lworkl = ncv * (ncv + 8);
     workl = new double[lworkl]();
-    updatecount = 0;
 }
 
 
@@ -38,43 +37,13 @@ void EigsSym::warning(int stage, int errorcode)
     }
 }
 
-void EigsSym::update()
+void EigsSym::aupd()
 {
-    initResid();
-
-    while (ido != 99)
-    {
-        saupd(ido, bmat, n, which.c_str(),
-              nev, tol, resid,
-              ncv, eigV.begin(), n,
-              iparam, ipntr, workd,
-              workl, lworkl, info);
-        switch(ido)
-        {
-            case -1:
-            case 1:
-                // Shift-and-invert
-                if (workmode == 3)
-                    op->shiftSolve(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
-                else
-                    op->prod(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
-                break;
-            default:
-                break;
-        }
-        updatecount++;
-    }
-}
-
-void EigsSym::checkUpdateError()
-{
-    // Ensure that update() is called at least once
-    if (updatecount < 1)
-        Rcpp::stop("need to call Update() first");
-
-    // info > 0 means warning, < 0 means error
-    if (info > 0)  warning(1, info);
-    if (info < 0)  error(1, info);
+    saupd(ido, bmat, n, which.c_str(),
+          nev, tol, resid,
+          ncv, eigV.begin(), n,
+          iparam, ipntr, workd,
+          workl, lworkl, info);
 }
 
 Rcpp::List EigsSym::extract(bool rvec)

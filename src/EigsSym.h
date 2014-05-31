@@ -8,7 +8,7 @@
 // Implemented:
 //     error()
 //     warning()
-//     update()
+//     aupd()
 //     extract()
 //
 class EigsSym: public Eigs
@@ -16,11 +16,6 @@ class EigsSym: public Eigs
 protected:
     virtual void error(int stage, int errorcode);
     virtual void warning(int stage, int errorcode);
-    // Check any error after the _aupd step
-    void checkUpdateError();
-    // Number of calls of saupd(). Give an error if
-    // extract() is called but updatecount == 0
-    int updatecount;
 
     // Store final results of eigenvectors
     // Conceptually it is an n * ncv matrix
@@ -28,11 +23,12 @@ protected:
     // Store final results of eigenvalues
     // Conceptually it is a vector of length nev
     Rcpp::NumericVector eigd;
+
+    virtual void aupd();
 public:
     EigsSym(int n_, int nev_, int ncv_, MatOp *op_,
             const string & which_ = "LM", int workmode_ = 1, 
             char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
-    virtual void update();
     virtual Rcpp::List extract(bool rvec = true);
     virtual ~EigsSym();
 };

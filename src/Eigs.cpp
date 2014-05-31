@@ -17,6 +17,7 @@ Eigs::Eigs(int n_, int nev_, int ncv_, MatOp *op_,
     ido = 0;
     info = 0;
     ierr = 0;
+    updatecount = 0;
 
     for(int i = 0; i < 11; i++)
         iparam[i] = 0;
@@ -47,6 +48,41 @@ void Eigs::initResid()
     // resid = A * initcoef
     op->prod(initcoef, resid);
     delete [] initcoef;
+}
+
+void Eigs::update()
+{
+    initResid();
+
+    while (ido != 99)
+    {
+        aupd();
+        switch(ido)
+        {
+            case -1:
+            case 1:
+                // Shift-and-invert
+                if (workmode == 3)
+                    op->shiftSolve(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
+                else
+                    op->prod(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
+                break;
+            default:
+                break;
+        }
+        updatecount++;
+    }
+}
+
+void Eigs::checkUpdateError()
+{
+    // Ensure that update() is called at least once
+    if (updatecount < 1)
+        Rcpp::stop("need to call update() first");
+
+    // info > 0 means warning, < 0 means error
+    if (info > 0)  warning(1, info);
+    if (info < 0)  error(1, info);
 }
 
 Eigs::~Eigs()
