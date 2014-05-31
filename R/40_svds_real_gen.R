@@ -40,16 +40,13 @@ svds.real_gen <- function(A, k, nu = k, nv = k, opts = list(), ...,
     if (arpack.param$ncv < k + 2 | arpack.param$ncv > wd)
         stop("'opts$ncv' must be >= k+2 and <= min(nrow(A), ncol(A))");
     
-    # Matrix type
-    types = c("matrix" = 0L, "dgeMatrix" = 1L, "dgCMatrix" = 2L);
-    
     # Call the C++ function
     res = .Call("svds_gen",
                 A,
                 as.integer(m), as.integer(n),
                 as.integer(k), as.integer(nu), as.integer(nv),
                 as.list(arpack.param),
-                as.integer(types[mattype]),
+                as.integer(MATTYPES[mattype]),
                 PACKAGE = "rARPACK");
     
     return(res);

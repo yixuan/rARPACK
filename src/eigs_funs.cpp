@@ -2,24 +2,9 @@
 #include <Rdefines.h>
 #include "EigsSym.h"
 #include "EigsGen.h"
-#include "MatOp_matrix.h"
-#include "MatOp_symmatrix.h"
-#include "MatOp_dgeMatrix.h"
-#include "MatOp_dsyMatrix.h"
-#include "MatOp_dgCMatrix.h"
+#include "MatTypes.h"
 
 using Rcpp::as;
-
-enum EIGSSYMMAT {
-    MATRIX = 0,
-    DSYMATRIX
-};
-
-enum EIGSGENMAT {
-    // MATRIX = 0,
-    DGEMATRIX = 1,
-    DGCMATRIX = 2
-};
 
 RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
                          SEXP params_list_r, SEXP lower_logical_r,

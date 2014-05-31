@@ -2,11 +2,8 @@
 #include <Rdefines.h>
 #include "ARPACK.h"
 #include "EigsSym.h"
-#include "MatOp_matrix.h"
-#include "MatOp_symmatrix.h"
-#include "MatOp_dgeMatrix.h"
-#include "MatOp_dsyMatrix.h"
-#include "MatOp_dgCMatrix.h"
+#include "MatTypes.h"
+
 
 SEXP do_svds_sym(MatOp *op, SEXP n_scalar_r,
                  SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
@@ -15,16 +12,6 @@ SEXP do_svds_sym(MatOp *op, SEXP n_scalar_r,
 SEXP do_svds_gen(MatOp *op, SEXP m_scalar_r, SEXP n_scalar_r,
                  SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
                  SEXP params_list_r);
-
-enum SVDSSYMMAT {
-    DSYMATRIX = 0
-};
-
-enum SVDSGENMAT {
-    MATRIX = 0,
-    DGEMATRIX,
-    DGCMATRIX
-};
 
 
 // Main function to calculate truncated SVD for
