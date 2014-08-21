@@ -1,5 +1,5 @@
 eigs.real_gen <- function(A, k, which, sigma, opts = list(), ...,
-                          mattype = c("matrix", "dgeMatrix", "dgCMatrix"))
+                          mattype = c("matrix", "dgeMatrix", "dgCMatrix", "dgRMatrix"))
 {
     n = nrow(A);
     # Check whether 'A' is a square matrix

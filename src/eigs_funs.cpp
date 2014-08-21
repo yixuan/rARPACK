@@ -87,6 +87,9 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         case (int) DGCMATRIX:
             op = new MatOp_dgCMatrix(A_mat_r, sigmar, sigmai, needSolve);
             break;
+        case (int) DGRMATRIX:
+            op = new MatOp_dgRMatrix(A_mat_r, sigmar, sigmai, needSolve);
+            break;
         default:
             Rcpp::stop("unsupported matrix type in eigs()");
     }

@@ -153,6 +153,14 @@ eigs.dgCMatrix <- function(A, k, which = "LM", sigma = NULL,
     eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgCMatrix");
 
 ##' @rdname eigs
+##' @method eigs dgRMatrix
+##' @S3method eigs dgRMatrix
+##' @export
+eigs.dgRMatrix <- function(A, k, which = "LM", sigma = NULL,
+                           opts = list(), ...)
+    eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgRMatrix");
+
+##' @rdname eigs
 ##' @method eigs dsyMatrix
 ##' @S3method eigs dsyMatrix
 ##' @export
@@ -179,4 +187,4 @@ eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ..., lower
 
 # Matrix types
 MATTYPES = c("matrix" = 0L, "dgeMatrix" = 1L, "dsyMatrix" = 2L,
-             "dgCMatrix" = 3L);
+             "dgCMatrix" = 3L, "dgRMatrix" = 4L);
