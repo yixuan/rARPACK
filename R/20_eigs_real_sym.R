@@ -21,8 +21,8 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
         mode(A) = "double";
     }
     # Check the value of 'k'
-    if (k <= 0 | k >= n - 1)
-        stop("'k' must satisfy 0 < k < nrow(A) - 1.\nTo calculate all eigenvalues, try eigen()");
+    if (k <= 0 | k >= n)
+        stop("'k' must satisfy 0 < k < nrow(A).\nTo calculate all eigenvalues, try eigen()");
     
     # Check sigma
     # workmode == 1: ordinary
@@ -39,7 +39,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     
     # Arguments to be passed to ARPACK
     arpack.param = list(which = which,
-                        ncv = min(n - 1, max(2 * k + 1, 20)),
+                        ncv = min(n, max(2 * k, 20)),
                         tol = 1e-10,
                         maxitr = 1000,
                         retvec = TRUE,
@@ -58,7 +58,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     arpack.param[names(opts)] = opts;
     
     # Check the value of 'ncv'
-    if (arpack.param$ncv < k + 2 | arpack.param$ncv > n)
+    if (arpack.param$ncv <= k | arpack.param$ncv > n)
         stop("'opts$ncv' must be > k and <= nrow(A)");
     
     # Call the C++ function

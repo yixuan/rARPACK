@@ -33,7 +33,7 @@ void dsaupd_error(int info)
             Rcpp::stop("ARPACK/dsaupd: k must be positive");
             break;
         case -3:
-            Rcpp::stop("ARPACK/dsaupd: k < ncv <= n");
+            Rcpp::stop("ARPACK/dsaupd: k < ncv <= n must be satisfied");
             break;
         case -4:
             Rcpp::stop("ARPACK/dsaupd: maxitr must be positive");
@@ -86,7 +86,7 @@ void dseupd_error(int info)
             Rcpp::stop("ARPACK/dseupd: k must be positive");
             break;
         case -3:
-            Rcpp::stop("ARPACK/dseupd: k < ncv <= n");
+            Rcpp::stop("ARPACK/dseupd: k < ncv <= n must be satisfied");
             break;
         case -5:
             Rcpp::stop("ARPACK/dseupd: which must be one of 'LM', 'SM', 'LA', 'SA', 'BE'");
@@ -158,7 +158,7 @@ void dnaupd_error(int info)
             Rcpp::stop("ARPACK/dnaupd: k must be positive");
             break;
         case -3:
-            Rcpp::stop("ARPACK/dnaupd: 2 <= ncv - k <= n");
+            Rcpp::stop("ARPACK/dnaupd: 2 <= ncv - k <= n must be satisfied");
             break;
         case -4:
             Rcpp::stop("ARPACK/dnaupd: maxitr must be positive");
@@ -220,7 +220,7 @@ void dneupd_error(int info)
             Rcpp::stop("ARPACK/dneupd: k must be positive");
             break;
         case -3:
-            Rcpp::stop("ARPACK/dneupd: 2 <= ncv - k <= n");
+            Rcpp::stop("ARPACK/dneupd: 2 <= ncv - k <= n must be satisfied");
             break;
         case -5:
             Rcpp::stop("ARPACK/dneupd: which must be one of 'LM', 'SM', 'LR', 'SR', 'LI', 'SI'");
