@@ -2,6 +2,7 @@
 \name{svds}
 \alias{svds}
 \alias{svds.dgCMatrix}
+\alias{svds.dgRMatrix}
 \alias{svds.dgeMatrix}
 \alias{svds.dsyMatrix}
 \alias{svds.matrix}
@@ -14,6 +15,8 @@ svds(A, k, nu = k, nv = k, opts = list(), ...)
 \method{svds}{dgeMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
 
 \method{svds}{dgCMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
+
+\method{svds}{dgRMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
 
 \method{svds}{dsyMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
 }

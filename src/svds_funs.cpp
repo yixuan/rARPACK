@@ -63,6 +63,9 @@ BEGIN_RCPP
         case (int) DGCMATRIX:
             op = new MatOp_dgCMatrix(A_mat_r, 0, 0, false);
             break;
+        case (int) DGRMATRIX:
+            op = new MatOp_dgRMatrix(A_mat_r, 0, 0, false);
+            break;
         default:
             Rcpp::stop("unsupported matrix type in svds()");
     }

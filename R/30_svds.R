@@ -71,29 +71,26 @@ svds <- function(A, k, nu = k, nv = k, opts = list(), ...)
     UseMethod("svds");
 
 ##' @rdname svds
-##' @method svds matrix
-##' @S3method svds matrix
 ##' @export
 svds.matrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
     svds.real_gen(A, k, nu, nv, opts, ..., mattype = "matrix");
 
 ##' @rdname svds
-##' @method svds dgeMatrix
-##' @S3method svds dgeMatrix
 ##' @export
 svds.dgeMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
     svds.real_gen(A, k, nu, nv, opts, ..., mattype = "dgeMatrix");
 
 ##' @rdname svds
-##' @method svds dgCMatrix
-##' @S3method svds dgCMatrix
 ##' @export
 svds.dgCMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
     svds.real_gen(A, k, nu, nv, opts, ..., mattype = "dgCMatrix");
 
 ##' @rdname svds
-##' @method svds dsyMatrix
-##' @S3method svds dsyMatrix
+##' @export
+svds.dgRMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
+    svds.real_gen(A, k, nu, nv, opts, ..., mattype = "dgRMatrix");
+
+##' @rdname svds
 ##' @export
 svds.dsyMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
     svds.real_sym(A, k, nu, nv, opts, ..., mattype = "dsyMatrix");
