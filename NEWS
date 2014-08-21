@@ -2,11 +2,11 @@
 
 NEW FEATURES
 
-    o Add support for new matrix types: dgeMatrix.
+    o Add support for new matrix types: dgeMatrix and dgRMatrix.
 
 BUG FIXES
 
-    o Rewrite C++ code in OOP style.
+    o Rewrite C++ code using classes and templates.
 
 
 
