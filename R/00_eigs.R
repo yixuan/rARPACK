@@ -129,40 +129,30 @@ eigs <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...)
     UseMethod("eigs");
 
 ##' @rdname eigs
-##' @method eigs matrix
-##' @S3method eigs matrix
 ##' @export
 eigs.matrix <- function(A, k, which = "LM", sigma = NULL,
                         opts = list(), ...)
     eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "matrix");
 
 ##' @rdname eigs
-##' @method eigs dgeMatrix
-##' @S3method eigs dgeMatrix
 ##' @export
 eigs.dgeMatrix <- function(A, k, which = "LM", sigma = NULL,
                            opts = list(), ...)
     eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgeMatrix");
 
 ##' @rdname eigs
-##' @method eigs dgCMatrix
-##' @S3method eigs dgCMatrix
 ##' @export
 eigs.dgCMatrix <- function(A, k, which = "LM", sigma = NULL,
                            opts = list(), ...)
     eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgCMatrix");
 
 ##' @rdname eigs
-##' @method eigs dgRMatrix
-##' @S3method eigs dgRMatrix
 ##' @export
 eigs.dgRMatrix <- function(A, k, which = "LM", sigma = NULL,
                            opts = list(), ...)
     eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgRMatrix");
 
 ##' @rdname eigs
-##' @method eigs dsyMatrix
-##' @S3method eigs dsyMatrix
 ##' @export
 eigs.dsyMatrix <- function(A, k, which = "LM", sigma = NULL,
                            opts = list(), ...)
@@ -173,7 +163,7 @@ eigs.dsyMatrix <- function(A, k, which = "LM", sigma = NULL,
 ##' @rdname eigs
 ##' @usage eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
 ##'   ..., lower = TRUE)
-##' @export eigs_sym
+##' @export
 eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ..., lower = TRUE)
 {
     if(is.matrix(A))

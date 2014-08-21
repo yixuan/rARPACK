@@ -2,6 +2,7 @@
 \name{eigs}
 \alias{eigs}
 \alias{eigs.dgCMatrix}
+\alias{eigs.dgRMatrix}
 \alias{eigs.dgeMatrix}
 \alias{eigs.dsyMatrix}
 \alias{eigs.matrix}
@@ -17,6 +18,9 @@ eigs(A, k, which = "LM", sigma = NULL, opts = list(), ...)
   ...)
 
 \method{eigs}{dgCMatrix}(A, k, which = "LM", sigma = NULL, opts = list(),
+  ...)
+
+\method{eigs}{dgRMatrix}(A, k, which = "LM", sigma = NULL, opts = list(),
   ...)
 
 \method{eigs}{dsyMatrix}(A, k, which = "LM", sigma = NULL, opts = list(),

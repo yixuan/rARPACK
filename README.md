@@ -17,6 +17,7 @@ including sparse matrices, are supported. Below is a list of implemented ones:
 - `dgeMatrix` (defined in **Matrix** package, for general matrices)
 - `dsyMatrix` (defined in **Matrix** package, for symmetric matrices)
 - `dgCMatrix` (defined in **Matrix** package, for column oriented sparse matrices)
+- `dgRMatrix` (defined in **Matrix** package, for row oriented sparse matrices)
 
 ### Example
 
