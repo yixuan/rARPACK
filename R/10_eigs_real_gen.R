@@ -9,6 +9,30 @@ eigs.real_gen <- function(A, k, which, sigma, opts = list(), ...,
     if (n < 3)
         stop("dimension of 'A' must be at least 3");
     
+    # If >= n-1 eigenvalues are requested, call eigen() instead,
+    # and give a warning
+    if (k == n - 1)
+    {
+        res = eigen(A, only.values = identical(opts$retvec, FALSE))
+        exclude = switch(which,
+                         LM = n,
+                         SM = 1,
+                         LR = which.min(Re(res$values)),
+                         SR = which.max(Re(res$values)),
+                         LI = which.min(abs(Im(res$values))),
+                         SI = which.max(abs(Im(res$values))))
+        warning("(n-1) eigenvalues are requested, eigen() is used instead")
+        return(list(values = res$values[-exclude],
+                    vectors = res$vectors[, -exclude],
+                    nconv = n, niter = 0))
+    }
+    if (k == n)
+    {
+        res = eigen(A, only.values = identical(opts$retvec, FALSE))
+        warning("all eigenvalues are requested, eigen() is used instead")
+        return(c(res, nconv = n, niter = 0))
+    }
+    
     # Matrix will be passed to C++, so we need to check the type.
     # ARPACK only supports matrices in float or double, so we need
     # to do the conversion if A is stored other than double.
