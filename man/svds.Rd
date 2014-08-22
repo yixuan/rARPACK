@@ -56,10 +56,11 @@ It's also called the truncated singular value decomposition
 since it only contains a subset of the whole singular triplets.
 
 Currently \code{svds()} supports matrices of class "matrix",
-"dgeMatrix", "dgCMatrix" and "dsyMatrix".
+"dgeMatrix", "dgCMatrix", "dgRMatrix" and "dsyMatrix".
 All classes above except "matrix" are defined
 in the \pkg{Matrix} package, representing general matrix,
-sparse matrix and symmetric matrix respectively.
+sparse matrix (column oriented), sparse matrix (row oriented)
+and symmetric matrix respectively.
 Note that when \code{A} is symmetric,
 SVD reduces to eigen decomposition, so you may consider using
 \code{\link{eigs}()} instead.
@@ -72,9 +73,9 @@ following parameters:
 \item{\code{ncv}}{Number of Lanzcos basis vectors to use. More vectors
                   will result in faster convergence, but with greater
                   memory use. \code{ncv} must be satisfy
-                  \eqn{k+1 < ncv \le p}{k+1 < ncv <= p} where
+                  \eqn{k < ncv \le p}{k < ncv <= p} where
                   \code{p = min(m, n)}.
-                  Default is \code{min(p-1, max(2*k+1, 20))}.}
+                  Default is \code{min(p, max(2*k+1, 20))}.}
 \item{\code{tol}}{Precision parameter. Default is 1e-10.}
 \item{\code{maxitr}}{Maximum number of iterations. Default is 1000.}
 }
