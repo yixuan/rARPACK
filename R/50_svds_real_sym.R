@@ -7,6 +7,15 @@ svds.real_sym <- function(A, k, nu = k, nv = k, opts = list(), ...,
     if (n < 3)
         stop("nrow(A) and ncol(A) should be at least 3");
     
+    # If all singular values are requested, call svd() instead,
+    # and give a warning
+    if (k == n)
+    {
+        warning("all singular values are requested, svd() is used instead")
+        return(c(svd(A, nu = nu, nv = nv),
+                 nconv = n, niter = 0))
+    }
+    
     # Matrix will be passed to C++, so we need to check the type.
     # ARPACK only supports matrices in float or double, so we need
     # to do the conversion if A is stored other than double.
