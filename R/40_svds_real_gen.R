@@ -21,15 +21,15 @@ svds.real_gen <- function(A, k, nu = k, nv = k, opts = list(), ...,
     }
     
     # Check the value of 'k'
-    if (k <= 0 | k >= wd - 1)
-        stop("'k' must satisfy 0 < k < min(nrow(A), ncol(A)) - 1.\nTo calculate all singular values, try svd()");
+    if (k <= 0 | k >= wd)
+        stop("'k' must satisfy 0 < k < min(nrow(A), ncol(A)).\nTo calculate all singular values, try svd()");
     
     # Check the values of 'nu' and 'nv'
     if (nu < 0 | nv < 0 | nu > k | nv > k)
         stop("'nu' and 'nv' must satisfy 0 <= nu <= k and 0 <= nv <= k");
     
     # Arguments to be passed to ARPACK
-    arpack.param = list(ncv = min(wd - 1, max(2 * k + 1, 20)),
+    arpack.param = list(ncv = min(wd, max(2 * k + 1, 20)),
                         tol = 1e-10,
                         maxitr = 1000);
     
@@ -37,8 +37,8 @@ svds.real_gen <- function(A, k, nu = k, nv = k, opts = list(), ...,
     arpack.param[names(opts)] = opts;
     
     # Check the value of 'ncv'
-    if (arpack.param$ncv < k + 2 | arpack.param$ncv > wd)
-        stop("'opts$ncv' must be >= k+2 and <= min(nrow(A), ncol(A))");
+    if (arpack.param$ncv <= k | arpack.param$ncv > wd)
+        stop("'opts$ncv' must be > k and <= min(nrow(A), ncol(A))");
     
     # Call the C++ function
     res = .Call("svds_gen",
