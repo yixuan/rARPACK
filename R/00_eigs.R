@@ -11,14 +11,15 @@
 ##' Currently \code{eigs()} supports matrices of class "matrix"
 ##' (the most commonly used matrix type),
 ##' "dgeMatrix" (general matrix, equivalent to "matrix"),
-##' "dgCMatrix" (sparse matrix) and "dsyMatrix" (symmetric matrix).
+##' "dgCMatrix" (sparse matrix), "dgRMatrix" (sparse matrix, row oriented)
+##' and "dsyMatrix" (symmetric matrix).
 ##' All classes above except "matrix" are defined in the
 ##' \pkg{Matrix} package.
 ##' 
 ##' \code{eigs_sym()} assumes the matrix is symmetric,
 ##' and only the lower triangle (or upper triangle, which is
 ##' controlled by the argument \code{lower}) is used for
-##' computation, which in general reduces the workload.
+##' computation, which in some cases reduces the workload.
 ##' Notice that \code{eigs_sym()} only applies to "ordinary" matrix,
 ##' i.e., of class "matrix". If you want to calculate
 ##' eigen values/vectors of matrix of "dsyMatrix" class, use
@@ -55,7 +56,8 @@
 ##'             When k is odd, compute more from the high and then from the low end.}
 ##' }
 ##'
-##' \code{eigs()} with matrix type "matrix", "dgeMatrix" and "dgCMatrix" can use "LM",
+##' \code{eigs()} with matrix type "matrix", "dgeMatrix", "dgCMatrix"
+##' and "dgRMatrix" can use "LM",
 ##' "SM", "LR", "SR", "LI" and "SI".
 ##' 
 ##' \code{eigs_sym()} and \code{eigs()} with matrix type "dsyMatrix"
@@ -81,9 +83,11 @@
 ##' \describe{
 ##' \item{\code{ncv}}{Number of Lanzcos basis vectors to use. More vectors
 ##'                   will result in faster convergence, but with greater
-##'                   memory use. \code{ncv} must be satisfy
-##'                   \eqn{k+2\le ncv \le n}{k+2 <= ncv <= n}.
-##'                   Default is \code{min(n-1, max(2*k+1, 20))}.}
+##'                   memory use. For general matrix, \code{ncv} must satisfy
+##'                   \eqn{k+2\le ncv \le n}{k+2 <= ncv <= n}, and
+##'                   for symmetric matrix, the constraint is
+##'                   \eqn{k < ncv \le n}{k < ncv <= n}.
+##'                   Default is \code{min(n, max(2*k+1, 20))}.}
 ##' \item{\code{tol}}{Precision parameter. Default is 1e-10.}
 ##' \item{\code{maxitr}}{Maximum number of iterations. Default is 1000.}
 ##' \item{\code{retvec}}{Whether to compute eigenvectors. If FALSE,
