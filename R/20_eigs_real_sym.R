@@ -10,6 +10,17 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     if (n < 3)
         stop("dimension of 'A' must be at least 3");
     
+    # If all eigenvalues are requested, call eigen() instead,
+    # and give a warning
+    if (k == n)
+    {
+        warning("all eigenvalues are requested, eigen() is used instead")
+        return(c(eigen(if(lower) A else t(A),
+                       symmetric = TRUE,
+                       only.values = identical(opts$retvec, FALSE)),
+                 nconv = n, niter = 0))
+    }
+    
     # Matrix will be passed to C++, so we need to check the type.
     # ARPACK only supports matrices in float or double, so we need
     # to do the conversion if A is stored other than double.
@@ -22,7 +33,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     }
     # Check the value of 'k'
     if (k <= 0 | k >= n)
-        stop("'k' must satisfy 0 < k < nrow(A).\nTo calculate all eigenvalues, try eigen()");
+        stop("'k' must satisfy 0 < k < nrow(A)");
     
     # Check sigma
     # workmode == 1: ordinary
@@ -39,7 +50,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
     
     # Arguments to be passed to ARPACK
     arpack.param = list(which = which,
-                        ncv = min(n, max(2 * k, 20)),
+                        ncv = min(n, max(2 * k + 1, 20)),
                         tol = 1e-10,
                         maxitr = 1000,
                         retvec = TRUE,
