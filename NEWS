@@ -3,10 +3,15 @@
 NEW FEATURES
 
     o Add support for new matrix types: dgeMatrix and dgRMatrix.
+    o eigs() now allows a full Eigen Decomposition, meaning that
+    all the eigenvalues are calculated. In this case eigs() is
+    simply a wrapper of eigen(), and with a warning issued.
+    o Ditto for svds()
 
 BUG FIXES
 
     o Rewrite C++ code using classes and templates.
+    o Fix errors in checking the values of k and ncv.
 
 
 
