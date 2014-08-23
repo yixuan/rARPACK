@@ -9,6 +9,7 @@ using Eigen::MatrixXd;
 using Eigen::MatrixXcd;
 using Eigen::VectorXd;
 using Eigen::VectorXcd;
+using Eigen::SparseMatrix;
 using Eigen::SparseLU;
 
 template<int Storage>
@@ -25,8 +26,8 @@ private:
     // Sparse matrix structure
     MapSpMat A;
     // Matrix inverse solver
-    SparseLU<SpMat> solver;
-    SparseLU<SpCMat> csolver;
+    SparseLU< SparseMatrix<double, Eigen::ColMajor> > solver;
+    SparseLU< SparseMatrix<std::complex<double>, Eigen::ColMajor> > csolver;
     VectorXcd cx_vec;
     // Mapped vector
     MapVec x_vec;
