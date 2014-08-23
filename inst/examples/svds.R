@@ -1,126 +1,91 @@
-library(rARPACK);
-n = 100;
-p = 50;
-k = 5;
+library(rARPACK)
+library(Matrix)
+n = 1000
+p = 500
+k = 5
 
-# test whether the calculated singular values and singular vectors
-# are consistent with those calculated by svd()
-svd_resid = function(rsvd, rsvds)
+## Set up test matrices
+set.seed(123)
+x = matrix(rnorm(n * p), n)
+x[sample(n * p, floor(n * p / 2))] = 0
+# General matrices
+gen = list(x,
+           as(x, "dgeMatrix"),
+           as(x, "dgCMatrix"),
+           as(x, "dgRMatrix"))
+gent = lapply(gen, t)
+# Symmetric matrices
+sym = list(as(crossprod(x), "dsyMatrix"))
+
+## Test whether the calculated (d, u, v) are consistent with svd()
+## Return the largest residual
+svd_resid = function(res, svd0)
 {
-    k = length(rsvds$d);
-    nu = ncol(rsvds$u);
-    nv = ncol(rsvds$v);
-    
-    dres = abs(rsvd$d[1:k] - rsvds$d);
-    ures = if(!is.null(nu))
-               abs(rsvd$u[, 1:nu] %*% diag(sign(rsvd$u[1, 1:nu])) -
-                   rsvds$u %*% diag(sign(rsvds$u[1, ]))) else NULL;
-    vres = if(!is.null(nv))
-               abs(rsvd$v[, 1:nv] %*% diag(sign(rsvd$v[1, 1:nv])) -
-                   rsvds$v %*% diag(sign(rsvds$v[1, ]))) else NULL;
-    cat("d:", range(dres), "\n");
-    cat("u:", if(is.null(ures)) "unknown" else range(ures), "\n");
-    cat("v:", if(is.null(vres)) "unknown" else range(vres), "\n");
+    d_resid = svd0$d[1:length(res$d)] - res$d
+    u_resid = v_resid = 0
+    if(!is.null(res$u))
+        u_resid = abs(svd0$u[, 1:ncol(res$u)]) - abs(res$u)
+    if(!is.null(res$v))
+        v_resid = abs(svd0$v[, 1:ncol(res$v)]) - abs(res$v)
+    mabs = function(x) max(abs(x))
+    maxerr = max(mabs(d_resid), mabs(u_resid), mabs(v_resid))
+    return(paste("residual <", format(maxerr, digits = 5)))
+}
+# "True" values
+gen0 = svd(x)
+gen0t = svd(t(x))
+sym0 = svd(crossprod(x))
+
+## Capture test result, including error and warning
+capture = function(expr, env)
+{
+    warn = NULL
+    t1 = Sys.time()
+    res = withCallingHandlers(
+        tryCatch(svd_resid(eval(expr, envir = env), env$svd0),
+                 error = function(e) e),
+        warning = function(w) {warn <<- w; invokeRestart("muffleWarning")}
+    )
+    t2 = Sys.time()
+    return(list(src = deparse(expr), res = res, warn = warn,
+                time = as.numeric(t2 - t1)))
 }
 
-######################################
-#
-# Test for dense, non-symmetric matrix
-#
-######################################
-set.seed(123);
-x = matrix(rnorm(n * p), n);
-x[sample(n * p, floor(n * p / 2))] = 0;
-xt = t(x);
-
-# results by svd()
-res1.0 = svd(x);
-res1.0t = svd(xt);
-
-# test whether the results are consistent with svd()
-# use default options
-res1.1 = svds(x, k);
-res1.2 = svds(xt, k);
-svd_resid(res1.0, res1.1);
-svd_resid(res1.0t, res1.2);
-
-# do not return U
-res1.3 = svds(x, k, nu = 0);
-res1.4 = svds(xt, k, nu = 0);
-svd_resid(res1.0, res1.3);
-svd_resid(res1.0t, res1.4);
-
-# do not return V
-res1.5 = svds(x, k, nv = 0);
-res1.6 = svds(xt, k, nv = 0);
-svd_resid(res1.0, res1.5);
-svd_resid(res1.0t, res1.6);
-
-# only singular values
-res1.7 = svds(x, k, nu = 0, nv = 0);
-res1.8 = svds(xt, k, nu  = 0, nv = 0);
-svd_resid(res1.0, res1.7);
-svd_resid(res1.0t, res1.8);
-
-######################################
-#
-# Test for sparse, non-symmetric matrix
-#
-######################################
-xsp = as(x, "dgCMatrix");
-xspt = t(xsp);
-
-# test whether the results are consistent with svd()
-# use default options
-res2.1 = svds(xsp, k);
-res2.2 = svds(xspt, k);
-svd_resid(res1.0, res2.1);
-svd_resid(res1.0t, res2.2);
-
-# do not return U
-res2.3 = svds(xsp, k, nu = 0);
-res2.4 = svds(xspt, k, nu = 0);
-svd_resid(res1.0, res2.3);
-svd_resid(res1.0t, res2.4);
-
-# do not return V
-res2.5 = svds(xsp, k, nv = 0);
-res2.6 = svds(xspt, k, nv = 0);
-svd_resid(res1.0, res2.5);
-svd_resid(res1.0t, res2.6);
-
-# only singular values
-res2.7 = svds(xsp, k, nu = 0, nv = 0);
-res2.8 = svds(xspt, k, nu  = 0, nv = 0);
-svd_resid(res1.0, res2.7);
-svd_resid(res1.0t, res2.8);
+## Output result
+output = function(res)
+{
+    cat(res$src, rep(" ", 32 - nchar(res$src)), ": ", sep = "")
+    if(inherits(res$res, "error"))
+    {
+        cat("ERROR")
+    } else cat(res$res)
+    
+    if(!is.null(res$warn)) cat(" (with warning)")
+    cat("\n", rep(" ", 34), sprintf("(%f seconds)\n", res$time), sep = "")
+}
 
 
-######################################
-#
-# Test for dense, symmetric matrix
-#
-######################################
-y = crossprod(x);
-ysy = as(y, "dsyMatrix");
 
-# results by svd()
-res3.0 = svd(y);
+## Test general matrices
+svds_test = function(x, k, svd0)
+{
+    env = new.env()
+    env$x = x
+    env$k = k
+    env$svd0 = svd0
+    tests = expression(
+        svds(x, k),
+        svds(x, k, nu = 0),
+        svds(x, k, nv = 0),
+        svds(x, k, nu = 0, nv = 0)
+    )
+    res = lapply(tests, capture, env = env)
+    cat(sprintf("[x of type '%s']:\n", class(x)))
+    lapply(res, output)
+    cat("\n")
+    invisible(NULL)
+}
 
-# test whether the results are consistent with svd()
-# use default options
-res3.1 = svds(ysy, k);
-svd_resid(res3.0, res3.1);
-
-# do not return U
-res3.2 = svds(ysy, k, nu = 0);
-svd_resid(res3.0, res3.2);
-
-# do not return V
-res3.3 = svds(ysy, k, nv = 0);
-svd_resid(res3.0, res3.3);
-
-# only singular values
-res3.4 = svds(ysy, k, nu = 0, nv = 0);
-svd_resid(res3.0, res3.4);
-
+invisible(lapply(gen, svds_test, k = k, svd0 = gen0))
+invisible(lapply(gent, svds_test, k = k, svd0 = gen0t))
+invisible(lapply(sym, svds_test, k = k, svd0 = sym0))

@@ -1,4 +1,5 @@
 library(rARPACK)
+library(Matrix)
 n = 1000
 k = 5
 
@@ -57,7 +58,7 @@ output = function(res)
 
 
 ## Test general matrices
-gen_test = function(x, k)
+gen_eigs_test = function(x, k)
 {
     env = new.env()
     env$x = x
@@ -80,10 +81,10 @@ gen_test = function(x, k)
     invisible(NULL)
 }
 
-invisible(lapply(gen, gen_test, k = k))
+invisible(lapply(gen, gen_eigs_test, k = k))
 
 ## Test symmetric matrices, eigs_sym() interface
-sym1_test = function(x, k)
+sym1_eigs_test = function(x, k)
 {
     env = new.env()
     env$x = x
@@ -104,10 +105,10 @@ sym1_test = function(x, k)
     invisible(NULL)
 }
 
-invisible(lapply(sym1, sym1_test, k = k))
+invisible(lapply(sym1, sym1_eigs_test, k = k))
 
 ## Test symmetric matrices, eigs() interface
-sym2_test = function(x, k)
+sym2_eigs_test = function(x, k)
 {
     env = new.env()
     env$x = x
@@ -128,4 +129,4 @@ sym2_test = function(x, k)
     invisible(NULL)
 }
 
-invisible(lapply(sym2, sym2_test, k = k))
+invisible(lapply(sym2, sym2_eigs_test, k = k))
