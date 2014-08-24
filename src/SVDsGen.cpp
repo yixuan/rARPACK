@@ -48,8 +48,9 @@ BEGIN_RCPP
     double *resid = new double[dim]();
     int ncoef = m > n ? m : n;
     double *tmp = new double[ncoef]();
+    srand(0);
     for(int i = 0; i < ncoef; i++)
-        tmp[i] = sin(i + 0.5);
+        tmp[i] = rand() / (RAND_MAX + 1.0) - 0.5;
     if (m > n)
         op->tprod(tmp, resid);
     else
