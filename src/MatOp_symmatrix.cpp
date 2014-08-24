@@ -9,7 +9,7 @@ MatOp_symmatrix::MatOp_symmatrix(SEXP mat_, char uplo_, double sigma_,
     A_pntr(REAL(mat_)), A(NULL, 1, 1), uplo(uplo_),
     x_vec(NULL, n), y_vec(NULL, n)
 {
-    m = n = (int) sqrt(LENGTH(mat_));
+    m = n = (int) sqrt(double(LENGTH(mat_)));
     new (&A) MapMat(A_pntr, n, n);
     sigmar = sigma_;
     sigmai = 0;
