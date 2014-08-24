@@ -42,8 +42,9 @@ void Eigs::initResid()
     // info = 1 means using the residual vector we provide
     info = 1;
     double *initcoef = new double[n];
+    srand(0);
     for(int i = 0; i < n; i++)
-        initcoef[i] = sin(i + 0.5);
+        initcoef[i] = rand() / (RAND_MAX + 1.0) - 0.5;
 
     // resid = A * initcoef
     op->prod(initcoef, resid);
