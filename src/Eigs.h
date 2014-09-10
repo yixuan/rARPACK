@@ -76,6 +76,11 @@ protected:
     virtual void error(int stage, int errorcode) = 0;
     virtual void warning(int stage, int errorcode) = 0;
     
+    // Mimic C RNG
+    // http://stackoverflow.com/questions/4768180/rand-implementation
+    static unsigned long int seed_next;
+    void srand(unsigned int seed);
+    unsigned int rand(); // RAND_MAX assumed to be 32767
     // Generate initial residual vector
     void initResid();
     // Wrapper of _aupd

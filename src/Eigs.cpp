@@ -36,15 +36,28 @@ Eigs::Eigs(int n_, int nev_, int ncv_, MatOp *op_,
     // Classes derived from Eigs should do this.
 }
 
+unsigned long int Eigs::seed_next = 1;
+
+void Eigs::srand(unsigned int seed)
+{
+    seed_next = seed;
+}
+
+unsigned int Eigs::rand()
+{
+    seed_next = seed_next * 1103515245 + 12345;
+    return (unsigned int)(seed_next/65536) % 32768;
+}
+
 void Eigs::initResid()
 {
     // Create initial residual vector
     // info = 1 means using the residual vector we provide
     info = 1;
     double *initcoef = new double[n];
-    srand(0);
+    this->srand(0);
     for(int i = 0; i < n; i++)
-        initcoef[i] = rand() / (RAND_MAX + 1.0) - 0.5;
+        initcoef[i] = this->rand() / 32767.0 - 0.5;
 
     // resid = A * initcoef
     op->prod(initcoef, resid);
