@@ -55,9 +55,9 @@ void Eigs::initResid()
     // info = 1 means using the residual vector we provide
     info = 1;
     double *initcoef = new double[n];
-    this->srand(0);
+    RNGScope scp;
     for(int i = 0; i < n; i++)
-        initcoef[i] = this->rand() / 32767.0 - 0.5;
+        initcoef[i] = R::unif_rand() - 0.5;
 
     // resid = A * initcoef
     op->prod(initcoef, resid);
