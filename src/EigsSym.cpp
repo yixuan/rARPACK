@@ -1,5 +1,7 @@
 #include "EigsSym.h"
 
+using std::string;
+
 EigsSym::EigsSym(int n_, int nev_, int ncv_, MatOp *op_,
                  const string & which_, int workmode_,
                  char bmat_, double tol_, int maxitr_) :

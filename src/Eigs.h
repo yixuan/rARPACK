@@ -4,8 +4,6 @@
 #include <Rcpp.h>
 #include "MatOp.h"
 
-using std::string;
-
 
 // Need to be implemented:
 //     error()
@@ -33,7 +31,7 @@ protected:
     // "LA": largest (algebraic) eigenvalues
     // "SA": smallest (algebraic) eigenvalues
     // "BE": half of each end
-    string which;
+    std::string which;
     // Number of eigenvalues requested
     int nev;
     // Precision
@@ -93,7 +91,7 @@ protected:
 public:
     // Constructor
     Eigs(int n_, int nev_, int ncv_, MatOp *op_,
-         const string & which_ = "LM", int workmode_ = 1,
+         const std::string & which_ = "LM", int workmode_ = 1,
          char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
     // _aupd step
     void update();

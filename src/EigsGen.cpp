@@ -1,5 +1,7 @@
 #include "EigsGen.h"
 
+using std::string;
+
 EigsGen::EigsGen(int n_, int nev_, int ncv_, MatOp *op_,
                  const string & which_, int workmode_,
                  char bmat_, double tol_, int maxitr_) :
