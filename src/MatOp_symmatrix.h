@@ -34,7 +34,8 @@ private:
     MapVec y_vec;
 public:
     // Constructor
-    MatOp_symmatrix(SEXP mat_, int n_, char uplo_ = 'L', double sigma_ = 0,
+    MatOp_symmatrix(SEXP mat_, int n_, char uplo_ = 'L',
+                    double sigma_ = 0,
                     bool needSolve_ = false);
     // y_out = A * x_in
     void prod(double *x_in, double *y_out);

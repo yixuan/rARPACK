@@ -160,7 +160,8 @@ eigs.dgRMatrix <- function(A, k, which = "LM", sigma = NULL,
 ##' @export
 eigs.dsyMatrix <- function(A, k, which = "LM", sigma = NULL,
                            opts = list(), ...)
-    eigs.real_sym(A, k, which, sigma, opts, ..., mattype = "dsyMatrix")
+    eigs.real_sym(A, k, which, sigma, opts, ...,
+                  mattype = "dsyMatrix", lower = (A@uplo == "L"))
 
 
 

@@ -32,10 +32,10 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     switch(INTEGER(mattype_scalar_r)[0])
     {
         case (int) MATRIX:
-            op = new MatOp_symmatrix(A_mat_r, uplo, sigma, needSolve);
+            op = new MatOp_symmatrix(A_mat_r, n, uplo, sigma, needSolve);
             break;
         case (int) DSYMATRIX:
-            op = new MatOp_dsyMatrix(A_mat_r, sigma, needSolve);
+            op = new MatOp_dsyMatrix(A_mat_r, n, uplo, sigma, needSolve);
             break;
         default:
             Rcpp::stop("unsupported matrix type in eigs_sym()");

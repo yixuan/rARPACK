@@ -8,14 +8,15 @@ class MatOp_dsyMatrix : public MatOp_symmatrix
 {
 public:
     // Constructor
-    MatOp_dsyMatrix(SEXP mat_, int n_, double sigma_ = 0,
+    MatOp_dsyMatrix(SEXP mat_, int n_, char uplo_ = 'L',
+                    double sigma_ = 0,
                     bool needSolve_ = false):
         MatOp_symmatrix(GET_SLOT(mat_, Rf_install("x")),
-                        n_,
-                        MatOp_dsyMatrix::get_uplo(mat_),
-                        sigma_,
-                        needSolve_)
-    {}
+                        n_, uplo_, sigma_, needSolve_)
+    {
+        if((uplo != 'L') && (uplo != 'U'))
+            uplo = get_uplo(mat_);
+    }
     virtual ~MatOp_dsyMatrix() {}
     
     static char get_uplo(SEXP dsyMatrix)
