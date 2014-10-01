@@ -1,5 +1,5 @@
-#ifndef MATOPMATRIX_H
-#define MATOPMATRIX_H
+#ifndef MATOP_MATRIX_H
+#define MATOP_MATRIX_H
 
 #include <RcppEigen.h>
 #include "MatOp.h"
@@ -37,14 +37,16 @@ private:
     MapVec x_vec;
     MapVec y_vec;
     // Function called by constructors
-    void init(int m_, int n_, double sigmar_, double sigmai_, bool needSolve_);
+    void init();
 public:
     // Constructor
-    MatOp_matrix(SEXP mat_, double sigmar_ = 0, double sigmai_ = 0,
+    MatOp_matrix(SEXP mat_, int m_, int n_,
+                 double sigmar_ = 0, double sigmai_ = 0,
                  bool needSolve_ = false);
     // Another constructor, useful for creating MatOp_dgeMatrix object
     MatOp_matrix(double *data_, int m_, int n_,
-                 double sigmar_ = 0, double sigmai_ = 0, bool needSolve_ = false);
+                 double sigmar_ = 0, double sigmai_ = 0,
+                 bool needSolve_ = false);
     // y_out = A * x_in
     void prod(double *x_in, double *y_out);
     // y_out = A' * x_in
@@ -56,4 +58,4 @@ public:
 };
 
 
-#endif // MATOPMATRIX_H
+#endif // MATOP_MATRIX_H
