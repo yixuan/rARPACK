@@ -15,7 +15,7 @@ typedef Eigen::Map<MatrixXd> MapMat;
 
 class MatOp_symmatrix : public MatOp
 {
-private:
+protected:
     // Pointer to the A matrix
     double *A_pntr;
     // Map mat_ to Eigen matrix
