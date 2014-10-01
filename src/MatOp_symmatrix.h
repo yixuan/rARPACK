@@ -1,5 +1,5 @@
-#ifndef MATOPSYMMATRIX_H
-#define MATOPSYMMATRIX_H
+#ifndef MATOP_SYMMATRIX_H
+#define MATOP_SYMMATRIX_H
 
 #include <RcppEigen.h>
 #include "MatOp.h"
@@ -47,4 +47,4 @@ public:
 };
 
 
-#endif // MATOPSYMMATRIX_H
+#endif // MATOP_SYMMATRIX_H
