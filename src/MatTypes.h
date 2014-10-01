@@ -6,8 +6,7 @@
 #include "MatOp_symmatrix.h"
 #include "MatOp_dgeMatrix.h"
 #include "MatOp_dsyMatrix.h"
-#include "MatOp_dgCMatrix.h"
-#include "MatOp_dgRMatrix.h"
+#include "MatOp_sparseMatrix.h"
 
 enum MATTYPE {
     MATRIX = 0,
