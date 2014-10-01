@@ -19,7 +19,11 @@ protected:
     bool canSolve;
 public:
     // Constructor
-    MatOp() {}
+    MatOp(int m_, int n_, double sigmar_, double sigmai_,
+          bool canTprod_, bool canSolve_) :
+        m(m_), n(n_), sigmar(sigmar_), sigmai(sigmai_),
+        canTprod(canTprod_), canSolve(canSolve_)
+    {}
     // y_out = A * x_in
     virtual void prod(double *x_in, double *y_out) = 0;
     // y_out = A' * x_in

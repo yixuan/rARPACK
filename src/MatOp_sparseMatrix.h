@@ -53,9 +53,8 @@ MatOp_sparseMatrix<Storage>::MatOp_sparseMatrix(
     SEXP mat_, int m_, int n_,
     double sigmar_, double sigmai_, bool needSolve_
     ) :
-    A(as<MapSpMat>(mat_)), m(m_), n(n_),
-    sigmar(sigmar_), sigmai(sigmai_),
-    canTprod(true), canSolve(needSolve_),
+    MatOp(m_, n_, sigmar_, sigmai_, true, needSolve_),
+    A(as<MapSpMat>(mat_)),
     x_vec(NULL, 1), y_vec(NULL, 1)
 {
     if(!needSolve_)  return;
