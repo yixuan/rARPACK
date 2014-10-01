@@ -22,8 +22,8 @@ BEGIN_RCPP
 
     // Retrieve parameters
     Rcpp::List params_svds(params_list_r);
-    int n = INTEGER(n_scalar_r)[0];
-    int k = INTEGER(k_scalar_r)[0];
+    int n = as<int>(n_scalar_r);
+    int k = as<int>(k_scalar_r);
     int ncv = as<int>(params_svds["ncv"]);
     std::string which = "LM";
     int workmode = 1;
@@ -31,9 +31,9 @@ BEGIN_RCPP
     double tol = as<double>(params_svds["tol"]);
     int maxitr = as<int>(params_svds["maxitr"]);
     // Whether to calculate singular vectors or not.
-    int nu = INTEGER(nu_scalar_r)[0];
-    int nv = INTEGER(nv_scalar_r)[0];
-    bool rvec = (nu > 0) | (nv > 0);
+    int nu = as<int>(nu_scalar_r);
+    int nv = as<int>(nv_scalar_r);
+    bool rvec = (nu > 0) || (nv > 0);
 
     EigsSym eig(n, k, ncv, op, which, workmode,
                 bmat, tol, maxitr);
