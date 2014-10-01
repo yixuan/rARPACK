@@ -2,9 +2,7 @@
 #define ARPACK_H
 
 #include <Rcpp.h>
-// R_ext/BLAS.h also includes R_ext/RS.h,
-// which defines F77_CALL
-#include <R_ext/BLAS.h>
+#include <R_ext/RS.h>  // for F77_CALL
 
 enum BMAT { BMAT_I = 0, BMAT_G };
 

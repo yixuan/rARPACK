@@ -2,8 +2,8 @@
 #define MATOP_MATRIX_H
 
 #include <RcppEigen.h>
+#include <R_ext/BLAS.h>  // for BLAS and F77_CALL
 #include "MatOp.h"
-#include "ARPACK.h"
 
 using Rcpp::as;
 using Eigen::MatrixXd;
