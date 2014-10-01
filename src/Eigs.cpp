@@ -5,22 +5,11 @@ using std::string;
 Eigs::Eigs(int n_, int nev_, int ncv_, MatOp *op_,
            const string & which_, int workmode_,
            char bmat_, double tol_, int maxitr_)
+    n(n_), nev(nev_), ncv(ncv_), op(op_),
+    which(which_), workmode(workmode_),
+    bmat(bmat_), tol(tol_), maxitr(maxitr_),
+    ido(0), info(0), ierr(0), updatecount(0)
 {
-    n = n_;
-    nev = nev_;
-    ncv = ncv_;
-    op = op_;
-    which = which_;
-    workmode = workmode_;
-    bmat = bmat_;
-    tol = tol_;
-    maxitr = maxitr_;
-
-    ido = 0;
-    info = 0;
-    ierr = 0;
-    updatecount = 0;
-
     for(int i = 0; i < 11; i++)
         iparam[i] = 0;
 
