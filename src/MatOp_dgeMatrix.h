@@ -2,6 +2,7 @@
 #define MATOP_DGEMATRIX_H
 
 #include "MatOp_matrix.h"
+#include <Rdefines.h>  // for R macros
 
 // Operations on "dgeMatrix" class, defined in Matrix package
 class MatOp_dgeMatrix : public MatOp_matrix

@@ -3,6 +3,8 @@
 #include "EigsSym.h"
 #include "MatTypes.h"
 
+using Rcpp::as;
+
 
 SEXP do_svds_sym(MatOp *op, SEXP n_scalar_r,
                  SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
@@ -26,7 +28,7 @@ BEGIN_RCPP
     {
         case (int) DSYMATRIX:
             op = new MatOp_dsyMatrix(A_mat_r,
-                                     Rcpp::as<int>(n_scalar_r),
+                                     as<int>(n_scalar_r),
                                      MatOp_dsyMatrix::get_uplo(A_mat_r),
                                      0, false);
             break;

@@ -2,6 +2,7 @@
 #define MATOP_DSYMATRIX_H
 
 #include "MatOp_symmatrix.h"
+#include <Rdefines.h>  // for R macros
 
 // Operations on "dsyMatrix" class, defined in Matrix package
 class MatOp_dsyMatrix : public MatOp_symmatrix
