@@ -104,44 +104,6 @@ Eigs::~Eigs()
 
 
 
-// Sort the array and return the order
-typedef std::pair<double, int> ValInd;
-inline bool compare_ascend(const ValInd &l, const ValInd &r)
-{
-    return l.first < r.first;
-}
-inline bool compare_descend(const ValInd &l, const ValInd &r)
-{
-    return l.first > r.first;
-}
-Rcpp::IntegerVector sort_with_order(Rcpp::NumericVector &array,
-                                    bool descend)
-{
-    int len = array.length();
-    Rcpp::IntegerVector order(len);
-    double *valptr = array.begin();
-    int *indptr = order.begin();
-    
-    std::vector<ValInd> v(len);
-    for(int i = 0; i < len; i++)
-    {
-        v[i].first = valptr[i];
-        v[i].second = i;
-    }
-    if(descend)
-        std::sort(v.begin(), v.end(), compare_descend);
-    else
-        std::sort(v.begin(), v.end(), compare_ascend);
-    
-    for(int i = 0; i < len; i++)
-    {
-        valptr[i] = v[i].first;
-        indptr[i] = v[i].second;
-    }
-    
-    return order;
-}
-
 // Copy source[, i] to dest[, j]
 void copy_column(const Rcpp::NumericMatrix &source, int i,
                  Rcpp::NumericMatrix &dest, int j)
@@ -151,4 +113,27 @@ void copy_column(const Rcpp::NumericMatrix &source, int i,
     if(n1 != n2)  return;
     
     std::copy(&source(0, i), &source(0, i) + n1, &dest(0, j));
+}
+// Copy src_real[, i] and src_img[, j] to dest[, k]
+void copy_column(const Rcpp::NumericMatrix &src_real, int i,
+                 const Rcpp::NumericMatrix &src_img, int j,
+                 Rcpp::ComplexMatrix &dest_comp, int k)
+{
+    int n1r = src_real.nrow();
+    int n1i = src_img.nrow();
+    int n2 = dest_comp.nrow();
+    if((n1r != n1i) || (n1i != n2))
+        return;
+    
+    const double *src_real_pntr = &src_real(0, i);
+    const double *src_img_pntr = &src_img(0, j);
+    Rcomplex *dest_comp_pntr = &dest_comp(0, k);
+    for(int i = 0; i < n1r; i++)
+    {
+        dest_comp_pntr->r = *src_real_pntr;
+        dest_comp_pntr->i = *src_img_pntr;
+        src_real_pntr++;
+        src_img_pntr++;
+        dest_comp_pntr++;
+    }
 }
