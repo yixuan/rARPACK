@@ -9,6 +9,7 @@
 //     error()
 //     warning()
 //     aupd()
+//     eupd()
 //     extract()
 //
 class EigsSym: public Eigs
@@ -25,11 +26,12 @@ protected:
     Rcpp::NumericVector eigd;
 
     virtual void aupd();
+    virtual void eupd();
 public:
     EigsSym(int n_, int nev_, int ncv_, MatOp *op_,
             const std::string & which_ = "LM", int workmode_ = 1, 
             char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
-    virtual Rcpp::List extract(bool rvec = true);
+    virtual Rcpp::List extract();
     virtual ~EigsSym();
 };
 

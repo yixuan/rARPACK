@@ -37,8 +37,8 @@ BEGIN_RCPP
 
     EigsSym eig(n, k, ncv, op, which, workmode,
                 bmat, tol, maxitr);
-    eig.update();
-    Rcpp::List ret = eig.extract(rvec);
+    eig.compute(rvec);
+    Rcpp::List ret = eig.extract();
 
     int nconv = as<int>(ret["nconv"]);
     if (nconv < k)

@@ -9,6 +9,7 @@
 //     error()
 //     warning()
 //     aupd()
+//     eupd()
 //     extract()
 //
 class Eigs
@@ -68,6 +69,8 @@ protected:
     double *workd;
     int lworkl;
     double *workl;
+    // Whether to return eigenvector
+    bool retvec;
 
     // stage = 1: _aupd
     // stage = 2: _eupd
@@ -79,28 +82,36 @@ protected:
     static unsigned long int seed_next;
     void srand(unsigned int seed);
     unsigned int rand(); // RAND_MAX assumed to be 32767
+    
     // Generate initial residual vector
     void initResid();
-    // Wrapper of _aupd
+    
+    // Wrapper of _aupd and _eupd
     virtual void aupd() = 0;
-    // Check any error after update()
-    void checkUpdateError();
-    // Number of calls of _aupd(). Give an error if
-    // extract() is called but updatecount == 0
-    int updatecount;
+    virtual void eupd() = 0;
+    
+    // matrix operation
+    void matOp();
 public:
     // Constructor
     Eigs(int n_, int nev_, int ncv_, MatOp *op_,
          const std::string & which_ = "LM", int workmode_ = 1,
          char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
-    // _aupd step
-    void update();
-    // _eupd step, to extract results
-    virtual Rcpp::List extract(bool rvec = true) = 0;
+    // ARPACK computing
+    void compute(bool rvec = true);
+    // Extract results
+    virtual Rcpp::List extract() = 0;
     // Destructor
     virtual ~Eigs();
 };
 
+
+
+// Helper functions to assist sorting eigenvalues
+Rcpp::IntegerVector sort_with_order(Rcpp::NumericVector &array,
+                                    bool descend = true);
+void copy_column(const Rcpp::NumericMatrix &source, int i,
+                 Rcpp::NumericMatrix &dest, int j);
 
 #endif // EIGS_H
 
