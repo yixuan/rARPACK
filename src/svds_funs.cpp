@@ -23,7 +23,7 @@ RcppExport SEXP svds_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
 {
 BEGIN_RCPP
 
-    MatOp *op;
+    MatOp *op = NULL;
     switch(as<int>(mattype_scalar_r))
     {
         case (int) DSYMATRIX:
@@ -55,7 +55,7 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
 {
 BEGIN_RCPP
 
-    MatOp *op;
+    MatOp *op = NULL;
     int m = as<int>(m_scalar_r);
     int n = as<int>(n_scalar_r);
     switch(as<int>(mattype_scalar_r))

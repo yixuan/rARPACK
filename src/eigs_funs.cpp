@@ -27,7 +27,7 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool needSolve = (workmode != 1);
     bool retvec = as<bool>(params_rcpp["retvec"]);
 
-    MatOp *op;
+    MatOp *op = NULL;
     switch(as<int>(mattype_scalar_r))
     {
         case (int) MATRIX:
@@ -73,7 +73,7 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool needSolve = (workmode != 1);
     bool retvec = as<bool>(params_rcpp["retvec"]);
 
-    MatOp *op;
+    MatOp *op = NULL;
     switch(as<int>(mattype_scalar_r))
     {
         case (int) MATRIX:
