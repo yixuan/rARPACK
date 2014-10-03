@@ -103,13 +103,13 @@ Rcpp::List EigsGen::extract()
     // Sometimes there are nconv = nev + 1 converged eigenvalues,
     // mainly due to pairs of complex eigenvalues.
     // We will truncate at nev
-    if(nconv > nev)  nconv = nev;
+    int truenconv = nconv > nev ? nev : nconv;
 
     // equivalent R code: if(all(abs(dimag[1:nconv] < 1e-17)))
     if(Rcpp::is_true(Rcpp::all(Rcpp::abs(eigdi) < 1e-17)))
     {
         // v.erase(start, end) removes v[start <= i < end]
-        eigdr.erase(nconv, eigdr.length());
+        eigdr.erase(truenconv, eigdr.length());
         // Make sure eigenvalues are in decreasing order.
         Rcpp::IntegerVector order = sort_with_order(eigdr);
         
@@ -117,21 +117,21 @@ Rcpp::List EigsGen::extract()
         {
             ret = Rcpp::List::create(Rcpp::Named("values") = eigdr,
                                      Rcpp::Named("vectors") = R_NilValue,
-                                     Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                     Rcpp::Named("nconv") = Rcpp::wrap(truenconv),
                                      Rcpp::Named("niter") = Rcpp::wrap(niter));
             return ret;
         }
         
         // The matrix to be returned
-        Rcpp::NumericMatrix retV(n, nconv);
-        for(int i = 0; i < nconv; i++)
+        Rcpp::NumericMatrix retV(n, truenconv);
+        for(int i = 0; i < truenconv; i++)
         {
             copy_column(eigV, order[i], retV, i);
         }
 
         ret = Rcpp::List::create(Rcpp::Named("values") = eigdr,
                                  Rcpp::Named("vectors") = retV,
-                                 Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                 Rcpp::Named("nconv") = Rcpp::wrap(truenconv),
                                  Rcpp::Named("niter") = Rcpp::wrap(niter));
 
         return ret;
@@ -148,53 +148,60 @@ Rcpp::List EigsGen::extract()
         cmpeigd[i].r = eigdr[i];
         cmpeigd[i].i = eigdi[i];
     }
+    
     if(!retvec)
     {
-        // It seems that when rvec is false, ARPACK will return
-        // the eigenvalues in ascending order. So here we reverse
-        // the vector
-        std::reverse(cmpeigd.begin(), cmpeigd.end());
+        // To make sure the eigenvalues are in proper order
+        sort_with_order(cmpeigd);
+        if(nconv > truenconv)  cmpeigd.erase(truenconv, nconv);
         ret = Rcpp::List::create(Rcpp::Named("values") = cmpeigd,
                                  Rcpp::Named("vectors") = R_NilValue,
-                                 Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                                 Rcpp::Named("nconv") = Rcpp::wrap(truenconv),
                                  Rcpp::Named("niter") = Rcpp::wrap(niter));
-    } else {
-        Rcpp::ComplexMatrix cmpeigV(n, nconv);
-        // Obtain the real and imaginary part of the eigenvectors
-        bool first = true;
-        for (int i = 0; i < nconv; i++)
+        return ret;
+    }
+    
+    Rcpp::ComplexMatrix retV(n, truenconv);
+    Rcpp::ComplexVector retd = Rcpp::clone(cmpeigd);
+    Rcpp::IntegerVector imgsign(nconv);
+    for(int i = 0; i < nconv; i++)
+    {
+        if(eigdi[i] > 1e-16)
         {
-            if (fabs(eigdi[i]) > 1e-30)
+            imgsign[i] = 1;
+        } else if(eigdi[i] < -1e-16) {
+            imgsign[i] = -1;
+            retd[i].r = 0;
+            retd[i].i = 0;
+        }
+    }
+    Rcpp::IntegerVector order = sort_with_order(retd);
+    int *order_pntr = order.begin();
+    for(int i = 0; i < truenconv; i++, order_pntr++)
+    {
+        int ind = *order_pntr;
+        if(imgsign[ind] == 0)
+        {
+            retd[i] = cmpeigd[ind];
+            copy_column(eigV, ind, eigV, ind, 0, retV, i);
+        } else if(imgsign[ind] > 0) {
+            retd[i] = cmpeigd[ind];
+            copy_column(eigV, ind, eigV, ind + 1, 1, retV, i);
+            i++;
+            if(i < truenconv)
             {
-                if (first)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
-                        cmpeigV(j, i).r = eigV(j, i);
-                        cmpeigV(j, i).i = eigV(j, i + 1);
-                        if (i + 1 < nconv)
-                            cmpeigV(j, i + 1).r = eigV(j, i);
-                        if (i + 1 < nconv)
-                            cmpeigV(j, i + 1).i = -eigV(j, i + 1);
-                    }
-                    first = false;
-                } else {
-                    first = true;
-                }
-            } else {
-                for (int j = 0; j < n; j++)
-                {
-                    cmpeigV(j, i).r = eigV(j, i);
-                    cmpeigV(j, i).i = 0;
-                }
-                first = true;
+                retd[i].r = cmpeigd[ind].r;
+                retd[i].i = -cmpeigd[ind].i;
+                copy_column(eigV, ind, eigV, ind + 1, -1, retV, i);
             }
         }
-        ret = Rcpp::List::create(Rcpp::Named("values") = cmpeigd,
-                                 Rcpp::Named("vectors") = cmpeigV,
-                                 Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                 Rcpp::Named("niter") = Rcpp::wrap(niter));
     }
+    if(nconv > truenconv)  retd.erase(truenconv, nconv);
+    
+    ret = Rcpp::List::create(Rcpp::Named("values") = retd,
+                             Rcpp::Named("vectors") = retV,
+                             Rcpp::Named("nconv") = Rcpp::wrap(truenconv),
+                             Rcpp::Named("niter") = Rcpp::wrap(niter));
 
     return ret;
 }

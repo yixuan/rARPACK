@@ -176,7 +176,7 @@ inline Rcpp::IntegerVector sort_with_order(Rcpp::Vector<RTYPE> &array,
 void copy_column(const Rcpp::NumericMatrix &source, int i,
                  Rcpp::NumericMatrix &dest, int j);
 void copy_column(const Rcpp::NumericMatrix &src_real, int i,
-                 const Rcpp::NumericMatrix &src_img, int j,
+                 const Rcpp::NumericMatrix &src_img, int j, int sign,
                  Rcpp::ComplexMatrix &dest_comp, int k);
 
 #endif // EIGS_H

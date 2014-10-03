@@ -114,9 +114,9 @@ void copy_column(const Rcpp::NumericMatrix &source, int i,
     
     std::copy(&source(0, i), &source(0, i) + n1, &dest(0, j));
 }
-// Copy src_real[, i] and src_img[, j] to dest[, k]
+// dest[, k] = src_real[, i] + sign * src_img[, j]
 void copy_column(const Rcpp::NumericMatrix &src_real, int i,
-                 const Rcpp::NumericMatrix &src_img, int j,
+                 const Rcpp::NumericMatrix &src_img, int j, int sign,
                  Rcpp::ComplexMatrix &dest_comp, int k)
 {
     int n1r = src_real.nrow();
@@ -131,7 +131,13 @@ void copy_column(const Rcpp::NumericMatrix &src_real, int i,
     for(int i = 0; i < n1r; i++)
     {
         dest_comp_pntr->r = *src_real_pntr;
-        dest_comp_pntr->i = *src_img_pntr;
+        if(sign > 0)
+            dest_comp_pntr->i = *src_img_pntr;
+        else if(sign < 0)
+            dest_comp_pntr->i = -*src_img_pntr;
+        else
+            dest_comp_pntr->i = 0;
+
         src_real_pntr++;
         src_img_pntr++;
         dest_comp_pntr++;
