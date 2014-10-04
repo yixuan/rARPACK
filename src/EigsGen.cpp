@@ -163,14 +163,16 @@ Rcpp::List EigsGen::extract()
     
     Rcpp::ComplexMatrix retV(n, truenconv);
     Rcpp::ComplexVector retd = Rcpp::clone(cmpeigd);
-    Rcpp::IntegerVector imgsign(nconv);
+    bool *img_zero = new bool[nconv + 1];  // add 1 to be safe
     for(int i = 0; i < nconv; i++)
     {
-        if(eigdi[i] > 1e-16)
+        if(fabs(eigdi[i]) < 1e-16)
         {
-            imgsign[i] = 1;
-        } else if(eigdi[i] < -1e-16) {
-            imgsign[i] = -1;
+            img_zero[i] = true;
+        } else {
+            img_zero[i] = false;
+            i++;
+            img_zero[i] = false;
             retd[i].r = 0;
             retd[i].i = 0;
         }
@@ -180,11 +182,11 @@ Rcpp::List EigsGen::extract()
     for(int i = 0; i < truenconv; i++, order_pntr++)
     {
         int ind = *order_pntr;
-        if(imgsign[ind] == 0)
+        if(img_zero[ind])
         {
             retd[i] = cmpeigd[ind];
             copy_column(eigV, ind, eigV, ind, 0, retV, i);
-        } else if(imgsign[ind] > 0) {
+        } else {
             retd[i] = cmpeigd[ind];
             copy_column(eigV, ind, eigV, ind + 1, 1, retV, i);
             i++;
@@ -196,6 +198,7 @@ Rcpp::List EigsGen::extract()
             }
         }
     }
+    delete [] img_zero;
     if(nconv > truenconv)  retd.erase(truenconv, nconv);
     
     ret = Rcpp::List::create(Rcpp::Named("values") = retd,

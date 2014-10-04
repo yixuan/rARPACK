@@ -18,6 +18,7 @@ Eigs::Eigs(int n_, int nev_, int ncv_, MatOp *op_,
 
     iparam[1 - 1] = 1;
     iparam[3 - 1] = maxitr;
+    iparam[4 - 1] = 1;
     iparam[7 - 1] = workmode;
 
     for(int i = 0; i < 14; i++)
