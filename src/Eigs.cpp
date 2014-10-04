@@ -49,14 +49,22 @@ void Eigs::initResid()
     // Create initial residual vector
     // info = 1 means using the residual vector we provide
     info = 1;
-    double *initcoef = new double[n];
-    Rcpp::RNGScope scp;
-    for(int i = 0; i < n; i++)
-        initcoef[i] = R::unif_rand() - 0.5;
-
-    // resid = A * initcoef
-    op->prod(initcoef, resid);
-    delete [] initcoef;
+    #include "rands.h"
+    if(n <= rands_len)
+    {
+        op->prod(rands, resid);
+    } else {
+        double *initcoef = new double[n];
+        double *coef_pntr = initcoef;
+        for(int i = 0; i < n / rands_len; i++, coef_pntr += rands_len)
+        {
+            std::copy(rands, rands + rands_len, coef_pntr);
+        }
+        std::copy(rands, rands + n % rands_len, coef_pntr);
+        // resid = A * initcoef
+        op->prod(initcoef, resid);
+        delete [] initcoef;
+    }
 }
 
 void Eigs::matOp()
