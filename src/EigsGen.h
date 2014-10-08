@@ -46,6 +46,8 @@ protected:
     static void findMatchedIndex(const Eigen::VectorXcd &target,
                                  const Eigen::VectorXcd &collection,
                                  Eigen::VectorXi &result);
+    void recomputeH();
+    void transformEigenvalues(Eigen::VectorXcd &evals);
 public:
     EigsGen(int n_, int nev_, int ncv_, MatOp *op_,
             const std::string & which_ = "LM", int workmode_ = 1, 

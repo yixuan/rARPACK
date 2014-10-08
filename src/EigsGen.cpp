@@ -67,6 +67,16 @@ void EigsGen::aupd()
 
 void EigsGen::eupd()
 {
+    std::copy(workl, workl + lworkl, wl);
+    std::copy(eigV.begin(), eigV.end(), vm);
+    // neupd() sometimes has bugs (e.g., calculating wrong
+    // Hessenburg matrix)
+    // We try to implement neupd() by our own. This is done in
+    // extract().
+    
+    // Below is the original code
+    
+    /*
     // 'A' means to calculate Ritz vectors
     // 'P' to calculate Schur vectors
     char howmny = 'A';
@@ -75,9 +85,6 @@ void EigsGen::eupd()
     // Leading dimension of Z, required by FORTRAN
     int ldz = n;
     
-    std::copy(workl, workl + lworkl, wl);
-    std::copy(eigV.begin(), eigV.end(), vm);
-    
     // Use neupd() to retrieve results
     neupd(retvec, howmny, eigdr.begin(), eigdi.begin(),
           Z, ldz, op->getsigmar(), op->getsigmai(), workv,
@@ -85,6 +92,7 @@ void EigsGen::eupd()
           resid, ncv, eigV.begin(), n,
           iparam, ipntr, workd, workl,
           lworkl, ierr);
+    */
 }
 
 std::complex<double> EigsGen::eigenvalue2x2(const double &a,
@@ -147,8 +155,28 @@ void EigsGen::findMatchedIndex(const Eigen::VectorXcd &target,
         result.conservativeResize(nfound);
 }
 
-Rcpp::List EigsGen::extract2()
+void EigsGen::recomputeH()
 {
+    MapMat Hm(wl, ncv, ncv);
+    MapMat Vm(vm, n, ncv);
+    MatrixXd AV(n, ncv);
+    for(int i = 0; i < ncv; i++)
+    {
+        matOp(&Vm(0, i), &AV(0, i));
+    }
+    Hm = Vm.topRows(ncv).householderQr().solve(AV.topRows(ncv));
+}
+
+void EigsGen::transformEigenvalues(VectorXcd &evals)
+{
+    // Only transform eigenvalues when using real sigma
+    if(workmode == 3 && fabs(op->getsigmai()) < 1e-16)
+        evals = 1.0 / evals.array() + op->getsigmar();
+}
+
+Rcpp::List EigsGen::extract()
+{
+    recomputeH();
     Rcpp::NumericMatrix H(ncv, ncv);
     Rcpp::NumericMatrix V(n, ncv);
     Rcpp::NumericVector real(ncv);
@@ -176,8 +204,19 @@ Rcpp::List EigsGen::extract2()
     eigenvalueSchur(Rm, evalsRm);
     findMatchedIndex(evalsConverged.head(nconv), evalsRm, selectInd);
     
+    //Rcpp::Rcout << evalsRm << "\n\n";
+    //Rcpp::Rcout << evalsConverged << "\n\n";
+    //::Rf_PrintValue(Rcpp::wrap(MapMat(wl + ipntr[4] - 1, ncv, ncv)));
+    
     int nfound = selectInd.size();
-    if(nfound < 1)  return R_NilValue;
+    if(nfound < 1)
+        return Rcpp::List::create(Rcpp::Named("V") = V,
+                              Rcpp::Named("H") = H,
+                              Rcpp::Named("Q") = Qm,
+                              Rcpp::Named("R") = Rm,
+                              Rcpp::Named("ind") = selectInd,
+                              Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                              Rcpp::Named("niter") = Rcpp::wrap(niter));
     
     // Shrink Qm and Rm to the dimension given by the largest value
     // in selectInd. Since selectInd is strictly increasing,
@@ -200,6 +239,8 @@ Rcpp::List EigsGen::extract2()
     evalsRm.conservativeResize(nfound);
     eigenvectors.conservativeResize(Eigen::NoChange, nfound);
     
+    transformEigenvalues(evalsRm);
+    
     return Rcpp::List::create(Rcpp::Named("values") = evalsRm,
                               Rcpp::Named("vectors") = eigenvectors,
                               Rcpp::Named("V") = V,
@@ -211,7 +252,7 @@ Rcpp::List EigsGen::extract2()
                               Rcpp::Named("niter") = Rcpp::wrap(niter));
 }
 
-Rcpp::List EigsGen::extract()
+Rcpp::List EigsGen::extract2()
 {
     // Result list
     Rcpp::List ret;
