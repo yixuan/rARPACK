@@ -24,17 +24,16 @@ protected:
 
     // Store final results of eigenvectors
     // Conceptually it is an n * ncv matrix
-    Rcpp::NumericMatrix eigV;
+    double *V;
     // Store final results of eigenvalues,
     // both real part and imaginary part
     // Conceptually they are vectors of length nev + 1
-    Rcpp::NumericVector eigdr;
-    Rcpp::NumericVector eigdi;
+    double *dr;
+    double *di;
 
     virtual void aupd();
     virtual void eupd();
-    double *wl;
-    double *vm;
+
     // eigenvalue with positive imaginary part of a 2 by 2 matrix
     // [a  b]
     // [c  d]
@@ -53,7 +52,6 @@ public:
             const std::string & which_ = "LM", int workmode_ = 1, 
             char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
     virtual Rcpp::List extract();
-    Rcpp::List extract2();
     virtual ~EigsGen();
 };
 

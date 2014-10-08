@@ -17,14 +17,15 @@ EigsGen::EigsGen(int n_, int nev_, int ncv_, MatOp *op_,
                  const string & which_, int workmode_,
                  char bmat_, double tol_, int maxitr_) :
     Eigs(n_, nev_, ncv_, op_, which_, workmode_,
-         bmat_, tol_, maxitr_),
-    eigV(n, ncv), eigdr(nev + 1), eigdi(nev + 1)
+         bmat_, tol_, maxitr_)
 {
+    V = new double[n * ncv];
+    dr = new double[nev + 1];
+    di = new double[nev + 1];
+    
     lworkl = 3 * ncv * ncv + 6 * ncv;
     workl = new double[lworkl]();
     workv = new double[3 * ncv]();
-    wl = new double[lworkl];
-    vm = new double[n * ncv];
 }
 
 
@@ -32,8 +33,9 @@ EigsGen::~EigsGen()
 {
     delete [] workv;
     delete [] workl;
-    delete [] wl;
-    delete [] vm;
+    delete [] di;
+    delete [] dr;
+    delete [] V;
 }
 
 void EigsGen::error(int stage, int errorcode)
@@ -60,15 +62,13 @@ void EigsGen::aupd()
 {
     naupd(ido, bmat, n, which.c_str(),
           nev, tol, resid,
-          ncv, eigV.begin(), n,
+          ncv, V, n,
           iparam, ipntr, workd,
           workl, lworkl, info);
 }
 
 void EigsGen::eupd()
 {
-    std::copy(workl, workl + lworkl, wl);
-    std::copy(eigV.begin(), eigV.end(), vm);
     // neupd() sometimes has bugs (e.g., calculating wrong
     // Hessenburg matrix)
     // We try to implement neupd() by our own. This is done in
@@ -157,8 +157,8 @@ void EigsGen::findMatchedIndex(const Eigen::VectorXcd &target,
 
 void EigsGen::recomputeH()
 {
-    MapMat Hm(wl, ncv, ncv);
-    MapMat Vm(vm, n, ncv);
+    MapMat Hm(workl, ncv, ncv);
+    MapMat Vm(V, n, ncv);
     MatrixXd AV(n, ncv);
     for(int i = 0; i < ncv; i++)
     {
@@ -177,20 +177,12 @@ void EigsGen::transformEigenvalues(VectorXcd &evals)
 Rcpp::List EigsGen::extract()
 {
     recomputeH();
-    Rcpp::NumericMatrix H(ncv, ncv);
-    Rcpp::NumericMatrix V(n, ncv);
-    Rcpp::NumericVector real(ncv);
-    Rcpp::NumericVector imag(ncv);
+
     int nconv = iparam[5 - 1];
     int niter = iparam[9 - 1];
-    
-    std::copy(wl, wl + ncv * ncv, H.begin());
-    std::copy(vm, vm + n * ncv, V.begin());
-    std::copy(wl + ncv * ncv, wl + ncv * ncv + ncv, real.begin());
-    std::copy(wl + ncv * ncv + ncv, wl + ncv * ncv + 2 * ncv, imag.begin());
 
-    MapMat Hm(wl, ncv, ncv);
-    MapMat Vm(vm, n, ncv);
+    MapMat Hm(workl, ncv, ncv);
+    MapMat Vm(V, n, ncv);
     RealSchur<MatrixXd> schur(Hm);
     MatrixXd Qm = schur.matrixU();
     MatrixXd Rm = schur.matrixT();
@@ -198,8 +190,8 @@ Rcpp::List EigsGen::extract()
     VectorXi selectInd(nconv);
     
     VectorXcd evalsConverged(nconv);
-    evalsConverged.real() = MapVec(wl + ncv * ncv, nconv);
-    evalsConverged.imag() = MapVec(wl + ncv * ncv + ncv, nconv);
+    evalsConverged.real() = MapVec(workl + ncv * ncv, nconv);
+    evalsConverged.imag() = MapVec(workl + ncv * ncv + ncv, nconv);
     
     eigenvalueSchur(Rm, evalsRm);
     findMatchedIndex(evalsConverged.head(nconv), evalsRm, selectInd);
@@ -210,13 +202,15 @@ Rcpp::List EigsGen::extract()
     
     int nfound = selectInd.size();
     if(nfound < 1)
-        return Rcpp::List::create(Rcpp::Named("V") = V,
-                              Rcpp::Named("H") = H,
-                              Rcpp::Named("Q") = Qm,
-                              Rcpp::Named("R") = Rm,
-                              Rcpp::Named("ind") = selectInd,
-                              Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                              Rcpp::Named("niter") = Rcpp::wrap(niter));
+    {
+        ::Rf_warning("no converged eigenvalues found");
+        return Rcpp::List::create(
+            Rcpp::Named("values") = R_NilValue,
+            Rcpp::Named("vectors") = R_NilValue,
+            Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+            Rcpp::Named("niter") = Rcpp::wrap(niter)
+        );
+    }
     
     // Shrink Qm and Rm to the dimension given by the largest value
     // in selectInd. Since selectInd is strictly increasing,
@@ -243,152 +237,6 @@ Rcpp::List EigsGen::extract()
     
     return Rcpp::List::create(Rcpp::Named("values") = evalsRm,
                               Rcpp::Named("vectors") = eigenvectors,
-                              Rcpp::Named("V") = V,
-                              Rcpp::Named("H") = H,
-                              Rcpp::Named("Q") = Qm,
-                              Rcpp::Named("R") = Rm,
-                              Rcpp::Named("ind") = selectInd,
                               Rcpp::Named("nconv") = Rcpp::wrap(nconv),
                               Rcpp::Named("niter") = Rcpp::wrap(niter));
-}
-
-Rcpp::List EigsGen::extract2()
-{
-    // Result list
-    Rcpp::List ret;
-    // Obtain 'nconv' converged eigenvalues
-    int nconv = iparam[5 - 1];
-    // 'niter' number of iterations
-    int niter = iparam[9 - 1];
-
-    /*********************************************/
-    //
-    // Case 1: If there is no converged eigenvalue 
-    //
-    /*********************************************/
-    if(nconv <= 0)
-    {
-        ::Rf_warning("no converged eigenvalues found");
-        ret = Rcpp::List::create(Rcpp::Named("values") = R_NilValue,
-                                 Rcpp::Named("vectors") = R_NilValue,
-                                 Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-                                 Rcpp::Named("niter") = Rcpp::wrap(niter));
-        return ret;
-    }
-
-    /*************************************/
-    //
-    // Case 2: If all eigenvalues are real
-    //
-    /*************************************/
-    if(nconv < nev)
-        ::Rf_warning("only %d eigenvalues converged, less than k", nconv);
-    // Sometimes there are nconv = nev + 1 converged eigenvalues,
-    // mainly due to pairs of complex eigenvalues.
-    // We will truncate at nev
-    int truenconv = nconv > nev ? nev : nconv;
-
-    // equivalent R code: if(all(abs(dimag[1:nconv] < 1e-17)))
-    if(Rcpp::is_true(Rcpp::all(Rcpp::abs(eigdi) < 1e-17)))
-    {
-        // v.erase(start, end) removes v[start <= i < end]
-        eigdr.erase(truenconv, eigdr.length());
-        // Make sure eigenvalues are in decreasing order.
-        Rcpp::IntegerVector order = sort_with_order(eigdr);
-        
-        if(!retvec)
-        {
-            ret = Rcpp::List::create(Rcpp::Named("values") = eigdr,
-                                     Rcpp::Named("vectors") = R_NilValue,
-                                     Rcpp::Named("nconv") = Rcpp::wrap(truenconv),
-                                     Rcpp::Named("niter") = Rcpp::wrap(niter));
-            return ret;
-        }
-        
-        // The matrix to be returned
-        Rcpp::NumericMatrix retV(n, truenconv);
-        for(int i = 0; i < truenconv; i++)
-        {
-            copy_column(eigV, order[i], retV, i);
-        }
-
-        ret = Rcpp::List::create(Rcpp::Named("values") = eigdr,
-                                 Rcpp::Named("vectors") = retV,
-                                 Rcpp::Named("nconv") = Rcpp::wrap(truenconv),
-                                 Rcpp::Named("niter") = Rcpp::wrap(niter));
-
-        return ret;
-    }
-
-    /*************************************/
-    //
-    // Case 3: Complex eigenvalues
-    //
-    /*************************************/
-    Rcpp::ComplexVector cmpeigd(nconv);
-    for(int i = 0; i < nconv; i++)
-    {
-        cmpeigd[i].r = eigdr[i];
-        cmpeigd[i].i = eigdi[i];
-    }
-    
-    if(!retvec)
-    {
-        // To make sure the eigenvalues are in proper order
-        sort_with_order(cmpeigd);
-        if(nconv > truenconv)  cmpeigd.erase(truenconv, nconv);
-        ret = Rcpp::List::create(Rcpp::Named("values") = cmpeigd,
-                                 Rcpp::Named("vectors") = R_NilValue,
-                                 Rcpp::Named("nconv") = Rcpp::wrap(truenconv),
-                                 Rcpp::Named("niter") = Rcpp::wrap(niter));
-        return ret;
-    }
-    
-    Rcpp::ComplexMatrix retV(n, truenconv);
-    Rcpp::ComplexVector retd = Rcpp::clone(cmpeigd);
-    bool *img_zero = new bool[nconv + 1];  // add 1 to be safe
-    for(int i = 0; i < nconv; i++)
-    {
-        if(fabs(eigdi[i]) < 1e-16)
-        {
-            img_zero[i] = true;
-        } else {
-            img_zero[i] = false;
-            i++;
-            img_zero[i] = false;
-            retd[i].r = 0;
-            retd[i].i = 0;
-        }
-    }
-    Rcpp::IntegerVector order = sort_with_order(retd);
-    int *order_pntr = order.begin();
-    for(int i = 0; i < truenconv; i++, order_pntr++)
-    {
-        int ind = *order_pntr;
-        if(img_zero[ind])
-        {
-            retd[i] = cmpeigd[ind];
-            copy_column(eigV, ind, eigV, ind, 0, retV, i);
-        } else {
-            retd[i] = cmpeigd[ind];
-            copy_column(eigV, ind, eigV, ind + 1, 1, retV, i);
-            i++;
-            if(i < truenconv)
-            {
-                retd[i].r = cmpeigd[ind].r;
-                retd[i].i = -cmpeigd[ind].i;
-                copy_column(eigV, ind, eigV, ind + 1, -1, retV, i);
-            }
-        }
-    }
-    delete [] img_zero;
-    if(nconv > truenconv)  retd.erase(truenconv, nconv);
-    
-    ret = Rcpp::List::create(Rcpp::Named("values") = retd,
-                             Rcpp::Named("vectors") = retV,
-                             Rcpp::Named("nconv") = Rcpp::wrap(truenconv),
-                             Rcpp::Named("niter") = Rcpp::wrap(niter),
-                             extract2());
-
-    return ret;
 }
