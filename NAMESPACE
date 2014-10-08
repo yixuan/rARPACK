@@ -6,6 +6,7 @@ S3method(eigs,dgeMatrix)
 S3method(eigs,dgCMatrix)
 S3method(eigs,dgRMatrix)
 S3method(eigs,dsyMatrix)
+S3method(eigs,"function")
 
 S3method(svds,matrix)
 S3method(svds,dgeMatrix)

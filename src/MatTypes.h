@@ -7,13 +7,15 @@
 #include "MatOp_dgeMatrix.h"
 #include "MatOp_dsyMatrix.h"
 #include "MatOp_sparseMatrix.h"
+#include "MatOp_function.h"
 
 enum MATTYPE {
     MATRIX = 0,
     DGEMATRIX,
     DSYMATRIX,
     DGCMATRIX,
-    DGRMATRIX
+    DGRMATRIX,
+    FUNCTION
 };
 
 #endif // MATTYPES_H
