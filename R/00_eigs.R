@@ -129,7 +129,7 @@
 ##' ## but the latter method is far more stable on large matrices
 ##'
 ##' ### more examples in examples/eigs.R ###
-eigs <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...)
+eigs <- function(A, k, which = "LM", sigma = NULL, opts = list(), n = NULL, ...)
     UseMethod("eigs");
 
 ##' @rdname eigs
@@ -163,6 +163,13 @@ eigs.dsyMatrix <- function(A, k, which = "LM", sigma = NULL,
     eigs.real_sym(A, k, which, sigma, opts, ...,
                   mattype = "dsyMatrix", lower = (A@uplo == "L"))
 
+##' @rdname eigs
+##' @export
+eigs.function <- function(FUN, k, which = "LM", sigma = NULL,
+                           opts = list(), n, ...)
+    eigs.fun(FUN, n, k, which, sigma, opts, ...,
+                  mattype = "FUNCTION")
+
 
 
 ##' @rdname eigs
@@ -182,4 +189,4 @@ eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ..., lower
 
 # Matrix types
 MATTYPES = c("matrix" = 0L, "dgeMatrix" = 1L, "dsyMatrix" = 2L,
-             "dgCMatrix" = 3L, "dgRMatrix" = 4L);
+             "dgCMatrix" = 3L, "dgRMatrix" = 4L, "FUNCTION" = 5L);

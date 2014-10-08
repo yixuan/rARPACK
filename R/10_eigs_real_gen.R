@@ -56,9 +56,10 @@ eigs.real_gen <- function(A, k, which, sigma, opts = list(), ...,
         sigma = 0;
         sigmareal = TRUE;
     } else {
-        workmode = 3L;
-        if(abs(Im(sigma)) < 1e-17) sigma = Re(sigma);
-        sigmareal = !is.complex(sigma);
+        stop("No shift invert mode with functional")
+        # workmode = 3L;
+        # if(abs(Im(sigma)) < 1e-17) sigma = Re(sigma);
+        # sigmareal = !is.complex(sigma);
     }
     
     # Arguments to be passed to ARPACK
