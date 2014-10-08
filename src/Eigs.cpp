@@ -67,12 +67,17 @@ void Eigs::initResid()
     }
 }
 
-void Eigs::matOp()
+void Eigs::matOp(double *x_in, double *y_out)
 {
     if (workmode == 3)  // Shift-and-invert mode
-        op->shiftSolve(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
+        op->shiftSolve(x_in, y_out);
     else                // Regular mode
-        op->prod(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
+        op->prod(x_in, y_out);
+}
+
+void Eigs::matOp()
+{
+    matOp(&workd[ipntr[0] - 1], &workd[ipntr[1] - 1]);
 }
 
 void Eigs::compute(bool rvec)

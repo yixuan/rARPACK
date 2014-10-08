@@ -91,6 +91,7 @@ protected:
     virtual void eupd() = 0;
     
     // matrix operation
+    void matOp(double *x_in, double *y_out);
     void matOp();
 public:
     // Constructor
