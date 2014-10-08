@@ -1,6 +1,17 @@
 #include "EigsGen.h"
+#include <RcppEigen.h>
 
 using std::string;
+using Eigen::MatrixXd;
+using Eigen::MatrixXcd;
+using Eigen::VectorXi;
+using Eigen::VectorXd;
+using Eigen::VectorXcd;
+using Eigen::RealSchur;
+using Eigen::EigenSolver;
+
+typedef Eigen::Map<VectorXd> MapVec;
+typedef Eigen::Map<MatrixXd> MapMat;
 
 EigsGen::EigsGen(int n_, int nev_, int ncv_, MatOp *op_,
                  const string & which_, int workmode_,
@@ -12,6 +23,8 @@ EigsGen::EigsGen(int n_, int nev_, int ncv_, MatOp *op_,
     lworkl = 3 * ncv * ncv + 6 * ncv;
     workl = new double[lworkl]();
     workv = new double[3 * ncv]();
+    wl = new double[lworkl];
+    vm = new double[n * ncv];
 }
 
 
@@ -19,6 +32,8 @@ EigsGen::~EigsGen()
 {
     delete [] workv;
     delete [] workl;
+    delete [] wl;
+    delete [] vm;
 }
 
 void EigsGen::error(int stage, int errorcode)
@@ -60,6 +75,9 @@ void EigsGen::eupd()
     // Leading dimension of Z, required by FORTRAN
     int ldz = n;
     
+    std::copy(workl, workl + lworkl, wl);
+    std::copy(eigV.begin(), eigV.end(), vm);
+    
     // Use neupd() to retrieve results
     neupd(retvec, howmny, eigdr.begin(), eigdi.begin(),
           Z, ldz, op->getsigmar(), op->getsigmai(), workv,
@@ -67,6 +85,130 @@ void EigsGen::eupd()
           resid, ncv, eigV.begin(), n,
           iparam, ipntr, workd, workl,
           lworkl, ierr);
+}
+
+std::complex<double> EigsGen::eigenvalue2x2(const double &a,
+    const double &b, const double &c, const double &d)
+{
+    double real = (a + d) * 0.5;
+    double imag = 0.5 * sqrt(4 * (a * d - b * c) - (a + d) * (a + d));
+    return std::complex<double>(real, imag);
+}
+
+void EigsGen::eigenvalueSchur(const MatrixXd &Rm, VectorXcd &result)
+{
+    int m = Rm.cols();
+    if(result.size() != m)
+        result.resize(m);
+    for(int i = 0; i < m; i++)
+    {
+        if(i == m - 1 || fabs(Rm(i + 1, i)) < 1e-16)
+        {
+            result[i] = std::complex<double>(Rm(i, i), 0);
+        } else {
+            result[i] = eigenvalue2x2(Rm(i, i), Rm(i, i + 1),
+                                      Rm(i + 1, i), Rm(i + 1, i + 1));
+            i++;
+            result[i] = conj(result[i - 1]);
+        }
+    }
+}
+
+void EigsGen::findMatchedIndex(const Eigen::VectorXcd &target,
+                               const Eigen::VectorXcd &collection,
+                               Eigen::VectorXi &result)
+{
+    int nfound = 0;
+    int maxn = target.size();
+    if(result.size() < maxn)
+        result.resize(maxn);
+    for(int i = 0; i < collection.size(); i++)
+    {
+        int j;
+        for(j = 0; j < maxn; j++)
+        {
+            if(abs(collection[i] - target[j]) < 1e-10)
+                break;
+        }
+        if(j < maxn)
+        {
+            result[nfound] = i;
+            nfound++;
+            if(collection[i].imag() != 0)
+            {
+                i++;
+                result[nfound] = i;
+                nfound++;
+            }
+        }
+        if(nfound >= maxn)  break;
+    }
+    if(result.size() > nfound)
+        result.conservativeResize(nfound);
+}
+
+Rcpp::List EigsGen::extract2()
+{
+    Rcpp::NumericMatrix H(ncv, ncv);
+    Rcpp::NumericMatrix V(n, ncv);
+    Rcpp::NumericVector real(ncv);
+    Rcpp::NumericVector imag(ncv);
+    int nconv = iparam[5 - 1];
+    int niter = iparam[9 - 1];
+    
+    std::copy(wl, wl + ncv * ncv, H.begin());
+    std::copy(vm, vm + n * ncv, V.begin());
+    std::copy(wl + ncv * ncv, wl + ncv * ncv + ncv, real.begin());
+    std::copy(wl + ncv * ncv + ncv, wl + ncv * ncv + 2 * ncv, imag.begin());
+
+    MapMat Hm(wl, ncv, ncv);
+    MapMat Vm(vm, n, ncv);
+    RealSchur<MatrixXd> schur(Hm);
+    MatrixXd Qm = schur.matrixU();
+    MatrixXd Rm = schur.matrixT();
+    VectorXcd evalsRm(ncv);
+    VectorXi selectInd(nconv);
+    
+    VectorXcd evalsConverged(nconv);
+    evalsConverged.real() = MapVec(wl + ncv * ncv, nconv);
+    evalsConverged.imag() = MapVec(wl + ncv * ncv + ncv, nconv);
+    
+    eigenvalueSchur(Rm, evalsRm);
+    findMatchedIndex(evalsConverged.head(nconv), evalsRm, selectInd);
+    
+    int nfound = selectInd.size();
+    if(nfound < 1)  return R_NilValue;
+    
+    // Shrink Qm and Rm to the dimension given by the largest value
+    // in selectInd. Since selectInd is strictly increasing,
+    // we can just use its last value.
+    int lastInd = selectInd[selectInd.size() - 1];
+    Qm.conservativeResize(Eigen::NoChange, lastInd + 1);
+    Rm.conservativeResize(lastInd + 1, lastInd + 1);
+    
+    // Eigen decomposition of Rm
+    EigenSolver<MatrixXd> es(Rm);
+    evalsRm = es.eigenvalues();
+    MatrixXcd eigenvectors = Vm * (Qm * es.eigenvectors());
+    for(int i = 0; i < nfound; i++)
+    {
+        // Since selectInd[i] >= i for all i, it is safe to
+        // overwrite the elements and columns.
+        evalsRm[i] = evalsRm[selectInd[i]];
+        eigenvectors.col(i) = eigenvectors.col(selectInd[i]);
+    }
+    evalsRm.conservativeResize(nfound);
+    eigenvectors.conservativeResize(Eigen::NoChange, nfound);
+    
+    return Rcpp::List::create(Rcpp::Named("values") = evalsRm,
+                              Rcpp::Named("vectors") = eigenvectors,
+                              Rcpp::Named("V") = V,
+                              Rcpp::Named("H") = H,
+                              Rcpp::Named("Q") = Qm,
+                              Rcpp::Named("R") = Rm,
+                              Rcpp::Named("ind") = selectInd,
+                              Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+                              Rcpp::Named("niter") = Rcpp::wrap(niter));
 }
 
 Rcpp::List EigsGen::extract()
@@ -204,7 +346,8 @@ Rcpp::List EigsGen::extract()
     ret = Rcpp::List::create(Rcpp::Named("values") = retd,
                              Rcpp::Named("vectors") = retV,
                              Rcpp::Named("nconv") = Rcpp::wrap(truenconv),
-                             Rcpp::Named("niter") = Rcpp::wrap(niter));
+                             Rcpp::Named("niter") = Rcpp::wrap(niter),
+                             extract2());
 
     return ret;
 }
