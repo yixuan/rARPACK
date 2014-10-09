@@ -107,19 +107,26 @@
 ##' @rdname eigs
 ##' @keywords array
 ##' @examples
-##' n = 20;
-##' k = 5;
+##' n = 20
+##' k = 5
 ##' 
 ##' ## Will have complex eigenvalues
-##' set.seed(111);
-##' A1 = matrix(rnorm(n^2), n);
-##' eigs(A1, k);
+##' set.seed(111)
+##' A1 = matrix(rnorm(n^2), n)
+##' eigs(A1, k)
+##' 
+##' f = function(x, args)
+##' {
+##'     mat = args$mat
+##'     mat %*% x
+##' }
+##' eigs(f, k, args = list(n = n, mat = A1))
 ##' 
 ##' ## Only have real eigenvalues,
 ##' ## since A2 is symmetric
-##' A2 = crossprod(A1);
-##' eigs(A2, k);
-##' eigs_sym(A2, k);
+##' A2 = crossprod(A1)
+##' eigs(A2, k)
+##' eigs_sym(A2, k)
 ##' 
 ##' ## Find the smallest (in absolute value) k eigenvalues of A2
 ##' eigs_sym(A2, k, which = "SM")
@@ -129,7 +136,8 @@
 ##' ## but the latter method is far more stable on large matrices
 ##'
 ##' ### more examples in examples/eigs.R ###
-eigs <- function(A, k, which = "LM", sigma = NULL, opts = list(), n = NULL, ...)
+eigs <- function(A, k, which = "LM", sigma = NULL,
+                 opts = list(), args = list(n = NULL), ...)
     UseMethod("eigs");
 
 ##' @rdname eigs
@@ -165,10 +173,10 @@ eigs.dsyMatrix <- function(A, k, which = "LM", sigma = NULL,
 
 ##' @rdname eigs
 ##' @export
-eigs.function <- function(FUN, k, which = "LM", sigma = NULL,
-                           opts = list(), n, ...)
-    eigs.fun(FUN, n, k, which, sigma, opts, ...,
-                  mattype = "FUNCTION")
+eigs.function <- function(A, k, which = "LM", sigma = NULL,
+                          opts = list(), args = list(n = NULL), ...)
+    eigs.fun(A, k, which, sigma, opts, args, ...,
+             mattype = "function")
 
 
 
@@ -189,4 +197,4 @@ eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ..., lower
 
 # Matrix types
 MATTYPES = c("matrix" = 0L, "dgeMatrix" = 1L, "dsyMatrix" = 2L,
-             "dgCMatrix" = 3L, "dgRMatrix" = 4L, "FUNCTION" = 5L);
+             "dgCMatrix" = 3L, "dgRMatrix" = 4L, "function" = 5L);
