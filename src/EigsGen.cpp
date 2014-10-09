@@ -233,7 +233,17 @@ void EigsGen::sortDescPair(VectorXcd &values, VectorXi &index)
     }
 }
 
-
+template<typename Derived>
+SEXP returnRealIfPossible(Eigen::MatrixBase<Derived> &matvec)
+{
+    SEXP result;
+    if(matvec.imag().isZero())
+        result = wrap(matvec.real());
+    else
+        result = wrap(matvec);
+    
+    return result;
+}
 
 Rcpp::List EigsGen::extract()
 {
@@ -260,15 +270,9 @@ Rcpp::List EigsGen::extract()
         
         if(evalsConverged.size() > truenconv)
             evalsConverged.conservativeResize(truenconv);
-            
-        SEXP eigenvalues;
-        if(evalsConverged.imag().isZero())
-            eigenvalues = wrap(evalsConverged.real());
-        else
-            eigenvalues = wrap(evalsConverged);
         
-        return returnResult(eigenvalues, R_NilValue, wrap(truenconv),
-                            wrap(niter));
+        return returnResult(returnRealIfPossible(evalsConverged),
+                            R_NilValue, wrap(truenconv), wrap(niter));
     }
     
     // Recompute the Hessenburg matrix, since occasionally
@@ -323,21 +327,17 @@ Rcpp::List EigsGen::extract()
     // Now (evalsRm, selectInd) gives the pair of (value, location)
     sortDescPair(evalsRm, selectInd);
     
-    MatrixXcd evecsSelected(n, truenconv);
+    MatrixXcd evecsConverged(n, truenconv);
     for(int i = 0; i < truenconv; i++)
     {
-        evecsSelected.col(i) = evecsA.col(selectInd[i]);
+        evecsConverged.col(i) = evecsA.col(selectInd[i]);
     }
-    
-    SEXP eigenvectors;
-    if(evecsSelected.imag().isZero())
-        eigenvectors = wrap(evecsSelected.real());
-    else
-        eigenvectors = wrap(evecsSelected);
     
     if(truenconv < nev)
         ::Rf_warning("only %d eigenvalues converged, less than k", truenconv);
 
-    return returnResult(wrap(evalsRm), eigenvectors, wrap(truenconv),
+    return returnResult(returnRealIfPossible(evalsRm),
+                        returnRealIfPossible(evecsConverged),
+                        wrap(truenconv),
                         wrap(niter));
 }
