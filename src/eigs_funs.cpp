@@ -104,7 +104,8 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     END_RCPP
 }
 
-RcppExport SEXP eigs_fun(SEXP FUN_function_r, SEXP n_scalar_r, SEXP k_scalar_r,
+RcppExport SEXP eigs_fun(SEXP FUN_function_r, SEXP args_list_r,
+                         SEXP n_scalar_r, SEXP k_scalar_r,
                          SEXP params_list_r, SEXP mattype_scalar_r)
 {
     BEGIN_RCPP
@@ -116,20 +117,21 @@ RcppExport SEXP eigs_fun(SEXP FUN_function_r, SEXP n_scalar_r, SEXP k_scalar_r,
     int ncv = as<int>(params_rcpp["ncv"]);
     string which = as<string>(params_rcpp["which"]);
     int workmode = as<int>(params_rcpp["workmode"]);
+    // To be safe, we force workmode to be 1
+    workmode = 1;
     char bmat = 'I';
     double tol = as<double>(params_rcpp["tol"]);
     int maxitr = as<int>(params_rcpp["maxitr"]);
-    bool needSolve = (workmode != 1);
     bool retvec = as<bool>(params_rcpp["retvec"]);
 
     MatOp *op = NULL;
     switch(as<int>(mattype_scalar_r))
     {
         case (int) FUNCTION:
-            op = new MatOp_function(FUN_function_r, n, n, needSolve);
+            op = new MatOp_function(FUN_function_r, args_list_r, n);
             break;
         default:
-            Rcpp::stop("unsupported matrix type in eigs()");
+            Rcpp::stop("unsupported operator type in eigs()");
     }
 
     EigsGen eig(n, nev, ncv, op, which, workmode,

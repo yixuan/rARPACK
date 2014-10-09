@@ -13,7 +13,7 @@ void MatOp_matrix::init()
     if(m != n) return;
 
     // If sigma is real
-    if(fabs(sigmai) < 1e-17)
+    if(fabs(sigmai) < 1e-16)
     {
         // Subtract the diagonal elements by sigma, i.e., A - sigma * I
         for(int i = 0; i < n; i++)
@@ -84,9 +84,9 @@ void MatOp_matrix::shiftSolve(double *x_in, double *y_out)
     if(m != n)
         Rcpp::stop("matrix must be square");
     if(!canSolve)
-        Rcpp::stop("this matrix doesn't support solving linear equation");
+        Rcpp::stop("this matrix does not support solving linear equation");
 
-    if(fabs(sigmai) < 1e-17)
+    if(fabs(sigmai) < 1e-16)
     {
         new (&x_vec) MapVec(x_in, n);
         new (&y_vec) MapVec(y_out, n);

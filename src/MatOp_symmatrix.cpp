@@ -45,7 +45,7 @@ void MatOp_symmatrix::tprod(double *x_in, double *y_out)
 void MatOp_symmatrix::shiftSolve(double *x_in, double *y_out)
 {
     if(!canSolve)
-        Rcpp::stop("this matrix doesn't support solving linear equation");
+        Rcpp::stop("this matrix does not support solving linear equation");
 
     new (&x_vec) MapVec(x_in, n);
     new (&y_vec) MapVec(y_out, n);

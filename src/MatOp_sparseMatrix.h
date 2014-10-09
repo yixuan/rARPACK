@@ -108,7 +108,7 @@ void MatOp_sparseMatrix<Storage>::shiftSolve(double *x_in, double *y_out)
     if(m != n)
         Rcpp::stop("matrix must be square");
     if(!canSolve)
-        Rcpp::stop("this matrix doesn't support solving linear equation");
+        Rcpp::stop("this matrix does not support solving linear equation");
 
     if(fabs(sigmai) < 1e-17)
     {

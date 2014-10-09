@@ -1,6 +1,5 @@
 #include "Eigs.h"
 
-
 using std::string;
 
 Eigs::Eigs(int n_, int nev_, int ncv_, MatOp *op_,
@@ -71,7 +70,6 @@ void Eigs::compute(bool rvec)
 
     while (ido != 99)
     {
-        
         aupd();
         switch(ido)
         {
