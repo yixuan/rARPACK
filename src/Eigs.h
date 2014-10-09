@@ -93,6 +93,17 @@ protected:
     // matrix operation
     void matOp(double *x_in, double *y_out);
     void matOp();
+    
+    // For convenience
+    SEXP returnResult(SEXP values, SEXP vectors, SEXP nconv, SEXP niter)
+    {
+        return Rcpp::List::create(
+            Rcpp::Named("values") = values,
+            Rcpp::Named("vectors") = vectors,
+            Rcpp::Named("nconv") = nconv,
+            Rcpp::Named("niter") = niter
+        );
+    }
 public:
     // Constructor
     Eigs(int n_, int nev_, int ncv_, MatOp *op_,

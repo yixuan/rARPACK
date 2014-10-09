@@ -2,6 +2,7 @@
 #include <RcppEigen.h>
 
 using std::string;
+using Rcpp::wrap;
 using Eigen::MatrixXd;
 using Eigen::MatrixXcd;
 using Eigen::VectorXi;
@@ -234,6 +235,9 @@ VectorXi EigsGen::sortDescWithOrder(VectorXcd &values)
     return order;
 }
 
+
+
+
 Rcpp::List EigsGen::extract()
 {
     int nconv = iparam[5 - 1];
@@ -259,13 +263,15 @@ Rcpp::List EigsGen::extract()
         
         if(evalsConverged.size() > truenconv)
             evalsConverged.conservativeResize(truenconv);
-
-        return Rcpp::List::create(
-            Rcpp::Named("values") = evalsConverged,
-            Rcpp::Named("vectors") = R_NilValue,
-            Rcpp::Named("nconv") = Rcpp::wrap(nconv),
-            Rcpp::Named("niter") = Rcpp::wrap(niter)
-        );
+            
+        SEXP eigenvalues;
+        if(evalsConverged.imag().isZero())
+            eigenvalues = wrap(evalsConverged.real());
+        else
+            eigenvalues = wrap(evalsConverged);
+        
+        return returnResult(eigenvalues, R_NilValue, wrap(truenconv),
+                            wrap(niter));
     }
     
     recomputeH();
