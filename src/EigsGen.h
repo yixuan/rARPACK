@@ -34,21 +34,33 @@ protected:
     virtual void aupd();
     virtual void eupd();
 
-    // eigenvalue with positive imaginary part of a 2 by 2 matrix
-    // [a  b]
-    // [c  d]
-    // when we know it has complex eigenvalues
+    // Eigenvalue with positive imaginary part of a 2 by 2 matrix
+    //                          [a  b]
+    //                          [c  d]
+    // when we know it has complex eigenvalues.
+    // This is used to calculate eigenvalues of a Schur form.
     static std::complex<double> eigenvalue2x2(const double &a,
         const double &b, const double &c, const double &d);
+    // Calculate eigenvalues of a Schur form
     static void eigenvalueSchur(const Eigen::MatrixXd &Rm,
                                 Eigen::VectorXcd &result);
+    // Compare the eigenvalues computed from Rm (collection)
+    // with those returned by aupd() (target).
+    // We want to know the indices of eigenvalues in collection that
+    // match target.
     static void findMatchedIndex(const Eigen::VectorXcd &target,
                                  const Eigen::VectorXcd &collection,
                                  Eigen::VectorXi &result);
+    // Recompute the Hessenburg matrix H as sometimes the result
+    // given by aupd() is wrong.
     void recomputeH();
+    // Transform eigenvalues when shift sigma is used
     void transformEigenvalues(Eigen::VectorXcd &evals);
     
+    // Sort eigenvalues
     static void sortDesc(Eigen::VectorXcd &values);
+    // Sort eigenvalues and also order the other vector accordingly.
+    // This is used to sort eigenvectors according to eigenvalues.
     static void sortDescPair(Eigen::VectorXcd &values,
                              Eigen::VectorXi &index);
 public:

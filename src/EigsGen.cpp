@@ -174,6 +174,9 @@ void EigsGen::transformEigenvalues(VectorXcd &evals)
         evals = 1.0 / evals.array() + op->getsigmar();
 }
 
+
+
+// Helper functions to sort eigenvalues
 typedef std::pair<std::complex<double>, int> SortPair;
 
 bool compare_complex_mod(std::complex<double> v1,
@@ -233,6 +236,9 @@ void EigsGen::sortDescPair(VectorXcd &values, VectorXi &index)
     }
 }
 
+
+
+// Helper function to return real values if possible
 template<typename Derived>
 SEXP returnRealIfPossible(Eigen::MatrixBase<Derived> &matvec)
 {
