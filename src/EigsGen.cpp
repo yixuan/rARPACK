@@ -20,21 +20,14 @@ EigsGen::EigsGen(int n_, int nev_, int ncv_, MatOp *op_,
          bmat_, tol_, maxitr_)
 {
     V = new double[n * ncv];
-    dr = new double[nev + 1];
-    di = new double[nev + 1];
-    
     lworkl = 3 * ncv * ncv + 6 * ncv;
     workl = new double[lworkl]();
-    workv = new double[3 * ncv]();
 }
 
 
 EigsGen::~EigsGen()
 {
-    delete [] workv;
     delete [] workl;
-    delete [] di;
-    delete [] dr;
     delete [] V;
 }
 

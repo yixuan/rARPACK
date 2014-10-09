@@ -19,17 +19,9 @@ protected:
     virtual void error(int stage, int errorcode);
     virtual void warning(int stage, int errorcode);
 
-    // Working space, unique to eigs() with general matrices
-    double *workv;
-
-    // Store final results of eigenvectors
+    // Store matrix V such that A * V = V * H
     // Conceptually it is an n * ncv matrix
     double *V;
-    // Store final results of eigenvalues,
-    // both real part and imaginary part
-    // Conceptually they are vectors of length nev + 1
-    double *dr;
-    double *di;
 
     virtual void aupd();
     virtual void eupd();
