@@ -10,7 +10,8 @@
 \alias{eigs_sym}
 \title{Find a Specified Number of Eigenvalues/vectors for Square Matrix}
 \usage{
-eigs(A, k, which = "LM", sigma = NULL, opts = list(), n = NULL, ...)
+eigs(A, k, which = "LM", sigma = NULL, opts = list(), args = list(n =
+  NULL), ...)
 
 \method{eigs}{matrix}(A, k, which = "LM", sigma = NULL, opts = list(),
   ...)
@@ -27,8 +28,8 @@ eigs(A, k, which = "LM", sigma = NULL, opts = list(), n = NULL, ...)
 \method{eigs}{dsyMatrix}(A, k, which = "LM", sigma = NULL, opts = list(),
   ...)
 
-\method{eigs}{function}(FUN, k, which = "LM", sigma = NULL, opts = list(),
-  n, ...)
+\method{eigs}{function}(A, k, which = "LM", sigma = NULL, opts = list(),
+  args = list(n = NULL), ...)
 
 eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
   ..., lower = TRUE)
@@ -143,19 +144,26 @@ following parameters:
 }
 }
 \examples{
-n = 20;
-k = 5;
+n = 20
+k = 5
 
 ## Will have complex eigenvalues
-set.seed(111);
-A1 = matrix(rnorm(n^2), n);
-eigs(A1, k);
+set.seed(111)
+A1 = matrix(rnorm(n^2), n)
+eigs(A1, k)
+
+f = function(x, args)
+{
+    mat = args$mat
+    mat \%*\% x
+}
+eigs(f, k, args = list(n = n, mat = A1))
 
 ## Only have real eigenvalues,
 ## since A2 is symmetric
-A2 = crossprod(A1);
-eigs(A2, k);
-eigs_sym(A2, k);
+A2 = crossprod(A1)
+eigs(A2, k)
+eigs_sym(A2, k)
 
 ## Find the smallest (in absolute value) k eigenvalues of A2
 eigs_sym(A2, k, which = "SM")
