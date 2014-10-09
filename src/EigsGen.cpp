@@ -174,12 +174,101 @@ void EigsGen::transformEigenvalues(VectorXcd &evals)
         evals = 1.0 / evals.array() + op->getsigmar();
 }
 
+typedef std::pair<std::complex<double>, int> SortPair;
+
+bool compare_complex_mod(std::complex<double> v1,
+                         std::complex<double> v2)
+{
+    return abs(v1) > abs(v2);
+}
+
+bool compare_complex_real(std::complex<double> v1,
+                          std::complex<double> v2)
+{
+    return v1.real() > v2.real();
+}
+
+enum { COMPMOD = 0, COMPREAL };
+
+template<int COMPARE>
+bool compare_pair(SortPair v1, SortPair v2)
+{
+    if(COMPARE == COMPMOD)
+        return compare_complex_mod(v1.first, v2.first);
+    else
+        return compare_complex_real(v1.first, v2.first);
+}
+
+void EigsGen::sortDesc(VectorXcd &values)
+{
+    if(values.imag().isZero())
+        std::sort(values.data(), values.data() + values.size(),
+            compare_complex_real);
+    else
+        std::sort(values.data(), values.data() + values.size(),
+            compare_complex_mod);
+}
+
+VectorXi EigsGen::sortDescWithOrder(VectorXcd &values)
+{
+    int len = values.size();
+    VectorXi order(len);
+    
+    std::vector<SortPair> v(len);
+    for(int i = 0; i < len; i++)
+    {
+        v[i].first = values[i];
+        v[i].second = i;
+    }
+    if(values.imag().isZero())
+        std::sort(v.begin(), v.end(), compare_pair<COMPREAL>);
+    else
+        std::sort(v.begin(), v.end(), compare_pair<COMPMOD>);
+    
+    for(int i = 0; i < len; i++)
+    {
+        values[i] = v[i].first;
+        order[i] = v[i].second;
+    }
+    
+    return order;
+}
+
 Rcpp::List EigsGen::extract()
 {
-    recomputeH();
-
     int nconv = iparam[5 - 1];
     int niter = iparam[9 - 1];
+
+    // Sometimes there are nconv = nev + 1 converged eigenvalues,
+    // mainly due to pairs of complex eigenvalues.
+    // We will truncate at nev.
+    int truenconv = nconv > nev ? nev : nconv;
+
+    // Converged eigenvalues from aupd()
+    VectorXcd evalsConverged(nconv);
+    evalsConverged.real() = MapVec(workl + ncv * ncv, nconv);
+    evalsConverged.imag() = MapVec(workl + ncv * ncv + ncv, nconv);
+    
+    // If only eigenvalues are requested
+    if(!retvec)
+    {
+        if(nconv < nev)
+            ::Rf_warning("only %d eigenvalues converged, less than k", nconv);
+
+        sortDesc(evalsConverged);
+        
+        if(evalsConverged.size() > truenconv)
+            evalsConverged.conservativeResize(truenconv);
+
+        return Rcpp::List::create(
+            Rcpp::Named("values") = evalsConverged,
+            Rcpp::Named("vectors") = R_NilValue,
+            Rcpp::Named("nconv") = Rcpp::wrap(nconv),
+            Rcpp::Named("niter") = Rcpp::wrap(niter)
+        );
+    }
+    
+    recomputeH();
 
     MapMat Hm(workl, ncv, ncv);
     MapMat Vm(V, n, ncv);
@@ -188,10 +277,6 @@ Rcpp::List EigsGen::extract()
     MatrixXd Rm = schur.matrixT();
     VectorXcd evalsRm(ncv);
     VectorXi selectInd(nconv);
-    
-    VectorXcd evalsConverged(nconv);
-    evalsConverged.real() = MapVec(workl + ncv * ncv, nconv);
-    evalsConverged.imag() = MapVec(workl + ncv * ncv + ncv, nconv);
     
     eigenvalueSchur(Rm, evalsRm);
     findMatchedIndex(evalsConverged.head(nconv), evalsRm, selectInd);
@@ -230,6 +315,7 @@ Rcpp::List EigsGen::extract()
         evalsRm[i] = evalsRm[selectInd[i]];
         eigenvectors.col(i) = eigenvectors.col(selectInd[i]);
     }
+    
     evalsRm.conservativeResize(nfound);
     eigenvectors.conservativeResize(Eigen::NoChange, nfound);
     
