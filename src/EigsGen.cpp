@@ -326,6 +326,11 @@ Rcpp::List EigsGen::extract()
     // Now (evalsRm, selectInd) gives the pair of (value, location)
     sortDescPair(evalsRm, selectInd);
     
+    if(truenconv > nev)
+    {
+        truenconv = nev;
+        evalsRm.conservativeResize(truenconv);
+    }
     MatrixXcd evecsConverged(n, truenconv);
     for(int i = 0; i < truenconv; i++)
     {
