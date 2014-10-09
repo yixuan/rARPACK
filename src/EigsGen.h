@@ -49,7 +49,8 @@ protected:
     void transformEigenvalues(Eigen::VectorXcd &evals);
     
     static void sortDesc(Eigen::VectorXcd &values);
-    static Eigen::VectorXi sortDescWithOrder(Eigen::VectorXcd &values);
+    static void sortDescPair(Eigen::VectorXcd &values,
+                             Eigen::VectorXi &index);
 public:
     EigsGen(int n_, int nev_, int ncv_, MatOp *op_,
             const std::string & which_ = "LM", int workmode_ = 1, 
