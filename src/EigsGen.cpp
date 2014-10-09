@@ -289,7 +289,6 @@ Rcpp::List EigsGen::extract()
     
     //Rcpp::Rcout << evalsRm << "\n\n";
     //Rcpp::Rcout << evalsConverged << "\n\n";
-    //::Rf_PrintValue(Rcpp::wrap(MapMat(wl + ipntr[4] - 1, ncv, ncv)));
     
     truenconv = selectInd.size();
     if(truenconv < 1)

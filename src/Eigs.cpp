@@ -1,7 +1,4 @@
 #include "Eigs.h"
-#include <utility>
-#include <vector>
-#include <algorithm>
 
 using std::string;
 
@@ -114,46 +111,4 @@ Eigs::~Eigs()
 {
     delete [] workd;
     delete [] resid;
-}
-
-
-
-// Copy source[, i] to dest[, j]
-void copy_column(const Rcpp::NumericMatrix &source, int i,
-                 Rcpp::NumericMatrix &dest, int j)
-{
-    int n1 = source.nrow();
-    int n2 = dest.nrow();
-    if(n1 != n2)  return;
-    
-    std::copy(&source(0, i), &source(0, i) + n1, &dest(0, j));
-}
-// dest[, k] = src_real[, i] + sign * src_img[, j]
-void copy_column(const Rcpp::NumericMatrix &src_real, int i,
-                 const Rcpp::NumericMatrix &src_img, int j, int sign,
-                 Rcpp::ComplexMatrix &dest_comp, int k)
-{
-    int n1r = src_real.nrow();
-    int n1i = src_img.nrow();
-    int n2 = dest_comp.nrow();
-    if((n1r != n1i) || (n1i != n2))
-        return;
-    
-    const double *src_real_pntr = &src_real(0, i);
-    const double *src_img_pntr = &src_img(0, j);
-    Rcomplex *dest_comp_pntr = &dest_comp(0, k);
-    for(int i = 0; i < n1r; i++)
-    {
-        dest_comp_pntr->r = *src_real_pntr;
-        if(sign > 0)
-            dest_comp_pntr->i = *src_img_pntr;
-        else if(sign < 0)
-            dest_comp_pntr->i = -*src_img_pntr;
-        else
-            dest_comp_pntr->i = 0;
-
-        src_real_pntr++;
-        src_img_pntr++;
-        dest_comp_pntr++;
-    }
 }
