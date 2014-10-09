@@ -1,3 +1,22 @@
+      CHANGES IN rARPACK VERSION 0.7-0
+
+NEW FEATURES
+
+    o Support for implicit matrix, contributed by Jiali Mei.
+    User can supply a function FUN rather than an explicit matrix
+    to eigs(), and the eigenvalues of this operator will be computed.
+    FUN(x, args) must return a vector of the same length as x.
+
+BUG FIXES
+
+    o Avoid using a C random number generator.
+    o Fix a bug possibly coming from ARPACK, which sometimes give
+    incorrect result of complex eigenvectors.
+
+
+
+
+
       CHANGES IN rARPACK VERSION 0.6-0
 
 NEW FEATURES
