@@ -4,8 +4,8 @@ Title: R wrapper of ARPACK for large scale eigenvalue/vector problems,
     on both dense and sparse matrices
 Version: 0.7-0
 Date: 2014-08-23
-Author: Yixuan Qiu and authors of the ARPACK library. See file AUTHORS for
-    details.
+Author: Yixuan Qiu, Jiali Mei and authors of the ARPACK library. See file
+    AUTHORS for details.
 Maintainer: Yixuan Qiu <yixuan.qiu@cos.name>
 Description: rARPACK is an R wrapper of the ARPACK library
     (http://www.caam.rice.edu/software/ARPACK/) to solve large scale
