@@ -1,5 +1,4 @@
 #include "EigsGen.h"
-#include <RcppEigen.h>
 
 using std::string;
 using Rcpp::wrap;
