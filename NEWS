@@ -3,15 +3,20 @@
 NEW FEATURES
 
     o Support for implicit matrix, contributed by Jiali Mei.
-    User can supply a function FUN rather than an explicit matrix
-    to eigs(), and the eigenvalues of this operator will be computed.
-    FUN(x, args) must return a vector of the same length as x.
+      User can supply a function FUN rather than an explicit matrix
+      to eigs(), and the eigenvalues of this operator will be computed.
+      FUN(x, args) must return a vector of the same length as x.
+
+    o eigs() will test the symmetry of matrix before actual computation,
+      since symmetric matrices can guarantee real eigenvalues and
+      eigenvectors, and the numerical result is more stable.
 
 BUG FIXES
 
     o Avoid using a C random number generator.
+
     o Fix a bug possibly coming from ARPACK, which sometimes give
-    incorrect result of complex eigenvectors.
+      incorrect result of complex eigenvectors.
 
 
 
@@ -22,14 +27,17 @@ BUG FIXES
 NEW FEATURES
 
     o Add support for new matrix types: dgeMatrix and dgRMatrix.
+
     o eigs() now allows a full Eigen Decomposition, meaning that
-    all the eigenvalues are calculated. In this case eigs() is
-    simply a wrapper of eigen(), and with a warning issued.
+      all the eigenvalues are calculated. In this case eigs() is
+      simply a wrapper of eigen(), and with a warning issued.
+
     o Ditto for svds()
 
 BUG FIXES
 
     o Rewrite C++ code using classes and templates.
+
     o Fix errors in checking the values of k and ncv.
 
 
@@ -45,7 +53,9 @@ NEW FEATURES
 BUG FIXES
 
     o Now sort eigenvalues in decreasing order.
+
     o Rename eigs.sym() to eigs_sym() to avoid confusion.
+
     o Fix a matrix out-of-bound error.
 
 
@@ -80,8 +90,8 @@ NEW FEATURES
 
 NEW FEATURES
 
-    o Now eigs() supports sparse real nonsymmetric matrices of the class "dgCMatrix",
-      defined in the Matrix package.
+    o Now eigs() supports sparse real nonsymmetric matrices of the class
+      "dgCMatrix", defined in the Matrix package.
 
 
 
