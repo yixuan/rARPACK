@@ -99,21 +99,21 @@ The \code{which} argument is a character string
 that specifies the type of eigenvalues to be computed.
 Possible values are:
 
-\describe{
-\item{"LM"}{The k eigenvalues with largest magnitude. Here the
-            magnitude means the euclidean norm of complex numbers.}
-\item{"SM"}{The k eigenvalues with smallest magnitude. Here the
-            magnitude means the euclidean norm of complex numbers.}
-\item{"LR"}{The k eigenvalues with largest real part.}
-\item{"SR"}{The k eigenvalues with smallest real part.}
-\item{"LI"}{The k eigenvalues with largest imaginary part.}
-\item{"SI"}{The k eigenvalues with smallest imaginary part.}
-\item{"LA"}{The k largest (algebraic) eigenvalues, considering any
-            negative sign.}
-\item{"SA"}{The k smallest (algebraic) eigenvalues, considering any
-            negative sign.}
-\item{"BE"}{Compute k eigenvalues, half from each end of the spectrum.
-            When k is odd, compute more from the high and then from the low end.}
+\tabular{ll}{
+  "LM"  \tab  The \eqn{k} eigenvalues with largest magnitude. Here the
+              magnitude means the Euclidean norm of complex numbers.\cr
+  "SM"  \tab  The \eqn{k} eigenvalues with smallest magnitude.\cr
+  "LR"  \tab  The \eqn{k} eigenvalues with largest real part.\cr
+  "SR"  \tab  The \eqn{k} eigenvalues with smallest real part.\cr
+  "LI"  \tab  The \eqn{k} eigenvalues with largest imaginary part.\cr
+  "SI"  \tab  The \eqn{k} eigenvalues with smallest imaginary part.\cr
+  "LA"  \tab  The \eqn{k} largest (algebraic) eigenvalues, considering any
+              negative sign.\cr
+  "SA"  \tab  The \eqn{k} smallest (algebraic) eigenvalues, considering any
+              negative sign.\cr
+  "BE"  \tab  Compute \eqn{k} eigenvalues, half from each end of the
+              spectrum. When \eqn{k} is odd, compute more from the high
+              and then from the low end.
 }
 
 \code{eigs()} with matrix type "matrix", "dgeMatrix", "dgCMatrix"
