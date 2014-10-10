@@ -35,9 +35,9 @@
 ##' @param A The matrix whose eigenvalues/vectors are to be computed.
 ##' @param k Number of eigenvalues requested.
 ##' @param which Selection criteria. See \strong{Details} below.
-##' @param sigma Shift parameter. See \strong{Details} below.
+##' @param sigma Shift parameter. See section \strong{Shift-And-Invert Mode}.
 ##' @param opts Control parameters related to the computing
-##' algorithm. See \strong{Details} below.
+##'             algorithm. See \strong{Details} below.
 ##' @param \dots Currently not used.
 ##' @param lower For symmetric matrices, should the lower triangle
 ##'              or upper triangle be used.
@@ -73,20 +73,6 @@
 ##' \code{eigs_sym()}, and \code{eigs()} with matrix type "dsyMatrix"
 ##' can use "LM", "SM", "LA", "SA" and "BE".
 ##' 
-##' The \code{sigma} argument is used in the shift-and-invert mode.
-##' When \code{sigma} is not \code{NULL}, the selection criteria specified
-##' by argument \code{which} will apply to
-##' \eqn{1/(\lambda-\sigma)}{1/(lambda - sigma)}
-##' where \eqn{\lambda}{lambda} are the eigenvalues of \eqn{A}{A}.
-##' For example, if \eqn{A}{A} is positive definite and
-##' \eqn{\sigma=0}{sigma = 0}, then \code{which = "LM"} will select the
-##' largest values of \eqn{1/\lambda}{1/lambda}, which turns out to select
-##' the smallest eigenvalues of \eqn{A}{A}. This method is preferable
-##' to \code{which = "SM"} in that ARPACK is good at finding large
-##' eigenvalues rather than finding small ones. More explanation of the
-##' shift-and-invert mode can be found in the SciPy document,
-##' \url{http://docs.scipy.org/doc/scipy/reference/tutorial/arpack.html}.
-##' 
 ##' The \code{opts} argument is a list that can supply any of the
 ##' following parameters:
 ##'
@@ -103,6 +89,26 @@
 ##' \item{\code{retvec}}{Whether to compute eigenvectors. If FALSE,
 ##'                      only calculate and return eigenvalues.}
 ##' }
+##' 
+##' @section Shift-And-Invert Mode:
+##' The \code{sigma} argument is used in the shift-and-invert mode.
+##' 
+##' When \code{sigma} is not \code{NULL}, the selection criteria specified
+##' by argument \code{which} will apply to
+##' 
+##' \deqn{\frac{1}{\lambda-\sigma}}{1/(\lambda-\sigma)}
+##' 
+##' where \eqn{\lambda}'s are the eigenvalues of \eqn{A}. This mode is useful
+##' when user wants to find eigenvalues closest to a given number.
+##' For example, if \eqn{\sigma=0}, then \code{which = "LM"} will select the
+##' largest values of \eqn{1/|\lambda|}, which turns out to select
+##' eigenvalues of \eqn{A} that have the smallest magnitude. The result of
+##' using \code{which = "LM", sigma = 0} will be the same as
+##' \code{which = "SM"}, but the former one is preferable
+##' in that ARPACK is good at finding large
+##' eigenvalues rather than small ones. More explanation of the
+##' shift-and-invert mode can be found in the SciPy document,
+##' \url{http://docs.scipy.org/doc/scipy/reference/tutorial/arpack.html}.
 ##' 
 ##' @return A list of converged eigenvalues and eigenvectors.
 ##' \item{values}{Computed eigenvalues.}
