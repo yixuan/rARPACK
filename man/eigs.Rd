@@ -10,8 +10,7 @@
 \alias{eigs_sym}
 \title{Find a Specified Number of Eigenvalues/vectors for Square Matrix}
 \usage{
-eigs(A, k, which = "LM", sigma = NULL, opts = list(), args = list(n =
-  NULL), ...)
+eigs(A, k, which = "LM", sigma = NULL, opts = list(), ...)
 
 \method{eigs}{matrix}(A, k, which = "LM", sigma = NULL, opts = list(),
   ...)
@@ -29,13 +28,16 @@ eigs(A, k, which = "LM", sigma = NULL, opts = list(), args = list(n =
   ...)
 
 \method{eigs}{function}(A, k, which = "LM", sigma = NULL, opts = list(),
-  ..., args = list(n = NULL))
+  ..., n = NULL, args = NULL)
 
 eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
   ..., lower = TRUE)
 }
 \arguments{
-\item{A}{The matrix whose eigenvalues/vectors are to be computed.}
+\item{A}{The matrix whose eigenvalues/vectors are to be computed.
+It can also be a function which receives a vector \eqn{x}
+and calculates \eqn{Ax}{A * x}.
+See section \strong{Function Interface} for details.}
 
 \item{k}{Number of eigenvalues requested.}
 
@@ -46,8 +48,13 @@ eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
 \item{opts}{Control parameters related to the computing
 algorithm. See \strong{Details} below.}
 
-\item{args}{Argument passed to \code{A} when \code{A} is a
-            function. See section \strong{Function Interface}
+\item{n}{Only used when \code{A} is a function, to specify the
+dimension of the implicit matrix. See section
+\strong{Function Interface} for details.}
+
+\item{args}{Only used when \code{A} is a function. This argument
+            will be passed to the \code{A} function containing any
+            extra data. See section \strong{Function Interface}
             for details.}
 
 \item{lower}{For symmetric matrices, should the lower triangle
@@ -82,7 +89,11 @@ Currently \code{eigs()} supports matrices of the following classes:
   \code{dgRMatrix}  \tab Row oriented sparse matrix, defined in
                          \strong{Matrix} package.\cr
   \code{dsyMatrix}  \tab Symmetrix matrix, defined in \strong{Matrix}
-                         package.
+                         package.\cr
+  \code{function}   \tab Implicitly specify the matrix through a
+                         function that has the effect of calculating
+                         \eqn{f(x)=Ax}{f(x) = A * x}. See section
+                         \strong{Function Interface} for details.
 }
 
 \code{eigs_sym()} assumes the matrix is symmetric,
@@ -161,6 +172,23 @@ eigenvalues rather than small ones. More explanation of the
 shift-and-invert mode can be found in the SciPy document,
 \url{http://docs.scipy.org/doc/scipy/reference/tutorial/arpack.html}.
 }
+
+\section{Function Interface}{
+
+The matrix \eqn{A} can be specified through a function with
+the definition
+
+\preformatted{function(x, args)
+{
+    ## should return A \%*\% x
+}}
+
+which receives a vector \code{x} as an argument and returns a vector
+of the same length. The function should have the effect of calculating
+\eqn{Ax}{A * x}, and extra arguments can be passed in through the
+\code{args} parameter. In \code{eigs()}, user should also provide
+the dimension of the implicit matrix through the argument \code{n}.
+}
 \examples{
 n = 20
 k = 5
@@ -172,10 +200,9 @@ eigs(A1, k)
 
 f = function(x, args)
 {
-    mat = args$mat
-    mat \%*\% x
+    args \%*\% x
 }
-eigs(f, k, args = list(n = n, mat = A1))
+eigs(f, k, n = n, args = A1)
 
 ## Only have real eigenvalues,
 ## since A2 is symmetric
