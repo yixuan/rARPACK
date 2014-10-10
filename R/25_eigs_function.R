@@ -1,10 +1,9 @@
 eigs.fun <- function(FUN, k, which, sigma, opts = list(), ...,
-                     mattype = c("function"), args = list(n = NULL))
+                     mattype = c("function"), n = NULL, args = NULL)
 {
     # Check whether n is NULL
-    n = args[["n"]]
     if (is.null(n))
-        stop("must provide 'n' in 'args', the dimension of the implicit matrix")
+        stop("must provide 'n', the dimension of the implicit matrix")
     # Check whether FUN(x) returns n elements
     if (length(FUN(rnorm(n), args)) != n)
         stop("the provided function must return a length-n vector")
@@ -48,7 +47,7 @@ eigs.fun <- function(FUN, k, which, sigma, opts = list(), ...,
     
     # Call the C++ function
     res = .Call("eigs_fun",
-                as.function(FUN), as.list(args),
+                as.function(FUN), args,
                 as.integer(n), as.integer(k),
                 as.list(arpack.param),
                 as.integer(MATTYPES[mattype]),

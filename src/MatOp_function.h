@@ -13,10 +13,10 @@ private:
     // The R function applied to a vector
     Rcpp::Function FUN;
     // Arguments passed to FUN
-    Rcpp::List args;
+    Rcpp::RObject args;
 public:
     // Constructor
-    MatOp_function(Rcpp::Function FUN_, int n_, Rcpp::List args_);
+    MatOp_function(Rcpp::Function FUN_, int n_, Rcpp::RObject args_);
     // y_out = FUN(x_in)
     void prod(double *x_in, double *y_out);
     // Destructor
