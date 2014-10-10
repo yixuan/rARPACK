@@ -27,18 +27,9 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool needSolve = (workmode != 1);
     bool retvec = as<bool>(params_rcpp["retvec"]);
 
-    MatOp *op = NULL;
-    switch(as<int>(mattype_scalar_r))
-    {
-        case (int) MATRIX:
-            op = new MatOp_symmatrix(A_mat_r, n, uplo, sigma, needSolve);
-            break;
-        case (int) DSYMATRIX:
-            op = new MatOp_dsyMatrix(A_mat_r, n, uplo, sigma, needSolve);
-            break;
-        default:
-            Rcpp::stop("unsupported matrix type in eigs_sym()");
-    }
+    MatOp *op = newMatOp(A_mat_r, as<int>(mattype_scalar_r),
+                         n, n, sigma, 0.0, true, needSolve,
+                         uplo);
 
     EigsSym eig(n, nev, ncv, op, which, workmode,
                 bmat, tol, maxitr);
@@ -73,24 +64,8 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool needSolve = (workmode != 1);
     bool retvec = as<bool>(params_rcpp["retvec"]);
 
-    MatOp *op = NULL;
-    switch(as<int>(mattype_scalar_r))
-    {
-        case (int) MATRIX:
-            op = new MatOp_matrix(A_mat_r, n, n, sigmar, sigmai, needSolve);
-            break;
-        case (int) DGEMATRIX:
-            op = new MatOp_dgeMatrix(A_mat_r, n, n, sigmar, sigmai, needSolve);
-            break;
-        case (int) DGCMATRIX:
-            op = new MatOp_dgCMatrix(A_mat_r, n, n, sigmar, sigmai, needSolve);
-            break;
-        case (int) DGRMATRIX:
-            op = new MatOp_dgRMatrix(A_mat_r, n, n, sigmar, sigmai, needSolve);
-            break;
-        default:
-            Rcpp::stop("unsupported matrix type in eigs()");
-    }
+    MatOp *op = newMatOp(A_mat_r, as<int>(mattype_scalar_r),
+                         n, n, sigmar, sigmai, true, needSolve);
 
     EigsGen eig(n, nev, ncv, op, which, workmode,
                 bmat, tol, maxitr);
@@ -124,15 +99,8 @@ RcppExport SEXP eigs_fun(SEXP FUN_function_r, SEXP args_list_r,
     int maxitr = as<int>(params_rcpp["maxitr"]);
     bool retvec = as<bool>(params_rcpp["retvec"]);
 
-    MatOp *op = NULL;
-    switch(as<int>(mattype_scalar_r))
-    {
-        case (int) FUNCTION:
-            op = new MatOp_function(FUN_function_r, args_list_r, n);
-            break;
-        default:
-            Rcpp::stop("unsupported operator type in eigs()");
-    }
+    MatOp *op = newMatOp(FUN_function_r, as<int>(mattype_scalar_r),
+                         n, n, 0.0, 0.0, false, false, '\0', args_list_r);
 
     EigsGen eig(n, nev, ncv, op, which, workmode,
                 bmat, tol, maxitr);
