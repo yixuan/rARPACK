@@ -1,5 +1,5 @@
-eigs.fun <- function(FUN, k, which, sigma, opts = list(),
-                     args = list(n = NULL), ..., mattype = c("function"))
+eigs.fun <- function(FUN, k, which, sigma, opts = list(), ...,
+                     mattype = c("function"), args = list(n = NULL))
 {
     # Check whether n is NULL
     n = args[["n"]]

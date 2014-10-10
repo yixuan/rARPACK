@@ -29,25 +29,29 @@ eigs(A, k, which = "LM", sigma = NULL, opts = list(), args = list(n =
   ...)
 
 \method{eigs}{function}(A, k, which = "LM", sigma = NULL, opts = list(),
-  args = list(n = NULL), ...)
+  ..., args = list(n = NULL))
 
 eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
   ..., lower = TRUE)
 }
 \arguments{
-\item{A}{The matrix whose eigen values/vectors are to be computed.}
+\item{A}{The matrix whose eigenvalues/vectors are to be computed.}
 
 \item{k}{Number of eigenvalues requested.}
 
-\item{which}{Selection criteria. See \sQuote{Details} below.}
+\item{which}{Selection criteria. See \strong{Details} below.}
 
-\item{sigma}{Shift parameter. See \sQuote{Details} below.}
+\item{sigma}{Shift parameter. See \strong{Details} below.}
 
 \item{opts}{Control parameters related to the computing
-algorithm. See \sQuote{Details} below.}
+algorithm. See \strong{Details} below.}
+
+\item{args}{Argument passed to \code{A} when \code{A} is a
+            function. See section \strong{Function Interface}
+            for details.}
 
 \item{lower}{For symmetric matrices, should the lower triangle
-             or upper triangle be used.}
+or upper triangle be used.}
 
 \item{\dots}{Currently not used.}
 }
@@ -59,20 +63,27 @@ A list of converged eigenvalues and eigenvectors.
 \item{niter}{Number of iterations in the computation.}
 }
 \description{
-Given an \code{n} by \code{n} matrix \code{A},
+Given an \eqn{n} by \eqn{n} matrix \eqn{A},
 function \code{eigs()} can calculate a limited
-number of eigenvalues and eigenvectors of \code{A}.
+number of eigenvalues and eigenvectors of \eqn{A}.
 Users can specify the selection criteria by argument
-\code{which}, e.g., choosing the \code{k} largest or smallest
+\code{which}, e.g., choosing the \eqn{k} largest or smallest
 eigenvalues and the corresponding eigenvectors.
 
-Currently \code{eigs()} supports matrices of class "matrix"
-(the most commonly used matrix type),
-"dgeMatrix" (general matrix, equivalent to "matrix"),
-"dgCMatrix" (sparse matrix), "dgRMatrix" (sparse matrix, row oriented)
-and "dsyMatrix" (symmetric matrix).
-All classes above except "matrix" are defined in the
-\pkg{Matrix} package.
+Currently \code{eigs()} supports matrices of the following classes:
+
+\tabular{ll}{
+  \code{matrix}     \tab The most commonly used matrix type,
+                         defined in \strong{base} package.\cr
+  \code{dgeMatrix}  \tab General matrix, equivalent to \code{matrix},
+                         defined in \strong{Matrix} package.\cr
+  \code{dgCMatrix}  \tab Column oriented sparse matrix, defined in
+                         \strong{Matrix} package.\cr
+  \code{dgRMatrix}  \tab Row oriented sparse matrix, defined in
+                         \strong{Matrix} package.\cr
+  \code{dsyMatrix}  \tab Symmetrix matrix, defined in \strong{Matrix}
+                         package.
+}
 
 \code{eigs_sym()} assumes the matrix is symmetric,
 and only the lower triangle (or upper triangle, which is
@@ -80,7 +91,7 @@ controlled by the argument \code{lower}) is used for
 computation, which in some cases reduces the workload.
 Notice that \code{eigs_sym()} only applies to "ordinary" matrix,
 i.e., of class "matrix". If you want to calculate
-eigen values/vectors of matrix of "dsyMatrix" class, use
+eigenvalues/vectors of matrix of "dsyMatrix" class, use
 \code{eigs()} instead.
 }
 \details{

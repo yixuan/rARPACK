@@ -1,20 +1,27 @@
 ##' Find a Specified Number of Eigenvalues/vectors for Square Matrix
 ##'
 ##' @description
-##' Given an \code{n} by \code{n} matrix \code{A},
+##' Given an \eqn{n} by \eqn{n} matrix \eqn{A},
 ##' function \code{eigs()} can calculate a limited
-##' number of eigenvalues and eigenvectors of \code{A}.
+##' number of eigenvalues and eigenvectors of \eqn{A}.
 ##' Users can specify the selection criteria by argument
-##' \code{which}, e.g., choosing the \code{k} largest or smallest
+##' \code{which}, e.g., choosing the \eqn{k} largest or smallest
 ##' eigenvalues and the corresponding eigenvectors.
 ##' 
-##' Currently \code{eigs()} supports matrices of class "matrix"
-##' (the most commonly used matrix type),
-##' "dgeMatrix" (general matrix, equivalent to "matrix"),
-##' "dgCMatrix" (sparse matrix), "dgRMatrix" (sparse matrix, row oriented)
-##' and "dsyMatrix" (symmetric matrix).
-##' All classes above except "matrix" are defined in the
-##' \pkg{Matrix} package.
+##' Currently \code{eigs()} supports matrices of the following classes:
+##' 
+##' \tabular{ll}{
+##'   \code{matrix}     \tab The most commonly used matrix type,
+##'                          defined in \strong{base} package.\cr
+##'   \code{dgeMatrix}  \tab General matrix, equivalent to \code{matrix},
+##'                          defined in \strong{Matrix} package.\cr
+##'   \code{dgCMatrix}  \tab Column oriented sparse matrix, defined in
+##'                          \strong{Matrix} package.\cr
+##'   \code{dgRMatrix}  \tab Row oriented sparse matrix, defined in
+##'                          \strong{Matrix} package.\cr
+##'   \code{dsyMatrix}  \tab Symmetrix matrix, defined in \strong{Matrix}
+##'                          package.
+##' }
 ##' 
 ##' \code{eigs_sym()} assumes the matrix is symmetric,
 ##' and only the lower triangle (or upper triangle, which is
@@ -22,18 +29,21 @@
 ##' computation, which in some cases reduces the workload.
 ##' Notice that \code{eigs_sym()} only applies to "ordinary" matrix,
 ##' i.e., of class "matrix". If you want to calculate
-##' eigen values/vectors of matrix of "dsyMatrix" class, use
+##' eigenvalues/vectors of matrix of "dsyMatrix" class, use
 ##' \code{eigs()} instead.
 ##' 
-##' @param A The matrix whose eigen values/vectors are to be computed.
+##' @param A The matrix whose eigenvalues/vectors are to be computed.
 ##' @param k Number of eigenvalues requested.
-##' @param which Selection criteria. See \sQuote{Details} below.
-##' @param sigma Shift parameter. See \sQuote{Details} below.
+##' @param which Selection criteria. See \strong{Details} below.
+##' @param sigma Shift parameter. See \strong{Details} below.
 ##' @param opts Control parameters related to the computing
-##' algorithm. See \sQuote{Details} below.
+##' algorithm. See \strong{Details} below.
 ##' @param \dots Currently not used.
 ##' @param lower For symmetric matrices, should the lower triangle
-##'              or upper triangle be used. 
+##'              or upper triangle be used.
+##' @param args Argument passed to \code{A} when \code{A} is a
+##'             function. See section \strong{Function Interface}
+##'             for details.
 ##'
 ##' @details The \code{which} argument is a character string
 ##' that specifies the type of eigenvalues to be computed.
@@ -209,8 +219,9 @@ eigs.dsyMatrix <- function(A, k, which = "LM", sigma = NULL,
 ##' @rdname eigs
 ##' @export
 eigs.function <- function(A, k, which = "LM", sigma = NULL,
-                          opts = list(), args = list(n = NULL), ...)
-    eigs.fun(A, k, which, sigma, opts, args, ..., mattype = "function")
+                          opts = list(), ..., args = list(n = NULL))
+    eigs.fun(A, k, which, sigma, opts, ..., mattype = "function",
+             args = args)
 
 
 
