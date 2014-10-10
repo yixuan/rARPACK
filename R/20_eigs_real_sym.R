@@ -1,5 +1,4 @@
-eigs.real_sym <- function(A, k, which, sigma, opts = list(), ...,
-                          mattype = c("matrix", "dsyMatrix"),
+eigs.real_sym <- function(A, k, which, sigma, opts = list(), ..., mattype,
                           lower = TRUE)
 {
     n = nrow(A);

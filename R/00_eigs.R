@@ -138,31 +138,66 @@
 ##' ### more examples in examples/eigs.R ###
 eigs <- function(A, k, which = "LM", sigma = NULL,
                  opts = list(), args = list(n = NULL), ...)
-    UseMethod("eigs");
+    UseMethod("eigs")
 
 ##' @rdname eigs
 ##' @export
 eigs.matrix <- function(A, k, which = "LM", sigma = NULL,
                         opts = list(), ...)
-    eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "matrix");
+{
+    if(isSymmetric(A) &
+           which %in% c("LM", "SM", "LR", "SR") &
+           (is.null(sigma) || Im(sigma) == 0))
+    {
+        if(which == "LR")  which = "LA"
+        if(which == "SR")  which = "SA"
+        eigs.real_sym(A, k, which, sigma, opts, ..., mattype = "symmatrix")
+    } else {
+        eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "matrix")
+    }
+}
 
 ##' @rdname eigs
 ##' @export
 eigs.dgeMatrix <- function(A, k, which = "LM", sigma = NULL,
                            opts = list(), ...)
-    eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgeMatrix");
+{
+    if(isSymmetric(A) &
+           which %in% c("LM", "SM", "LR", "SR") &
+           (is.null(sigma) || Im(sigma) == 0))
+    {
+        if(which == "LR")  which = "LA"
+        if(which == "SR")  which = "SA"
+        eigs.real_sym(A, k, which, sigma, opts, ..., mattype = "dgeMatrix")
+    } else {
+        eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgeMatrix")
+    }
+}
 
 ##' @rdname eigs
 ##' @export
 eigs.dgCMatrix <- function(A, k, which = "LM", sigma = NULL,
                            opts = list(), ...)
-    eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgCMatrix");
+{
+    if(isSymmetric(A) &
+           which %in% c("LM", "SM", "LR", "SR") &
+           (is.null(sigma) || Im(sigma) == 0))
+    {
+        if(which == "LR")  which = "LA"
+        if(which == "SR")  which = "SA"
+        eigs.real_sym(A, k, which, sigma, opts, ..., mattype = "dgCMatrix")
+    } else {
+        eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgCMatrix")
+    }
+}
 
 ##' @rdname eigs
 ##' @export
+## isSymmetric() does not support dgRMatrix
 eigs.dgRMatrix <- function(A, k, which = "LM", sigma = NULL,
                            opts = list(), ...)
-    eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "dgRMatrix");
+    eigs.real_gen(A, k, which, sigma, opts, ...,
+                  mattype = "dgRMatrix")
 
 ##' @rdname eigs
 ##' @export
@@ -175,8 +210,7 @@ eigs.dsyMatrix <- function(A, k, which = "LM", sigma = NULL,
 ##' @export
 eigs.function <- function(A, k, which = "LM", sigma = NULL,
                           opts = list(), args = list(n = NULL), ...)
-    eigs.fun(A, k, which, sigma, opts, args, ...,
-             mattype = "function")
+    eigs.fun(A, k, which, sigma, opts, args, ..., mattype = "function")
 
 
 
@@ -184,17 +218,19 @@ eigs.function <- function(A, k, which = "LM", sigma = NULL,
 ##' @usage eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
 ##'   ..., lower = TRUE)
 ##' @export
-eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ..., lower = TRUE)
+eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...,
+                     lower = TRUE)
 {
     if(is.matrix(A))
     {
         eigs.real_sym(A, k, which, sigma, opts, ...,
-                      mattype = "matrix", lower = lower);
+                      mattype = "matrix", lower = lower)
     } else {
-        stop("unsupported matrix type");
+        stop("unsupported matrix type")
     }
 }
 
 # Matrix types
-MATTYPES = c("matrix" = 0L, "dgeMatrix" = 1L, "dsyMatrix" = 2L,
-             "dgCMatrix" = 3L, "dgRMatrix" = 4L, "function" = 5L);
+MATTYPES = c("matrix" = 0L, "symmatrix" = 1L, "dgeMatrix" = 2L,
+             "dsyMatrix" = 3L, "dgCMatrix" = 4L, "dgRMatrix" = 5L,
+             "function" = 6L)
