@@ -1,7 +1,7 @@
 #include "MatOp_function.h"
 
-MatOp_function::MatOp_function(Rcpp::Function FUN_,
-                               Rcpp::List args_, int n_) :
+MatOp_function::MatOp_function(Rcpp::Function FUN_, int n_,
+                               Rcpp::List args_) :
     MatOp(n_, n_, 0, 0, false, false),
     FUN(FUN_), args(args_)
 {

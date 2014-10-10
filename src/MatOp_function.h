@@ -16,7 +16,7 @@ private:
     Rcpp::List args;
 public:
     // Constructor
-    MatOp_function(Rcpp::Function FUN_, Rcpp::List args_, int n_);
+    MatOp_function(Rcpp::Function FUN_, int n_, Rcpp::List args_);
     // y_out = FUN(x_in)
     void prod(double *x_in, double *y_out);
     // Destructor
