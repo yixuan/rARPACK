@@ -18,6 +18,7 @@ including sparse matrices, are supported. Below is a list of implemented ones:
 - `dsyMatrix` (defined in **Matrix** package, for symmetric matrices)
 - `dgCMatrix` (defined in **Matrix** package, for column oriented sparse matrices)
 - `dgRMatrix` (defined in **Matrix** package, for row oriented sparse matrices)
+- `function` (implicitly specify the matrix by providing a function that calculates matrix product `A %*% x`)
 
 ### Example
 
@@ -35,7 +36,7 @@ x[sample(n^2, floor(n^2 / 2))] = 0
 xsp = as(x, "sparseMatrix");
 
 y = crossprod(x);
-ysy = as(y, "symmetricMatrix");
+ysy = as(y, "symmetricMatrix")
 ```
 
 Compute the largest 5 eigenvalues with corresponding eigenvectors.
@@ -43,6 +44,7 @@ Compute the largest 5 eigenvalues with corresponding eigenvectors.
 ```
 eigs(y, k)
 eigs(ysy, k)
+eigs(function(x, args) args %*% x, k, n = n, args = y)
 ```
 
 Compute the smallest 5 eigenvalues with corresponding eigenvectors
