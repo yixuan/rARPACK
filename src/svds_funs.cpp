@@ -52,26 +52,9 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
 {
 BEGIN_RCPP
 
-    MatOp *op = NULL;
     int m = as<int>(m_scalar_r);
     int n = as<int>(n_scalar_r);
-    switch(as<int>(mattype_scalar_r))
-    {
-        case (int) MATRIX:
-            op = new MatOp_matrix(A_mat_r, m, n, 0, 0, false);
-            break;
-        case (int) DGEMATRIX:
-            op = new MatOp_dgeMatrix(A_mat_r, m, n, 0, 0, false);
-            break;
-        case (int) DGCMATRIX:
-            op = new MatOp_dgCMatrix(A_mat_r, m, n, 0, 0, false);
-            break;
-        case (int) DGRMATRIX:
-            op = new MatOp_dgRMatrix(A_mat_r, m, n, 0, 0, false);
-            break;
-        default:
-            Rcpp::stop("unsupported matrix type in svds()");
-    }
+    MatOp *op = newMatOp(A_mat_r, as<int>(mattype_scalar_r), m, n);
 
     SEXP res = do_svds_gen(op, m_scalar_r, n_scalar_r, k_scalar_r,
                            nu_scalar_r, nv_scalar_r,
