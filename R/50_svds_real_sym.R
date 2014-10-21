@@ -1,5 +1,4 @@
-svds.real_sym <- function(A, k, nu = k, nv = k, opts = list(), ...,
-                             mattype = c("dsyMatrix"))
+svds.real_sym <- function(A, k, nu = k, nv = k, opts, ..., mattype)
 {
     n = nrow(A);
  

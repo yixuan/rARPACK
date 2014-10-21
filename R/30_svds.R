@@ -74,17 +74,26 @@ svds <- function(A, k, nu = k, nv = k, opts = list(), ...)
 ##' @rdname svds
 ##' @export
 svds.matrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    svds.real_gen(A, k, nu, nv, opts, ..., mattype = "matrix");
+{
+    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen;
+    fun(A, k, nu, nv, opts, ..., mattype = "matrix");
+}
 
 ##' @rdname svds
 ##' @export
 svds.dgeMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    svds.real_gen(A, k, nu, nv, opts, ..., mattype = "dgeMatrix");
+{
+    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen;
+    fun(A, k, nu, nv, opts, ..., mattype = "dgeMatrix");
+}
 
 ##' @rdname svds
 ##' @export
 svds.dgCMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    svds.real_gen(A, k, nu, nv, opts, ..., mattype = "dgCMatrix");
+{
+    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen;
+    fun(A, k, nu, nv, opts, ..., mattype = "dgCMatrix");
+}
 
 ##' @rdname svds
 ##' @export
