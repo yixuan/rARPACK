@@ -36,5 +36,59 @@ public:
 };
 
 
+
+// Helper functions to sort eigenvalues
+
+typedef std::pair<double, int> ValInd;
+// SORTORDER = 0 means ascending
+// SORTORDER = 1 means descending
+enum { ASCEND = 0, DESCEND };
+
+template<int SORTORDER>
+inline bool compare_val(const ValInd &l, const ValInd &r)
+{
+    if(SORTORDER == DESCEND)
+        return l.first > r.first;
+    else
+        return l.first < r.first;
+}
+
+// Sort the array and return the order
+template<int SORTORDER>
+inline Rcpp::IntegerVector sort_with_order(Rcpp::NumericVector &array)
+{
+    int len = array.length();
+    Rcpp::IntegerVector order(len);
+    double *valptr = array.begin();
+    int *indptr = order.begin();
+    
+    std::vector<ValInd> v(len);
+    for(int i = 0; i < len; i++)
+    {
+        v[i].first = valptr[i];
+        v[i].second = i;
+    }
+    std::sort(v.begin(), v.end(), compare_val<SORTORDER>);
+    
+    for(int i = 0; i < len; i++)
+    {
+        valptr[i] = v[i].first;
+        indptr[i] = v[i].second;
+    }
+    
+    return order;
+}
+
+// Copy source[, i] to dest[, j]
+inline void copy_column(const Rcpp::NumericMatrix &source, int i,
+                        Rcpp::NumericMatrix &dest, int j)
+{
+    int n1 = source.nrow();
+    int n2 = dest.nrow();
+    if(n1 != n2)  return;
+    
+    std::copy(&source(0, i), &source(0, i) + n1, &dest(0, j));
+}
+
 #endif // EIGSSYM_H
 
