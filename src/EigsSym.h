@@ -42,15 +42,20 @@ public:
 typedef std::pair<double, int> ValInd;
 // SORTORDER = 0 means ascending
 // SORTORDER = 1 means descending
-enum { ASCEND = 0, DESCEND };
+enum { ASCEND = 0, DESCEND, ABSDESCEND };
 
 template<int SORTORDER>
 inline bool compare_val(const ValInd &l, const ValInd &r)
 {
-    if(SORTORDER == DESCEND)
-        return l.first > r.first;
-    else
+    switch(SORTORDER)
+    {
+    case ASCEND:
         return l.first < r.first;
+    case DESCEND:
+        return l.first > r.first;
+    }
+    
+    return fabs(l.first) > fabs(r.first);
 }
 
 // Sort the array and return the order

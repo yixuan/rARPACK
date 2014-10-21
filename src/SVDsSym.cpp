@@ -27,7 +27,7 @@ Rcpp::List SVDsSym::extract()
     // Calculate singular values
     eigd.erase(nconv, eigd.length());
     // Sort singular values in decreasing order
-    Rcpp::IntegerVector order = sort_with_order<DESCEND>(eigd);
+    Rcpp::IntegerVector order = sort_with_order<ABSDESCEND>(eigd);
     
     // Copy singular vectors
     Rcpp::RObject U, V;
@@ -57,6 +57,17 @@ Rcpp::List SVDsSym::extract()
             copy_column(eigV, order[i], matV, i);
         }
         V = matV;
+    }
+    
+    // We need to make sure that singular values are nonnegative,
+    // so move the sign to matV.
+    for(int i = 0; i < nconv; i++)
+    {
+        if(eigd[i] < 0)
+        {
+            eigd[i] = -eigd[i];
+            matV(Rcpp::_, i) = -matV(Rcpp::_, i);
+        }
     }
 
     return returnResult(eigd, U, V, Rcpp::wrap(nconv), Rcpp::wrap(niter));
