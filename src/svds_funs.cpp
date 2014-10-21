@@ -1,6 +1,4 @@
-#include <RcppEigen.h>
-#include "ARPACK.h"
-#include "EigsSym.h"
+#include <Rcpp.h>
 #include "MatTypes.h"
 #include "SVDsSym.h"
 
