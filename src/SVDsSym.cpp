@@ -1,93 +1,63 @@
-#include <RcppEigen.h>
-#include "ARPACK.h"
-#include "EigsSym.h"
-#include "MatOp.h"
+#include "SVDsSym.h"
 
-using Rcpp::as;
-using Rcpp::wrap;
+SVDsSym::SVDsSym(int n_, int k_, int nu_, int nv_, int ncv_, MatOp *op_,
+                 double tol_, int maxitr_) :
+    EigsSym(n_, k_, ncv_, op_, "LM", 1L, 'I', tol_, maxitr_),
+    nu(nu_), nv(nv_)
+{}
 
-// For symmetric matrices, svds() is equivalent to eigs(),
-// so many steps can be simplified.
-//
-// Main function to calculate real, symmetric SVD
-SEXP do_svds_sym(MatOp *op, SEXP n_scalar_r, SEXP k_scalar_r,
-                 SEXP nu_scalar_r, SEXP nv_scalar_r,
-                 SEXP params_list_r)
+Rcpp::List SVDsSym::extract()
 {
-BEGIN_RCPP
+    // Obtain 'nconv' converged singular values
+    int nconv = iparam[5 - 1];
+    // 'niter' number of iterations
+    int niter = iparam[9 - 1];
 
-    // We will use EigsSym to calculate the results,
-    // but the parameters list is slightly different between
-    // eigs() and svds().
-
-    // Retrieve parameters
-    Rcpp::List params_svds(params_list_r);
-    int n = as<int>(n_scalar_r);
-    int k = as<int>(k_scalar_r);
-    int ncv = as<int>(params_svds["ncv"]);
-    std::string which = "LM";
-    int workmode = 1;
-    char bmat = 'I';
-    double tol = as<double>(params_svds["tol"]);
-    int maxitr = as<int>(params_svds["maxitr"]);
-    // Whether to calculate singular vectors or not.
-    int nu = as<int>(nu_scalar_r);
-    int nv = as<int>(nv_scalar_r);
-    bool rvec = (nu > 0) || (nv > 0);
-
-    EigsSym eig(n, k, ncv, op, which, workmode,
-                bmat, tol, maxitr);
-    eig.compute(rvec);
-    Rcpp::List ret = eig.extract();
-
-    int nconv = as<int>(ret["nconv"]);
-    if (nconv < k)
-        ::Rf_warning("only %d singular values converged, less than k", nconv);
+    if(nconv <= 0)
+    {
+        ::Rf_warning("no converged singular values found");
+        return returnResult(R_NilValue, R_NilValue, R_NilValue,
+                            Rcpp::wrap(nconv), Rcpp::wrap(niter));
+    }
+    
+    if(nconv < nev)
+        ::Rf_warning("only %d singular values converged, less than k = %d",
+                     nconv, nev);
+    
+    // Calculate singular values
+    eigd.erase(nconv, eigd.length());
+    // Sort singular values in decreasing order
+    Rcpp::IntegerVector order = sort_with_order<DESCEND>(eigd);
+    
+    // Copy singular vectors
+    Rcpp::RObject U, V;
+    Rcpp::NumericMatrix matU, matV;
     nu = nu > nconv ? nconv : nu;
     nv = nv > nconv ? nconv : nv;
-
-    // Currently ret has components of values, vectors, nconv
-    // and niter, while what we need is d, u, v, nconv and niter,
-    // so we first insert the v matrix into the list, and then
-    // change the list names.
-    if (!rvec)
+    
+    if(nu == 0)
     {
-        ret.insert(2, R_NilValue);
+        U = R_NilValue;
     } else {
-        // At least one of nu and nv are not zero
-        if (nu != 0)
+        matU = Rcpp::NumericMatrix(n, nu);
+        for(int i = 0; i < nu; i++)
         {
-            Rcpp::NumericMatrix u = ret["vectors"];
-            if (nv == 0)
-                // nu != 0, nv == 0
-                ret.insert(2, R_NilValue);
-            else {
-                // nu != 0, nv != 0
-                Rcpp::NumericMatrix v(n, nv);
-                // In SVD, V == U
-                std::copy(u.begin(),
-                          u.begin() + nv * n,
-                          v.begin());
-                ret.insert(2, v);
-            }
-            // u.erase(start, end) removes u[start <= i < end]
-            u.erase(nu * n, nconv * n);
-        } else {
-            // nu == 0, nv != 0
-            Rcpp::NumericMatrix u = ret["vectors"];
-            Rcpp::NumericMatrix v(n, nv);
-            std::copy(u.begin(),
-                      u.begin() + nv * n,
-                      v.begin());
-            ret["vectors"] = R_NilValue;
-            ret.insert(2, v);
+            copy_column(eigV, order[i], matU, i);
         }
+        U = matU;
     }
-    ret.names() = Rcpp::CharacterVector::create("d", "u", "v",
-                                                "nconv", "niter");
+    
+    if(nv == 0)
+    {
+        V = R_NilValue;
+    } else {
+        matV = Rcpp::NumericMatrix(n, nv);
+        for(int i = 0; i < nv; i++)
+        {
+            copy_column(eigV, order[i], matV, i);
+        }
+        V = matV;
+    }
 
-    return ret;
-
-END_RCPP
+    return returnResult(eigd, U, V, Rcpp::wrap(nconv), Rcpp::wrap(niter));
 }
-
