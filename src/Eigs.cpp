@@ -36,7 +36,7 @@ void Eigs::initResid()
     #include "rands.h"
     if(n <= rands_len)
     {
-        op->prod(rands, resid);
+        matOp(rands, resid);
     } else {
         double *initcoef = new double[n];
         double *coef_pntr = initcoef;
@@ -45,8 +45,8 @@ void Eigs::initResid()
             std::copy(rands, rands + rands_len, coef_pntr);
         }
         std::copy(rands, rands + n % rands_len, coef_pntr);
-        // resid = A * initcoef
-        op->prod(initcoef, resid);
+        // resid = OP(initcoef)
+        matOp(initcoef, resid);
         delete [] initcoef;
     }
 }
