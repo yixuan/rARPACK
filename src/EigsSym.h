@@ -53,6 +53,8 @@ inline bool compare_val(const ValInd &l, const ValInd &r)
         return l.first < r.first;
     case DESCEND:
         return l.first > r.first;
+    case ABSDESCEND:
+        return fabs(l.first) > fabs(r.first);
     }
     
     return fabs(l.first) > fabs(r.first);
