@@ -27,12 +27,11 @@ BEGIN_RCPP
     int ncv = as<int>(params_svds["ncv"]);
     double tol = as<double>(params_svds["tol"]);
     int maxitr = as<int>(params_svds["maxitr"]);
-    bool rvec = (nu > 0) || (nv > 0);
 
     MatOp *op = newMatOp(A_mat_r, as<int>(mattype_scalar_r), n, n);
     
     SVDsSym svd(n, k, nu, nv, ncv, op, tol, maxitr);
-    svd.compute(rvec);
+    svd.compute();
     SEXP res = svd.extract();
 
     delete op;

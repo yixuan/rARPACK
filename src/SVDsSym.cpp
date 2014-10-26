@@ -6,6 +6,12 @@ SVDsSym::SVDsSym(int n_, int k_, int nu_, int nv_, int ncv_, MatOp *op_,
     nu(nu_), nv(nv_)
 {}
 
+void SVDsSym::compute()
+{
+    bool rvec = (nu > 0) || (nv > 0);
+    EigsSym::compute(rvec);
+}
+
 Rcpp::List SVDsSym::extract()
 {
     // Obtain 'nconv' converged singular values

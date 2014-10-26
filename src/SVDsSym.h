@@ -3,7 +3,7 @@
 
 #include "EigsSym.h"
 
-class SVDsSym: public EigsSym
+class SVDsSym: private EigsSym
 {
 private:
     int nu;
@@ -23,6 +23,7 @@ private:
 public:
     SVDsSym(int n_, int k_, int nu_, int nv_, int ncv_, MatOp *op_,
             double tol_ = 1e-10, int maxitr_ = 1000);
+    void compute();
     Rcpp::List extract();
     ~SVDsSym() {}
 };
