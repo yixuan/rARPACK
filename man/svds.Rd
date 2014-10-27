@@ -6,7 +6,7 @@
 \alias{svds.dgeMatrix}
 \alias{svds.dsyMatrix}
 \alias{svds.matrix}
-\title{(Truncated) Singular Value Decomposition of a Matrix}
+\title{Find the Largest k Singular Values/Vectors of a Matrix}
 \usage{
 svds(A, k, nu = k, nv = k, opts = list(), ...)
 
@@ -21,7 +21,7 @@ svds(A, k, nu = k, nv = k, opts = list(), ...)
 \method{svds}{dsyMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
 }
 \arguments{
-\item{A}{The matrix whose SVD is to be computed.}
+\item{A}{The matrix whose truncated SVD is to be computed.}
 
 \item{k}{Number of singular values requested.}
 
@@ -32,7 +32,7 @@ be between 0 and \code{k}.}
 be between 0 and \code{k}.}
 
 \item{opts}{Control parameters related to the computing
-algorithm. See Details below.}
+algorithm. See \strong{Details} below.}
 
 \item{\dots}{Currently not used.}
 }
@@ -49,19 +49,28 @@ A list with the following components:
 \item{niter}{Number of iterations.}
 }
 \description{
-Given an \code{m} by \code{n} matrix \code{A},
-function \code{svds()} can find its largest \code{k}
+Given an \eqn{m} by \eqn{n} matrix \eqn{A},
+function \code{svds()} can find its largest \eqn{k}
 singular values and the corresponding singular vectors.
-It's also called the truncated singular value decomposition
+It is also called the Truncated Singular Value Decomposition
 since it only contains a subset of the whole singular triplets.
 
-Currently \code{svds()} supports matrices of class "matrix",
-"dgeMatrix", "dgCMatrix", "dgRMatrix" and "dsyMatrix".
-All classes above except "matrix" are defined
-in the \pkg{Matrix} package, representing general matrix,
-sparse matrix (column oriented), sparse matrix (row oriented)
-and symmetric matrix respectively.
-Note that when \code{A} is symmetric,
+Currently \code{svds()} supports matrices of the following classes:
+
+\tabular{ll}{
+  \code{matrix}     \tab The most commonly used matrix type,
+                         defined in \strong{base} package.\cr
+  \code{dgeMatrix}  \tab General matrix, equivalent to \code{matrix},
+                         defined in \strong{Matrix} package.\cr
+  \code{dgCMatrix}  \tab Column oriented sparse matrix, defined in
+                         \strong{Matrix} package.\cr
+  \code{dgRMatrix}  \tab Row oriented sparse matrix, defined in
+                         \strong{Matrix} package.\cr
+  \code{dsyMatrix}  \tab Symmetrix matrix, defined in \strong{Matrix}
+                         package.
+}
+
+Note that when \eqn{A} is symmetric,
 SVD reduces to eigen decomposition, so you may consider using
 \code{\link{eigs}()} instead.
 }

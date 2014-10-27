@@ -220,7 +220,9 @@ eigs_sym(A2, k, sigma = 0)
 ### more examples in examples/eigs.R ###
 }
 \author{
-Yixuan Qiu <\url{http://statr.me}>
+Yixuan Qiu \url{http://statr.me}
+
+        Jiali Mei \email{vermouthmjl@gmail.com}
 }
 \seealso{
 \code{\link[base]{eigen}()}, \code{\link[base]{svd}()},
