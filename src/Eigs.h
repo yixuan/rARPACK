@@ -85,8 +85,8 @@ protected:
     virtual void eupd() = 0;
     
     // matrix operation
-    void matOp(double *x_in, double *y_out);
-    void matOp();
+    virtual void matOp(double *x_in, double *y_out);
+    virtual void matOp();
     
     // For convenience
     SEXP returnResult(SEXP values, SEXP vectors, SEXP nconv, SEXP niter)
@@ -104,7 +104,7 @@ public:
          const std::string & which_ = "LM", int workmode_ = 1,
          char bmat_ = 'I', double tol_ = 1e-10, int maxitr_ = 1000);
     // ARPACK computing
-    void compute(bool rvec = true);
+    void compute(bool rvec);
     // Extract results
     virtual Rcpp::List extract() = 0;
     // Destructor

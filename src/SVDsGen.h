@@ -12,13 +12,13 @@ protected:
     double *workspace;
     
     // OP(x) = A' * A * x
-    void matOp(double *x_in, double *y_out)
+    virtual void matOp(double *x_in, double *y_out)
     {
         op->prod(x_in, workspace);
         op->tprod(workspace, y_out);
     }
     // matProd = op->prod
-    void matProd(double *x_in, double *y_out)
+    virtual void matProd(double *x_in, double *y_out)
     {
         op->prod(x_in, y_out);
     }
@@ -34,8 +34,8 @@ public:
     {
         workspace = new double[nrow_];
     }
-    Rcpp::List extract();
-    ~SVDsGenTall() { delete [] workspace; }
+    virtual Rcpp::List extract();
+    virtual ~SVDsGenTall() { delete [] workspace; }
 };
 
 

@@ -15,7 +15,7 @@
 //
 class EigsGen: public Eigs
 {
-protected:
+private:
     virtual void error(int stage, int errorcode);
     virtual void warning(int stage, int errorcode);
 
