@@ -34,7 +34,7 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     EigsSym eig(n, nev, ncv, op, which, workmode,
                 bmat, tol, maxitr);
     eig.compute(retvec);
-    SEXP res = eig.extract();
+    Rcpp::List res = eig.extract();
 
     delete op;
 
@@ -70,7 +70,7 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     EigsGen eig(n, nev, ncv, op, which, workmode,
                 bmat, tol, maxitr);
     eig.compute(retvec);
-    SEXP res = eig.extract();
+    Rcpp::List res = eig.extract();
 
     delete op;
 
@@ -105,7 +105,7 @@ RcppExport SEXP eigs_fun(SEXP FUN_function_r, SEXP args_list_r,
     EigsGen eig(n, nev, ncv, op, which, workmode,
                 bmat, tol, maxitr);
     eig.compute(retvec);
-    SEXP res = eig.extract();
+    Rcpp::List res = eig.extract();
 
     delete op;
 

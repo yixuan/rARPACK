@@ -89,7 +89,7 @@ protected:
     virtual void matOp();
     
     // For convenience
-    SEXP returnResult(SEXP values, SEXP vectors, SEXP nconv, SEXP niter)
+    Rcpp::List returnResult(SEXP values, SEXP vectors, SEXP nconv, SEXP niter)
     {
         return Rcpp::List::create(
             Rcpp::Named("values") = values,

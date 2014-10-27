@@ -27,7 +27,7 @@ BEGIN_RCPP
     
     SVDsSym svd(n, k, nu, nv, ncv, op, tol, maxitr);
     svd.compute();
-    SEXP res = svd.extract();
+    Rcpp::List res = svd.extract();
 
     delete op;
 
@@ -57,7 +57,7 @@ BEGIN_RCPP
 
     MatOp *op = newMatOp(A_mat_r, as<int>(mattype_scalar_r), m, n);
     
-    Rcpp::RObject res;
+    Rcpp::List res;
     if(m > n)
     {
         SVDsGenTall svd(m, n, k, nu, nv, ncv, op, tol, maxitr);
