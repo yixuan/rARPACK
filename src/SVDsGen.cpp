@@ -1,8 +1,5 @@
 #include "SVDsGen.h"
 
-using Rcpp::as;
-using Rcpp::wrap;
-
 Rcpp::RObject SVDsGenTall::computeU(int num)
 {
     if(num <= 0)
