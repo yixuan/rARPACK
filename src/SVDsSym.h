@@ -3,14 +3,23 @@
 
 #include "EigsSym.h"
 
-class SVDsSym: private EigsSym
+class SVDsSym: protected EigsSym
 {
-private:
+protected:
     int nu;
     int nv;
     
+    // Converged singular values
+    Rcpp::NumericVector dval;
+    // Index of singular vectors associated with dval
+    Rcpp::IntegerVector dind;
+    
+    // Extract eigenvectors of the matrix. In this case
+    // they are also singular vectors
+    Rcpp::RObject extractEigenvectors(int num);
+    
     // For convenience
-    SEXP returnResult(SEXP d, SEXP u, SEXP v, SEXP nconv, SEXP niter)
+    Rcpp::List returnResult(SEXP d, SEXP u, SEXP v, SEXP nconv, SEXP niter)
     {
         return Rcpp::List::create(
             Rcpp::Named("d") = d,

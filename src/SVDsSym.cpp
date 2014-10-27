@@ -12,6 +12,23 @@ void SVDsSym::compute()
     EigsSym::compute(rvec);
 }
 
+Rcpp::RObject SVDsSym::extractEigenvectors(int num)
+{
+    if(num <= 0)
+        return R_NilValue;
+    
+    int nconv = iparam[5 - 1];
+    if(num > nconv)  num = nconv;
+    
+    Rcpp::NumericMatrix mat(n, num);
+    for(int i = 0; i < num; i++)
+    {
+        copy_column(eigV, dind[i], mat, i);
+    }
+    
+    return mat;
+}
+
 Rcpp::List SVDsSym::extract()
 {
     // Obtain 'nconv' converged singular values
@@ -33,48 +50,28 @@ Rcpp::List SVDsSym::extract()
     // Calculate singular values
     eigd.erase(nconv, eigd.length());
     // Sort singular values in decreasing order
-    Rcpp::IntegerVector order = sort_with_order<ABSDESCEND>(eigd);
+    dind = sort_with_order<ABSDESCEND>(eigd);
+    dval = eigd;
     
     // Copy singular vectors
-    Rcpp::RObject U, V;
-    Rcpp::NumericMatrix matU, matV;
-    nu = nu > nconv ? nconv : nu;
-    nv = nv > nconv ? nconv : nv;
-    
-    if(nu == 0)
-    {
-        U = R_NilValue;
-    } else {
-        matU = Rcpp::NumericMatrix(n, nu);
-        for(int i = 0; i < nu; i++)
-        {
-            copy_column(eigV, order[i], matU, i);
-        }
-        U = matU;
-    }
-    
-    if(nv == 0)
-    {
-        V = R_NilValue;
-    } else {
-        matV = Rcpp::NumericMatrix(n, nv);
-        for(int i = 0; i < nv; i++)
-        {
-            copy_column(eigV, order[i], matV, i);
-        }
-        V = matV;
-    }
+    Rcpp::RObject U = extractEigenvectors(nu);
+    Rcpp::RObject V = extractEigenvectors(nv);
     
     // We need to make sure that singular values are nonnegative,
     // so move the sign to matV.
     for(int i = 0; i < nconv; i++)
     {
-        if(eigd[i] < 0)
+        if(dval[i] < 0)
         {
-            eigd[i] = -eigd[i];
-            matV(Rcpp::_, i) = -matV(Rcpp::_, i);
+            dval[i] = -dval[i];
+            if(i < nv)
+            {
+                SEXP Vdata = V;
+                Rcpp::NumericMatrix matV(Vdata);
+                matV(Rcpp::_, i) = -matV(Rcpp::_, i);
+            }
         }
     }
 
-    return returnResult(eigd, U, V, Rcpp::wrap(nconv), Rcpp::wrap(niter));
+    return returnResult(dval, U, V, Rcpp::wrap(nconv), Rcpp::wrap(niter));
 }
