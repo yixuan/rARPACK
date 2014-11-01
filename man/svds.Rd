@@ -90,15 +90,23 @@ following parameters:
 }
 }
 \examples{
-m = 100;
-n = 20;
-k = 5;
-set.seed(111);
-A = matrix(rnorm(m * n), m);
-svds(A, k);
-svds(A, k, nu = 0, nv = 3);
+m = 100
+n = 20
+k = 5
+set.seed(111)
+A = matrix(rnorm(m * n), m)
 
-### more examples in examples/svds.R ###
+svds(A, k)
+svds(t(A), k, nu = 0, nv = 3)
+
+## Sparse matrices
+library(Matrix)
+A[sample(m * n, m * n / 2)] = 0
+Asp1 = as(A, "dgCMatrix")
+Asp2 = as(A, "dgRMatrix")
+
+svds(Asp1, k)
+svds(Asp2, k, nu = 0, nv = 0)
 }
 \author{
 Yixuan Qiu <\url{http://statr.me}>

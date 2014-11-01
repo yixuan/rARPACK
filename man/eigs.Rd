@@ -190,34 +190,45 @@ of the same length. The function should have the effect of calculating
 the dimension of the implicit matrix through the argument \code{n}.
 }
 \examples{
+library(Matrix)
 n = 20
 k = 5
 
-## Will have complex eigenvalues
+## general matrices have complex eigenvalues
 set.seed(111)
-A1 = matrix(rnorm(n^2), n)
-eigs(A1, k)
+A1 = matrix(rnorm(n^2), n)  ## class "matrix"
+A2 = Matrix(A1)             ## class "dgeMatrix"
 
+eigs(A1, k)
+eigs(A2, k, opts = list(retvec = FALSE))  ## eigenvalues only
+
+## sparse matrices
+A1[sample(n^2, n^2 / 2)] = 0
+A3 = as(A1, "dgCMatrix")
+A4 = as(A1, "dgRMatrix")
+
+eigs(A3, k)
+eigs(A4, k)
+
+## function interface
 f = function(x, args)
 {
-    args \%*\% x
+    as.numeric(args \%*\% x)
 }
-eigs(f, k, n = n, args = A1)
+eigs(f, k, n = n, args = A3)
 
-## Only have real eigenvalues,
-## since A2 is symmetric
-A2 = crossprod(A1)
-eigs(A2, k)
-eigs_sym(A2, k)
+## symmetric matrices have real eigenvalues
+A5 = crossprod(A1)
+eigs_sym(A5, k)
 
-## Find the smallest (in absolute value) k eigenvalues of A2
-eigs_sym(A2, k, which = "SM")
-## Another way to do this: use the sigma argument
-eigs_sym(A2, k, sigma = 0)
+## find the smallest (in absolute value) k eigenvalues of A5
+eigs_sym(A5, k, which = "SM")
+
+## another way to do this: use the sigma argument
+eigs_sym(A5, k, sigma = 0)
+
 ## The results should be the same,
 ## but the latter method is far more stable on large matrices
-
-### more examples in examples/eigs.R ###
 }
 \author{
 Yixuan Qiu \url{http://statr.me}
