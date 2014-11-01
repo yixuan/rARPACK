@@ -22,65 +22,87 @@ including sparse matrices, are supported. Below is a list of implemented ones:
 
 ### Example
 
-Set up matrices.
+We first generate some matrices:
 
-```
-library(rARPACK)
+```r
 library(Matrix)
-n = 10
+n = 20
 k = 5
-set.seed(123)
-x = matrix(rnorm(n^2), n)
-x[sample(n^2, floor(n^2 / 2))] = 0
 
-xsp = as(x, "sparseMatrix");
-
-y = crossprod(x);
-ysy = as(y, "symmetricMatrix")
+set.seed(111)
+A1 = matrix(rnorm(n^2), n)  ## class "matrix"
+A2 = Matrix(A1)             ## class "dgeMatrix"
 ```
 
-Compute the largest 5 eigenvalues with corresponding eigenvectors.
+General matrices have complex eigenvalues:
 
-```
-eigs(y, k)
-eigs(ysy, k)
-eigs(function(x, args) args %*% x, k, n = n, args = y)
-```
-
-Compute the smallest 5 eigenvalues with corresponding eigenvectors
-
-```
-eigs(ysy, k, which = "SM")
+```r
+eigs(A1, k)
+eigs(A2, k, opts = list(retvec = FALSE))  ## eigenvalues only
 ```
 
-or
+**rARPACK** also works on sparse matrices:
 
-```
-eigs(ysy, k, sigma = 0)
+```r
+A1[sample(n^2, n^2 / 2)] = 0
+A3 = as(A1, "dgCMatrix")
+A4 = as(A1, "dgRMatrix")
+
+eigs(A3, k)
+eigs(A4, k)
 ```
 
-Complex eigenvalues, on sparse matrix.
+Function interface is also supported:
 
-```
-eigs(xsp, k)
+```r
+f = function(x, args)
+{
+    as.numeric(args %*% x)
+}
+eigs(f, k, n = n, args = A3)
 ```
 
-SVD, you can specify the number of singular values(`k`),
-number of left singular vectors(`nu`) and number of right singular
-vectors(`nv`).
+Symmetric matrices have real eigenvalues.
 
+```r
+A5 = crossprod(A1)
+eigs_sym(A5, k)
 ```
-n = 10
-p = 8
+
+To find the smallest (in absolute value) `k` eigenvalues of `A5`,
+we have two approaches:
+
+```r
+eigs_sym(A5, k, which = "SM")
+eigs_sym(A5, k, sigma = 0)
+```
+
+The results should be the same, but the latter method is far more
+stable on large matrices.
+
+For SVD problems, you can specify the number of singular values
+(`k`), number of left singular vectors (`nu`) and number of right
+singular vectors(`nv`).
+
+```r
+m = 100
+n = 20
 k = 5
-set.seed(123)
-x = matrix(rnorm(n * p), n)
-x[sample(n * p, floor(n * p / 2))] = 0
-xsp = as(x, "sparseMatrix")
-xspt = t(xsp)
+set.seed(111)
+A = matrix(rnorm(m * n), m)
 
-svds(x, k)
-svds(xsp, k, nu = 0)
-svds(xspt, k, nu = 0, nv = 0)
+svds(A, k)
+svds(t(A), k, nu = 0, nv = 3)
+```
+
+Similar to `eigs()`, `svds()` supports sparse matrices:
+
+```r
+A[sample(m * n, m * n / 2)] = 0
+Asp1 = as(A, "dgCMatrix")
+Asp2 = as(A, "dgRMatrix")
+
+svds(Asp1, k)
+svds(Asp2, k, nu = 0, nv = 0)
 ```
 
