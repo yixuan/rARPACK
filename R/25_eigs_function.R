@@ -4,9 +4,6 @@ eigs.fun <- function(FUN, k, which, sigma, opts = list(), ...,
     # Check whether n is NULL
     if (is.null(n))
         stop("must provide 'n', the dimension of the implicit matrix")
-    # Check whether FUN(x) returns n elements
-    if (length(FUN(rnorm(n), args)) != n)
-        stop("the provided function must return a length-n vector")
     # eigs() is not suitable for small matrices
     if (n < 3)
         stop("'n' must be at least 3")
