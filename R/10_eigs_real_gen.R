@@ -1,4 +1,4 @@
-eigs.real_gen <- function(A, k, which, sigma, opts = list(), ..., mattype)
+eigs.real_gen <- function(A, k, which, sigma, opts, ..., mattype)
 {
     n = nrow(A);
     # Check whether 'A' is a square matrix

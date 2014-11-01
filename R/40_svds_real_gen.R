@@ -1,4 +1,4 @@
-svds.real_gen <- function(A, k, nu = k, nv = k, opts, ..., mattype)
+svds.real_gen <- function(A, k, nu, nv, opts, ..., mattype)
 {
     m = nrow(A);
     n = ncol(A);
