@@ -2,6 +2,7 @@
 #define MATTYPES_H
 
 #include "MatProd_matrix.h"
+#include "MatProd_symmatrix.h"
 
 enum MAT_TYPE {
     MATRIX = 0,
