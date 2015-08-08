@@ -285,7 +285,16 @@ eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...,
     }
 }
 
+
+## Some enumerations
+
 # Matrix types
-MATTYPES = c("matrix" = 0L, "symmatrix" = 1L, "dgeMatrix" = 2L,
+MAT_TYPE = c("matrix" = 0L, "symmatrix" = 1L, "dgeMatrix" = 2L,
              "dsyMatrix" = 3L, "dgCMatrix" = 4L, "dgRMatrix" = 5L,
              "function" = 6L)
+# Solver types
+SOLVER_TYPE = c("regular" = 0L, "real_shift" = 1L, "complex_shift" = 2L)
+
+# Selection rules
+EIGS_RULE = c("LM" = 0L, "LR" = 1L, "LI" = 2L, "LA" = 3L, "SM" = 4L,
+              "SR" = 5L, "SI" = 6L, "SA" = 7L, "BE" = 8L)
