@@ -3,6 +3,7 @@
 
 #include "MatProd_matrix.h"
 #include "MatProd_symmatrix.h"
+#include "MatProd_dgeMatrix.h"
 
 enum MAT_TYPE {
     MATRIX = 0,
