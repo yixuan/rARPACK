@@ -4,7 +4,7 @@
 #include <RcppEigen.h>
 
 template <int Storage>
-class MatOp_sparseMatrix
+class MatProd_sparseMatrix
 {
 private:
     typedef Eigen::MappedSparseMatrix<double, Storage> MapSpMat;
@@ -16,7 +16,7 @@ private:
     const int ncol;
 
 public:
-    MatOp_sparseMatrix(SEXP mat_, const int nrow_, const int ncol_) :
+    MatProd_sparseMatrix(SEXP mat_, const int nrow_, const int ncol_) :
         mat(Rcpp::as<MapSpMat>(mat_)),
         nrow(nrow_),
         ncol(ncol_)
@@ -35,10 +35,10 @@ public:
 };
 
 // Operations on "dgCMatrix" class, defined in Matrix package
-typedef MatOp_sparseMatrix<Eigen::ColMajor> MatProd_dgCMatrix;
+typedef MatProd_sparseMatrix<Eigen::ColMajor> MatProd_dgCMatrix;
 
 // Operations on "dgRMatrix" class, defined in Matrix package
-typedef MatOp_sparseMatrix<Eigen::RowMajor> MatProd_dgRMatrix;
+typedef MatProd_sparseMatrix<Eigen::RowMajor> MatProd_dgRMatrix;
 
 
 #endif // MATPROD_SPARSEMATRIX_H
