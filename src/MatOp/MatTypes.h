@@ -9,6 +9,7 @@
 
 #include "RealShift_matrix.h"
 #include "RealShift_symmatrix.h"
+#include "RealShift_dgeMatrix.h"
 
 enum MAT_TYPE {
     MATRIX = 0,
