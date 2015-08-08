@@ -13,7 +13,7 @@ enum SOLVER_TYPE {
 /************************ Macros to generate code ************************/
 
 #define EIG_COMMON_CODE                                                        \
-eigs.init();                                                                   \
+eigs.init(init_resid);                                                         \
 nconv = eigs.compute(maxitr, tol);                                             \
 if(nconv < nev)                                                                \
     Rcpp::warning("only %d eigenvalues converged, less than k", nconv);        \
@@ -71,6 +71,7 @@ switch(rule)                                                                   \
 
 template <typename OpType>
 Rcpp::RObject run_eigs_sym(OpType &op, const int rule,
+                           const double *init_resid,
                            int nev, int ncv, double sigma,
                            int maxitr, double tol, bool retvec)
 {
@@ -102,18 +103,40 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool retvec  = as<bool>(params_rcpp["retvec"]);
     int mattype  = as<int>(mattype_scalar_r);
 
+    // Prepare initial residuals
+    double *init_resid;
+    #include "rands.h"
+    if(n <= rands_len)
+    {
+        init_resid = rands;
+    } else {
+        init_resid = new double[n];
+        double *coef_pntr = init_resid;
+        for(int i = 0; i < n / rands_len; i++, coef_pntr += rands_len)
+        {
+            std::copy(rands, rands + rands_len, coef_pntr);
+        }
+        std::copy(rands, rands + n % rands_len, coef_pntr);
+    }
+
+    Rcpp::RObject res;
+
     switch(mattype)
     {
         case MATRIX:
         {
             MatProd_matrix op(A_mat_r, n, n);
-            return run_eigs_sym(op, rule, nev, ncv, sigma, maxitr, tol, retvec);
+            res = run_eigs_sym(op, rule, init_resid, nev, ncv, sigma, maxitr, tol, retvec);
         }
+        break;
         default:
             Rcpp::stop("unsupported matrix type");
     }
 
-    return R_NilValue;  // should not reach here
+    if(n > rands_len)
+        delete [] init_resid;
+
+    return res;  // should not reach here
 
     END_RCPP
 }
