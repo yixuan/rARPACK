@@ -70,10 +70,8 @@ switch(rule)                                                                   \
 /************************ Macros to generate code ************************/
 
 template <typename OpType>
-Rcpp::RObject run_eigs_sym(OpType &op, const int rule,
-                           const double *init_resid,
-                           int nev, int ncv, double sigma,
-                           int maxitr, double tol, bool retvec)
+Rcpp::RObject run_eigs_sym(OpType &op, const int rule, const double *init_resid,
+                           int nev, int ncv, int maxitr, double tol, bool retvec)
 {
     int nconv;
     Rcpp::RObject evals, evecs;
@@ -96,7 +94,6 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     int nev      = as<int>(k_scalar_r);
     int ncv      = as<int>(params_rcpp["ncv"]);
     int rule     = as<int>(params_rcpp["which"]);
-    double sigma = as<double>(params_rcpp["sigma"]);
     double tol   = as<double>(params_rcpp["tol"]);
     int maxitr   = as<int>(params_rcpp["maxitr"]);
     char uplo    = as<bool>(lower_logical_r) ? 'L' : 'U';
@@ -126,7 +123,13 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         case MATRIX:
         {
             MatProd_matrix op(A_mat_r, n, n);
-            res = run_eigs_sym(op, rule, init_resid, nev, ncv, sigma, maxitr, tol, retvec);
+            res = run_eigs_sym(op, rule, init_resid, nev, ncv, maxitr, tol, retvec);
+        }
+        break;
+        case SYMMATRIX:
+        {
+            MatProd_symmatrix op(A_mat_r, n, uplo);
+            res = run_eigs_sym(op, rule, init_resid, nev, ncv, maxitr, tol, retvec);
         }
         break;
         default:
