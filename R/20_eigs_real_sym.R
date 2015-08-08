@@ -37,10 +37,10 @@ eigs.real_sym <- function(A, k, which, sigma, opts, ..., mattype,
     # Check sigma
     if (is.null(sigma))
     {
-        workmode = SOLVER_TYPE["regular"]
+        workmode = "regular"
         sigma = 0
     } else {
-        workmode = SOLVER_TYPE["real_shift"]
+        workmode = "real_shift"
         if(is.complex(sigma)) warning("only real part of sigma is used")
         sigma = Re(sigma)
     }
@@ -51,8 +51,7 @@ eigs.real_sym <- function(A, k, which, sigma, opts, ..., mattype,
                         tol = 1e-10,
                         maxitr = 1000,
                         retvec = TRUE,
-                        sigma = sigma,
-                        workmode = workmode)
+                        sigma = sigma)
     
     # Check the value of 'which'
     eigenv.type = c("LM", "SM", "LA", "SA", "BE")
@@ -71,7 +70,11 @@ eigs.real_sym <- function(A, k, which, sigma, opts, ..., mattype,
         stop("'opts$ncv' must be > k and <= nrow(A)")
     
     # Call the C++ function
-    res = .Call("eigs_sym",
+    fun = switch(workmode,
+                 regular = "eigs_sym",
+                 real_shift = "eigs_shift_sym",
+                 stop("unknown work mode"))
+    res = .Call(fun,
                 A,
                 as.integer(n), as.integer(k),
                 as.list(arpack.param),
