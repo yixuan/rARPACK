@@ -138,6 +138,12 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
             res = run_eigs_sym(op, rule, init_resid, nev, ncv, maxitr, tol, retvec);
         }
         break;
+        case DSYMATRIX:
+        {
+            MatProd_dsyMatrix op(A_mat_r, n, uplo);
+            res = run_eigs_sym(op, rule, init_resid, nev, ncv, maxitr, tol, retvec);
+        }
+        break;
         default:
             Rcpp::stop("unsupported matrix type");
     }
