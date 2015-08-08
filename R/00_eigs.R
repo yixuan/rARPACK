@@ -205,7 +205,7 @@ eigs.matrix <- function(A, k, which = "LM", sigma = NULL,
     {
         if(which == "LR")  which = "LA"
         if(which == "SR")  which = "SA"
-        eigs.real_sym(A, k, which, sigma, opts, ..., mattype = "symmatrix")
+        eigs.real_sym(A, k, which, sigma, opts, ..., mattype = "matrix")
     } else {
         eigs.real_gen(A, k, which, sigma, opts, ..., mattype = "matrix")
     }
@@ -279,7 +279,7 @@ eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...,
     if(is.matrix(A))
     {
         eigs.real_sym(A, k, which, sigma, opts, ...,
-                      mattype = "matrix", lower = lower)
+                      mattype = "symmatrix", lower = lower)
     } else {
         stop("unsupported matrix type")
     }
