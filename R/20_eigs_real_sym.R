@@ -1,13 +1,13 @@
 eigs.real_sym <- function(A, k, which, sigma, opts, ..., mattype,
                           lower = TRUE)
 {
-    n = nrow(A);
+    n = nrow(A)
     # Check whether 'A' is a square matrix
     if (n != ncol(A))
-        stop("'A' must be a square matrix");
+        stop("'A' must be a square matrix")
     # eigs() is not suitable for small matrices
     if (n < 3)
-        stop("dimension of 'A' must be at least 3");
+        stop("dimension of 'A' must be at least 3")
     
     # If all eigenvalues are requested, call eigen() instead,
     # and give a warning
@@ -28,23 +28,21 @@ eigs.real_sym <- function(A, k, which, sigma, opts, ..., mattype,
     # they are always double, so we can omit this check. 
     if (mattype == "matrix" & typeof(A) != "double")
     {
-        mode(A) = "double";
+        mode(A) = "double"
     }
     # Check the value of 'k'
     if (k <= 0 | k >= n)
-        stop("'k' must satisfy 0 < k < nrow(A)");
+        stop("'k' must satisfy 0 < k < nrow(A)")
     
     # Check sigma
-    # workmode == 1: ordinary
-    # workmode == 3: Shift-invert mode
     if (is.null(sigma))
     {
-        workmode = 1L;
-        sigma = 0;
+        workmode = SOLVER_TYPE["regular"]
+        sigma = 0
     } else {
-        workmode = 3L;
-        if(is.complex(sigma)) warning("only real part of sigma is used");
-        sigma = Re(sigma);
+        workmode = SOLVER_TYPE["real_shift"]
+        if(is.complex(sigma)) warning("only real part of sigma is used")
+        sigma = Re(sigma)
     }
     
     # Arguments to be passed to ARPACK
@@ -54,22 +52,23 @@ eigs.real_sym <- function(A, k, which, sigma, opts, ..., mattype,
                         maxitr = 1000,
                         retvec = TRUE,
                         sigma = sigma,
-                        workmode = workmode);
+                        workmode = workmode)
     
     # Check the value of 'which'
-    eigenv.type = c("LM", "SM", "LA", "SA", "BE");
+    eigenv.type = c("LM", "SM", "LA", "SA", "BE")
     if (!(arpack.param$which %in% eigenv.type))
     {
         stop(sprintf("argument 'which' must be one of\n%s",
-                     paste(eigenv.type, collapse = ", ")));
+                     paste(eigenv.type, collapse = ", ")))
     }
     
     # Update parameters from 'opts' argument
-    arpack.param[names(opts)] = opts;
+    arpack.param[names(opts)] = opts
+    arpack.param$which = EIGS_RULE[arpack.param$which]
     
     # Check the value of 'ncv'
     if (arpack.param$ncv <= k | arpack.param$ncv > n)
-        stop("'opts$ncv' must be > k and <= nrow(A)");
+        stop("'opts$ncv' must be > k and <= nrow(A)")
     
     # Call the C++ function
     res = .Call("eigs_sym",
@@ -77,8 +76,8 @@ eigs.real_sym <- function(A, k, which, sigma, opts, ..., mattype,
                 as.integer(n), as.integer(k),
                 as.list(arpack.param),
                 as.logical(lower),
-                as.integer(MATTYPES[mattype]),
-                PACKAGE = "rARPACK");
+                as.integer(MAT_TYPE[mattype]),
+                PACKAGE = "rARPACK")
     
-    return(res);
+    return(res)
 }
