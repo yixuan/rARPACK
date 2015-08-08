@@ -5,6 +5,7 @@
 #include "MatProd_symmatrix.h"
 #include "MatProd_dgeMatrix.h"
 #include "MatProd_dsyMatrix.h"
+#include "MatProd_sparseMatrix.h"
 
 enum MAT_TYPE {
     MATRIX = 0,
