@@ -8,6 +8,7 @@
 #include "MatProd_sparseMatrix.h"
 
 #include "RealShift_matrix.h"
+#include "RealShift_symmatrix.h"
 
 enum MAT_TYPE {
     MATRIX = 0,
