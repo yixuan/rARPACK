@@ -15,62 +15,54 @@ enum SOLVER_TYPE {
 #define EIG_COMMON_CODE                                                        \
 eigs.init(init_resid);                                                         \
 nconv = eigs.compute(maxitr, tol);                                             \
-if(nconv < nev)                                                                \
-    Rcpp::warning("only %d eigenvalues converged, less than k", nconv);        \
 evals = Rcpp::wrap(eigs.eigenvalues());                                        \
 if(retvec)                                                                     \
     evecs = Rcpp::wrap(eigs.eigenvectors());                                   \
 else                                                                           \
     evecs = R_NilValue;                                                        \
-                                                                               \
-return Rcpp::List::create(                                                     \
-    Rcpp::Named("values")  = evals,                                            \
-    Rcpp::Named("vectors") = evecs,                                            \
-    Rcpp::Named("nconv")   = nconv,                                            \
-    Rcpp::Named("niter")   = eigs.num_iterations(),                            \
-    Rcpp::Named("nops")    = eigs.num_operations()                             \
-);
+niter = eigs.num_iterations();                                                 \
+nops = eigs.num_operations();
 
 
 
-#define EIG_CODE_REGULAR(RULE)                                                 \
-GenEigsSolver<double, RULE, OpType> eigs(&op, nev, ncv);                       \
+#define EIG_CODE_REGULAR(RULE, OPTYPE)                                         \
+GenEigsSolver<double, RULE, OPTYPE> eigs(op, nev, ncv);                        \
 EIG_COMMON_CODE
 
 
 
-#define EIG_CODE_REAL_SHIFT(RULE)                                              \
-GenEigsRealShiftSolver<double, RULE, OpType> eigs(&op, nev, ncv, sigmar);      \
+#define EIG_CODE_REAL_SHIFT(RULE, OPTYPE)                                      \
+GenEigsRealShiftSolver<double, RULE, OPTYPE> eigs(op, nev, ncv, sigmar);       \
 EIG_COMMON_CODE
 
 
 
-#define EIG_CODE_COMPLEX_SHIFT(RULE)                                           \
-GenEigsComplexShiftSolver<double, RULE, OpType> eigs(&op, nev, ncv, sigmar, sigmai);      \
+#define EIG_CODE_COMPLEX_SHIFT(RULE, OPTYPE)                                   \
+GenEigsComplexShiftSolver<double, RULE, OPTYPE> eigs(op, nev, ncv, sigmar, sigmai);      \
 EIG_COMMON_CODE
 
 
 
-#define EIG_CODE_GENERATOR(SOLVER)                                             \
+#define EIG_CODE_GENERATOR(SOLVER, OPTYPE)                                     \
 switch(rule)                                                                   \
 {                                                                              \
     case WHICH_LM :                                                            \
-        { EIG_CODE_ ## SOLVER(WHICH_LM) }                                      \
+        { EIG_CODE_ ## SOLVER(WHICH_LM, OPTYPE) }                              \
         break;                                                                 \
     case WHICH_LR :                                                            \
-        { EIG_CODE_ ## SOLVER(WHICH_LR) }                                      \
+        { EIG_CODE_ ## SOLVER(WHICH_LR, OPTYPE) }                              \
         break;                                                                 \
     case WHICH_LI :                                                            \
-        { EIG_CODE_ ## SOLVER(WHICH_LI) }                                      \
+        { EIG_CODE_ ## SOLVER(WHICH_LI, OPTYPE) }                              \
         break;                                                                 \
     case WHICH_SM :                                                            \
-        { EIG_CODE_ ## SOLVER(WHICH_SM) }                                      \
+        { EIG_CODE_ ## SOLVER(WHICH_SM, OPTYPE) }                              \
         break;                                                                 \
     case WHICH_SR :                                                            \
-        { EIG_CODE_ ## SOLVER(WHICH_SR) }                                      \
+        { EIG_CODE_ ## SOLVER(WHICH_SR, OPTYPE) }                              \
         break;                                                                 \
     case WHICH_SI :                                                            \
-        { EIG_CODE_ ## SOLVER(WHICH_SI) }                                      \
+        { EIG_CODE_ ## SOLVER(WHICH_SI, OPTYPE) }                              \
         break;                                                                 \
     default:                                                                   \
         Rcpp::stop("unsupported selection rule");                              \
@@ -81,16 +73,43 @@ switch(rule)                                                                   \
 
 
 /************************ Regular mode ************************/
-template <typename OpType>
-Rcpp::RObject run_eigs_gen(OpType &op, const int rule, const double *init_resid,
-                           int nev, int ncv, int maxitr, double tol, bool retvec)
+Rcpp::RObject run_eigs_gen(MatProd* op, int n, int nev, int ncv, int rule,
+                           int maxitr, double tol, bool retvec)
 {
-    int nconv;
+    // Prepare initial residuals
+    double *init_resid;
+    #include "rands.h"
+    if(n <= rands_len)
+    {
+        init_resid = rands;
+    } else {
+        init_resid = new double[n];
+        double *coef_pntr = init_resid;
+        for(int i = 0; i < n / rands_len; i++, coef_pntr += rands_len)
+        {
+            std::copy(rands, rands + rands_len, coef_pntr);
+        }
+        std::copy(rands, rands + n % rands_len, coef_pntr);
+    }
+
     Rcpp::RObject evals, evecs;
+    int nconv = 0, niter = 0, nops = 0;
 
-    EIG_CODE_GENERATOR(REGULAR)
+    EIG_CODE_GENERATOR(REGULAR, MatProd)
 
-    return R_NilValue;  // should not reach here
+    if(nconv < nev)
+        Rcpp::warning("only %d eigenvalues converged, less than k", nconv);
+
+    if(n > rands_len)
+        delete [] init_resid;
+
+    return Rcpp::List::create(
+        Rcpp::Named("values")  = evals,
+        Rcpp::Named("vectors") = evecs,
+        Rcpp::Named("nconv")   = nconv,
+        Rcpp::Named("niter")   = niter,
+        Rcpp::Named("nops")    = nops
+    );
 }
 
 
@@ -110,6 +129,43 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool retvec  = as<bool>(params_rcpp["retvec"]);
     int mattype  = as<int>(mattype_scalar_r);
 
+    MatProd *op;
+    Rcpp::RObject res;
+
+    switch(mattype)
+    {
+        case MATRIX:
+            op = new MatProd_matrix(A_mat_r, n, n);
+            break;
+        case DGEMATRIX:
+            op = new MatProd_dgeMatrix(A_mat_r, n, n);
+            break;
+        case DGCMATRIX:
+            op = new MatProd_dgCMatrix(A_mat_r, n, n);
+            break;
+        case DGRMATRIX:
+            op = new MatProd_dgRMatrix(A_mat_r, n, n);
+            break;
+        default:
+            Rcpp::stop("unsupported matrix type");
+    }
+
+    res = run_eigs_gen(op, n, nev, ncv, rule, maxitr, tol, retvec);
+
+    delete op;
+
+    return res;
+
+    END_RCPP
+}
+/************************ Regular mode ************************/
+
+
+
+/************************ Real shift mode ************************/
+Rcpp::RObject run_eigs_real_shift_gen(RealShift* op, int n, int nev, int ncv, int rule,
+                                      double sigmar, int maxitr, double tol, bool retvec)
+{
     // Prepare initial residuals
     double *init_resid;
     #include "rands.h"
@@ -126,66 +182,28 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         std::copy(rands, rands + n % rands_len, coef_pntr);
     }
 
-    Rcpp::RObject res;
+    Rcpp::RObject evals, evecs;
+    int nconv = 0, niter = 0, nops = 0;
 
-    switch(mattype)
-    {
-        case MATRIX:
-        {
-            MatProd_matrix op(A_mat_r, n, n);
-            res = run_eigs_gen(op, rule, init_resid, nev, ncv, maxitr, tol, retvec);
-        }
-        break;
-        case DGEMATRIX:
-        {
-            MatProd_dgeMatrix op(A_mat_r, n, n);
-            res = run_eigs_gen(op, rule, init_resid, nev, ncv, maxitr, tol, retvec);
-        }
-        break;
-        case DGCMATRIX:
-        {
-            MatProd_dgCMatrix op(A_mat_r, n, n);
-            res = run_eigs_gen(op, rule, init_resid, nev, ncv, maxitr, tol, retvec);
-        }
-        break;
-        case DGRMATRIX:
-        {
-            MatProd_dgRMatrix op(A_mat_r, n, n);
-            res = run_eigs_gen(op, rule, init_resid, nev, ncv, maxitr, tol, retvec);
-        }
-        break;
-        default:
-            Rcpp::stop("unsupported matrix type");
-    }
+    EIG_CODE_GENERATOR(REAL_SHIFT, RealShift)
+
+    if(nconv < nev)
+        Rcpp::warning("only %d eigenvalues converged, less than k", nconv);
 
     if(n > rands_len)
         delete [] init_resid;
 
-    return res;  // should not reach here
-
-    END_RCPP
-}
-/************************ Regular mode ************************/
-
-
-
-/************************ Real shift mode ************************/
-template <typename OpType>
-Rcpp::RObject run_eigs_real_shift_gen(OpType &op, const int rule, const double sigmar,
-                                      const double *init_resid,
-                                      int nev, int ncv, int maxitr, double tol, bool retvec)
-{
-    int nconv;
-    Rcpp::RObject evals, evecs;
-
-    EIG_CODE_GENERATOR(REAL_SHIFT)
-
-    return R_NilValue;  // should not reach here
+    return Rcpp::List::create(
+        Rcpp::Named("values")  = evals,
+        Rcpp::Named("vectors") = evecs,
+        Rcpp::Named("nconv")   = nconv,
+        Rcpp::Named("niter")   = niter,
+        Rcpp::Named("nops")    = nops
+    );
 }
 
-
-RcppExport SEXP eigs_real_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-                                    SEXP params_list_r, SEXP mattype_scalar_r)
+RcppExport SEXP eigs_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
+                               SEXP params_list_r, SEXP mattype_scalar_r)
 {
     BEGIN_RCPP
 
@@ -201,58 +219,32 @@ RcppExport SEXP eigs_real_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar
     int mattype   = as<int>(mattype_scalar_r);
     double sigmar = as<double>(params_rcpp["sigmar"]);
 
-    // Prepare initial residuals
-    double *init_resid;
-    #include "rands.h"
-    if(n <= rands_len)
-    {
-        init_resid = rands;
-    } else {
-        init_resid = new double[n];
-        double *coef_pntr = init_resid;
-        for(int i = 0; i < n / rands_len; i++, coef_pntr += rands_len)
-        {
-            std::copy(rands, rands + rands_len, coef_pntr);
-        }
-        std::copy(rands, rands + n % rands_len, coef_pntr);
-    }
-
+    RealShift *op;
     Rcpp::RObject res;
 
     switch(mattype)
     {
         case MATRIX:
-        {
-            RealShift_matrix op(A_mat_r, n);
-            res = run_eigs_real_shift_gen(op, rule, sigmar, init_resid, nev, ncv, maxitr, tol, retvec);
-        }
-        break;
+            op = new RealShift_matrix(A_mat_r, n);
+            break;
         case DGEMATRIX:
-        {
-            RealShift_dgeMatrix op(A_mat_r, n);
-            res = run_eigs_real_shift_gen(op, rule, sigmar, init_resid, nev, ncv, maxitr, tol, retvec);
-        }
-        break;
+            op = new RealShift_dgeMatrix(A_mat_r, n);
+            break;
         case DGCMATRIX:
-        {
-            RealShift_dgCMatrix op(A_mat_r, n);
-            res = run_eigs_real_shift_gen(op, rule, sigmar, init_resid, nev, ncv, maxitr, tol, retvec);
-        }
-        break;
+            op = new RealShift_dgCMatrix(A_mat_r, n);
+            break;
         case DGRMATRIX:
-        {
-            RealShift_dgRMatrix op(A_mat_r, n);
-            res = run_eigs_real_shift_gen(op, rule, sigmar, init_resid, nev, ncv, maxitr, tol, retvec);
-        }
-        break;
+            op = new RealShift_dgRMatrix(A_mat_r, n);
+            break;
         default:
             Rcpp::stop("unsupported matrix type");
     }
 
-    if(n > rands_len)
-        delete [] init_resid;
+    res = run_eigs_real_shift_gen(op, n, nev, ncv, rule, sigmar, maxitr, tol, retvec);
 
-    return res;  // should not reach here
+    delete op;
+
+    return res;
 
     END_RCPP
 }
