@@ -11,6 +11,7 @@
 #include "RealShift_symmatrix.h"
 #include "RealShift_dgeMatrix.h"
 #include "RealShift_dsyMatrix.h"
+#include "RealShift_sparseMatrix.h"
 
 enum MAT_TYPE {
     MATRIX = 0,
