@@ -4,7 +4,7 @@
 #include <RcppEigen.h>
 
 template <int Storage>
-class RealShift_sparseMatrix
+class RealShift_sparseMatrix: public RealShift
 {
 private:
     typedef Eigen::SparseMatrix<double, Storage> SpMat;
@@ -31,7 +31,7 @@ public:
         // Create a sparse idendity matrix
         SpMat I(n, n);
         I.setIdentity();
-        
+
         solver.compute(mat - sigma * I);
     }
 

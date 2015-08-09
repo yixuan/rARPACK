@@ -3,7 +3,7 @@
 
 #include <RcppEigen.h>
 
-class RealShift_symmatrix
+class RealShift_symmatrix: public RealShift
 {
 private:
     typedef Eigen::MatrixXd Matrix;
@@ -32,12 +32,12 @@ public:
         // Backup the diagonal elements
         Vector diag = mat.diagonal();
         mat.diagonal().array() -= sigma;
-        
+
         if(uplo == 'L')
             solver.compute(mat.selfadjointView<Eigen::Lower>());
         else
             solver.compute(mat.selfadjointView<Eigen::Upper>());
-        
+
         mat.diagonal() = diag;
     }
 

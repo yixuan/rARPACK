@@ -8,6 +8,7 @@
 #include "MatProd_dsyMatrix.h"
 #include "MatProd_sparseMatrix.h"
 
+#include "RealShift.h"
 #include "RealShift_matrix.h"
 #include "RealShift_symmatrix.h"
 #include "RealShift_dgeMatrix.h"

@@ -2,8 +2,9 @@
 #define REALSHIFT_MATRIX_H
 
 #include <RcppEigen.h>
+#include "RealShift.h"
 
-class RealShift_matrix
+class RealShift_matrix: public RealShift
 {
 private:
     typedef Eigen::MatrixXd Matrix;
