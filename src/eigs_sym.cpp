@@ -162,25 +162,9 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
 
 
 /************************ Shift-and-invert mode ************************/
-/*RcppExport SEXP eigs_shift_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-                               SEXP params_list_r, SEXP lower_logical_r,
-                               SEXP mattype_scalar_r)
+Rcpp::RObject run_eigs_shift_sym(RealShift* op, int n, int nev, int ncv, int rule,
+                                 double sigma, int maxitr, double tol, bool retvec)
 {
-    BEGIN_RCPP
-
-    Rcpp::List params_rcpp(params_list_r);
-
-    int n        = as<int>(n_scalar_r);
-    int nev      = as<int>(k_scalar_r);
-    int ncv      = as<int>(params_rcpp["ncv"]);
-    int rule     = as<int>(params_rcpp["which"]);
-    double tol   = as<double>(params_rcpp["tol"]);
-    int maxitr   = as<int>(params_rcpp["maxitr"]);
-    char uplo    = as<bool>(lower_logical_r) ? 'L' : 'U';
-    bool retvec  = as<bool>(params_rcpp["retvec"]);
-    int mattype  = as<int>(mattype_scalar_r);
-    double sigma = as<double>(params_rcpp["sigma"]);
-
     // Prepare initial residuals
     double *init_resid;
     #include "rands.h"
@@ -200,47 +184,7 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     Rcpp::RObject evals, evecs;
     int nconv = 0, niter = 0, nops = 0;
 
-    switch(mattype)
-    {
-        case MATRIX:
-        {
-            RealShift_matrix op(A_mat_r, n);
-            EIG_CODE_GENERATOR(REAL_SHIFT, RealShift_matrix)
-        }
-        break;
-        case SYMMATRIX:
-        {
-            RealShift_symmatrix op(A_mat_r, n, uplo);
-            EIG_CODE_GENERATOR(REAL_SHIFT, RealShift_symmatrix)
-        }
-        break;
-        case DGEMATRIX:
-        {
-            RealShift_dgeMatrix op(A_mat_r, n);
-            EIG_CODE_GENERATOR(REAL_SHIFT, RealShift_dgeMatrix)
-        }
-        break;
-        case DSYMATRIX:
-        {
-            RealShift_dsyMatrix op(A_mat_r, n, uplo);
-            EIG_CODE_GENERATOR(REAL_SHIFT, RealShift_dsyMatrix)
-        }
-        break;
-        case DGCMATRIX:
-        {
-            RealShift_dgCMatrix op(A_mat_r, n);
-            EIG_CODE_GENERATOR(REAL_SHIFT, RealShift_dgCMatrix)
-        }
-        break;
-        case DGRMATRIX:
-        {
-            RealShift_dgRMatrix op(A_mat_r, n);
-            EIG_CODE_GENERATOR(REAL_SHIFT, RealShift_dgRMatrix)
-        }
-        break;
-        default:
-            Rcpp::stop("unsupported matrix type");
-    }
+    EIG_CODE_GENERATOR(REAL_SHIFT, RealShift)
 
     if(nconv < nev)
         Rcpp::warning("only %d eigenvalues converged, less than k", nconv);
@@ -255,7 +199,60 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         Rcpp::Named("niter")   = niter,
         Rcpp::Named("nops")    = nops
     );
+}
+
+RcppExport SEXP eigs_shift_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
+                               SEXP params_list_r, SEXP lower_logical_r,
+                               SEXP mattype_scalar_r)
+{
+    BEGIN_RCPP
+
+    Rcpp::List params_rcpp(params_list_r);
+
+    int n        = as<int>(n_scalar_r);
+    int nev      = as<int>(k_scalar_r);
+    int ncv      = as<int>(params_rcpp["ncv"]);
+    int rule     = as<int>(params_rcpp["which"]);
+    double tol   = as<double>(params_rcpp["tol"]);
+    int maxitr   = as<int>(params_rcpp["maxitr"]);
+    char uplo    = as<bool>(lower_logical_r) ? 'L' : 'U';
+    bool retvec  = as<bool>(params_rcpp["retvec"]);
+    int mattype  = as<int>(mattype_scalar_r);
+    double sigma = as<double>(params_rcpp["sigma"]);
+
+    RealShift *op;
+    Rcpp::RObject res;
+
+    switch(mattype)
+    {
+        case MATRIX:
+            op = new RealShift_matrix(A_mat_r, n);
+            break;
+        case SYMMATRIX:
+            op = new RealShift_symmatrix(A_mat_r, n, uplo);
+            break;
+        case DGEMATRIX:
+            op = new RealShift_dgeMatrix(A_mat_r, n);
+            break;
+        case DSYMATRIX:
+            op = new RealShift_dsyMatrix(A_mat_r, n, uplo);
+            break;
+        case DGCMATRIX:
+            op = new RealShift_dgCMatrix(A_mat_r, n);
+            break;
+        case DGRMATRIX:
+            op = new RealShift_dgRMatrix(A_mat_r, n);
+            break;
+        default:
+            Rcpp::stop("unsupported matrix type");
+    }
+
+    res = run_eigs_shift_sym(op, n, nev, ncv, rule, sigma, maxitr, tol, retvec);
+
+    delete op;
+
+    return res;
 
     END_RCPP
-}*/
+}
 /************************ Shift-and-invert mode ************************/
