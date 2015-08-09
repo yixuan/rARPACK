@@ -3,7 +3,6 @@
 #include "MatOp/MatTypes.h"
 
 using Rcpp::as;
-using std::string;
 
 enum SOLVER_TYPE {
     REGULAR = 0,
@@ -69,6 +68,9 @@ switch(rule)                                                                   \
 
 /************************ Macros to generate code ************************/
 
+
+
+/************************ Regular mode ************************/
 template <typename OpType>
 Rcpp::RObject run_eigs_sym(OpType &op, const int rule, const double *init_resid,
                            int nev, int ncv, int maxitr, double tol, bool retvec)
@@ -167,3 +169,109 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
 
     END_RCPP
 }
+/************************ Regular mode ************************/
+
+
+
+/************************ Shift-and-invert mode ************************/
+template <typename OpType>
+Rcpp::RObject run_eigs_shift_sym(OpType &op, const int rule, const double sigma,
+                                 const double *init_resid,
+                                 int nev, int ncv, int maxitr, double tol, bool retvec)
+{
+    int nconv;
+    Rcpp::RObject evals, evecs;
+
+    EIG_CODE_GENERATOR(REAL_SHIFT)
+
+    return R_NilValue;  // should not reach here
+}
+
+
+RcppExport SEXP eigs_shift_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
+                               SEXP params_list_r, SEXP lower_logical_r,
+                               SEXP mattype_scalar_r)
+{
+    BEGIN_RCPP
+
+    Rcpp::List params_rcpp(params_list_r);
+
+    int n        = as<int>(n_scalar_r);
+    int nev      = as<int>(k_scalar_r);
+    int ncv      = as<int>(params_rcpp["ncv"]);
+    int rule     = as<int>(params_rcpp["which"]);
+    double tol   = as<double>(params_rcpp["tol"]);
+    int maxitr   = as<int>(params_rcpp["maxitr"]);
+    char uplo    = as<bool>(lower_logical_r) ? 'L' : 'U';
+    bool retvec  = as<bool>(params_rcpp["retvec"]);
+    int mattype  = as<int>(mattype_scalar_r);
+    double sigma = as<double>(params_rcpp["sigma"]);
+
+    // Prepare initial residuals
+    double *init_resid;
+    #include "rands.h"
+    if(n <= rands_len)
+    {
+        init_resid = rands;
+    } else {
+        init_resid = new double[n];
+        double *coef_pntr = init_resid;
+        for(int i = 0; i < n / rands_len; i++, coef_pntr += rands_len)
+        {
+            std::copy(rands, rands + rands_len, coef_pntr);
+        }
+        std::copy(rands, rands + n % rands_len, coef_pntr);
+    }
+
+    Rcpp::RObject res;
+
+    switch(mattype)
+    {
+        case MATRIX:
+        {
+            RealShift_matrix op(A_mat_r, n);
+            res = run_eigs_shift_sym(op, rule, sigma, init_resid, nev, ncv, maxitr, tol, retvec);
+        }
+        break;
+        case SYMMATRIX:
+        {
+            RealShift_symmatrix op(A_mat_r, n, uplo);
+            res = run_eigs_shift_sym(op, rule, sigma, init_resid, nev, ncv, maxitr, tol, retvec);
+        }
+        break;
+        case DGEMATRIX:
+        {
+            RealShift_dgeMatrix op(A_mat_r, n);
+            res = run_eigs_shift_sym(op, rule, sigma, init_resid, nev, ncv, maxitr, tol, retvec);
+        }
+        break;
+        case DSYMATRIX:
+        {
+            RealShift_dsyMatrix op(A_mat_r, n, uplo);
+            res = run_eigs_shift_sym(op, rule, sigma, init_resid, nev, ncv, maxitr, tol, retvec);
+        }
+        break;
+        case DGCMATRIX:
+        {
+            RealShift_dgCMatrix op(A_mat_r, n);
+            res = run_eigs_shift_sym(op, rule, sigma, init_resid, nev, ncv, maxitr, tol, retvec);
+        }
+        break;
+        case DGRMATRIX:
+        {
+            RealShift_dgRMatrix op(A_mat_r, n);
+            res = run_eigs_shift_sym(op, rule, sigma, init_resid, nev, ncv, maxitr, tol, retvec);
+        }
+        break;
+        default:
+            Rcpp::stop("unsupported matrix type");
+    }
+
+    if(n > rands_len)
+        delete [] init_resid;
+
+    return res;  // should not reach here
+
+    END_RCPP
+}
+/************************ Shift-and-invert mode ************************/
