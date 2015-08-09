@@ -430,7 +430,7 @@ public:
         factorize_from(1, ncv, fac_f);
         retrieve_ritzpair();
         // Restarting
-        int i, nconv, nev_adj;
+        int i, nconv = 0, nev_adj;
         for(i = 0; i < maxit; i++)
         {
             nconv = num_converged(tol);
