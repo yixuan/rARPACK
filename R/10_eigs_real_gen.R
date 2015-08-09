@@ -90,7 +90,11 @@ eigs.real_gen <- function(A, k, which, sigma, opts, ..., mattype)
         stop("'opts$ncv' must be >= k+2 and <= nrow(A)")
 
     # Call the C++ function
-    res = .Call("eigs_gen",
+    fun = switch(workmode,
+                 regular = "eigs_gen",
+                 real_shift = "eigs_real_shift_gen",
+                 stop("unknown work mode"))
+    res = .Call(fun,
                 A,
                 as.integer(n), as.integer(k),
                 as.list(arpack.param),
