@@ -2,9 +2,10 @@
 #define MATPROD_SPARSEMATRIX_H
 
 #include <RcppEigen.h>
+#include "MatProd.h"
 
 template <int Storage>
-class MatProd_sparseMatrix
+class MatProd_sparseMatrix: public MatProd
 {
 private:
     typedef Eigen::MappedSparseMatrix<double, Storage> MapSpMat;

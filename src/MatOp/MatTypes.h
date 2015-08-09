@@ -1,6 +1,7 @@
 #ifndef MATTYPES_H
 #define MATTYPES_H
 
+#include "MatProd.h"
 #include "MatProd_matrix.h"
 #include "MatProd_symmatrix.h"
 #include "MatProd_dgeMatrix.h"

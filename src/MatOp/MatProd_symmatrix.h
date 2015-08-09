@@ -3,8 +3,9 @@
 
 #include <Rcpp.h>
 #include <R_ext/BLAS.h>  // for BLAS and F77_CALL
+#include "MatProd.h"
 
-class MatProd_symmatrix
+class MatProd_symmatrix: public MatProd
 {
 private:
     const double* mat_ptr;
