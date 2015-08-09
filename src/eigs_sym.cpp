@@ -25,13 +25,13 @@ nops = eigs.num_operations();
 
 
 #define EIG_CODE_REGULAR(RULE, OPTYPE)                                         \
-SymEigsSolver<double, RULE, OPTYPE> eigs(&op, nev, ncv);                       \
+SymEigsSolver<double, RULE, OPTYPE> eigs(op, nev, ncv);                        \
 EIG_COMMON_CODE
 
 
 
 #define EIG_CODE_REAL_SHIFT(RULE, OPTYPE)                                      \
-SymEigsShiftSolver<double, RULE, OPTYPE> eigs(&op, nev, ncv, sigma);           \
+SymEigsShiftSolver<double, RULE, OPTYPE> eigs(op, nev, ncv, sigma);            \
 EIG_COMMON_CODE
 
 
@@ -63,24 +63,9 @@ switch(rule)                                                                   \
 
 
 /************************ Regular mode ************************/
-RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-                         SEXP params_list_r, SEXP lower_logical_r,
-                         SEXP mattype_scalar_r)
+Rcpp::RObject run_eigs_sym(MatProd* op, int n, int nev, int ncv, int rule,
+                           int maxitr, double tol, bool retvec)
 {
-    BEGIN_RCPP
-
-    Rcpp::List params_rcpp(params_list_r);
-
-    int n        = as<int>(n_scalar_r);
-    int nev      = as<int>(k_scalar_r);
-    int ncv      = as<int>(params_rcpp["ncv"]);
-    int rule     = as<int>(params_rcpp["which"]);
-    double tol   = as<double>(params_rcpp["tol"]);
-    int maxitr   = as<int>(params_rcpp["maxitr"]);
-    char uplo    = as<bool>(lower_logical_r) ? 'L' : 'U';
-    bool retvec  = as<bool>(params_rcpp["retvec"]);
-    int mattype  = as<int>(mattype_scalar_r);
-
     // Prepare initial residuals
     double *init_resid;
     #include "rands.h"
@@ -100,47 +85,7 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     Rcpp::RObject evals, evecs;
     int nconv = 0, niter = 0, nops = 0;
 
-    switch(mattype)
-    {
-        case MATRIX:
-        {
-            MatProd_matrix op(A_mat_r, n, n);
-            EIG_CODE_GENERATOR(REGULAR, MatProd_matrix)
-        }
-        break;
-        case SYMMATRIX:
-        {
-            MatProd_symmatrix op(A_mat_r, n, uplo);
-            EIG_CODE_GENERATOR(REGULAR, MatProd_symmatrix)
-        }
-        break;
-        case DGEMATRIX:
-        {
-            MatProd_dgeMatrix op(A_mat_r, n, n);
-            EIG_CODE_GENERATOR(REGULAR, MatProd_dgeMatrix)
-        }
-        break;
-        case DSYMATRIX:
-        {
-            MatProd_dsyMatrix op(A_mat_r, n, uplo);
-            EIG_CODE_GENERATOR(REGULAR, MatProd_dsyMatrix)
-        }
-        break;
-        case DGCMATRIX:
-        {
-            MatProd_dgCMatrix op(A_mat_r, n, n);
-            EIG_CODE_GENERATOR(REGULAR, MatProd_dgCMatrix)
-        }
-        break;
-        case DGRMATRIX:
-        {
-            MatProd_dgRMatrix op(A_mat_r, n, n);
-            EIG_CODE_GENERATOR(REGULAR, MatProd_dgRMatrix)
-        }
-        break;
-        default:
-            Rcpp::stop("unsupported matrix type");
-    }
+    EIG_CODE_GENERATOR(REGULAR, MatProd)
 
     if(nconv < nev)
         Rcpp::warning("only %d eigenvalues converged, less than k", nconv);
@@ -155,6 +100,60 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         Rcpp::Named("niter")   = niter,
         Rcpp::Named("nops")    = nops
     );
+}
+
+
+
+RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
+                         SEXP params_list_r, SEXP lower_logical_r,
+                         SEXP mattype_scalar_r)
+{
+    BEGIN_RCPP
+
+    Rcpp::List params_rcpp(params_list_r);
+
+    int n        = as<int>(n_scalar_r);
+    int nev      = as<int>(k_scalar_r);
+    int ncv      = as<int>(params_rcpp["ncv"]);
+    int rule     = as<int>(params_rcpp["which"]);
+    double tol   = as<double>(params_rcpp["tol"]);
+    int maxitr   = as<int>(params_rcpp["maxitr"]);
+    char uplo    = as<bool>(lower_logical_r) ? 'L' : 'U';
+    bool retvec  = as<bool>(params_rcpp["retvec"]);
+    int mattype  = as<int>(mattype_scalar_r);
+
+    MatProd *op;
+    Rcpp::RObject res;
+
+    switch(mattype)
+    {
+        case MATRIX:
+            op = new MatProd_matrix(A_mat_r, n, n);
+            break;
+        case SYMMATRIX:
+            op = new MatProd_symmatrix(A_mat_r, n, uplo);
+            break;
+        case DGEMATRIX:
+            op = new MatProd_dgeMatrix(A_mat_r, n, n);
+            break;
+        case DSYMATRIX:
+            op = new MatProd_dsyMatrix(A_mat_r, n, uplo);
+            break;
+        case DGCMATRIX:
+            op = new MatProd_dgCMatrix(A_mat_r, n, n);
+            break;
+        case DGRMATRIX:
+            op = new MatProd_dgRMatrix(A_mat_r, n, n);
+            break;
+        default:
+            Rcpp::stop("unsupported matrix type");
+    }
+
+    res = run_eigs_sym(op, n, nev, ncv, rule, maxitr, tol, retvec);
+
+    delete op;
+
+    return res;
 
     END_RCPP
 }
@@ -163,7 +162,7 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
 
 
 /************************ Shift-and-invert mode ************************/
-RcppExport SEXP eigs_shift_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
+/*RcppExport SEXP eigs_shift_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
                                SEXP params_list_r, SEXP lower_logical_r,
                                SEXP mattype_scalar_r)
 {
@@ -258,5 +257,5 @@ RcppExport SEXP eigs_shift_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     );
 
     END_RCPP
-}
+}*/
 /************************ Shift-and-invert mode ************************/
