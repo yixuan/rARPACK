@@ -148,6 +148,8 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
             break;
         default:
             Rcpp::stop("unsupported matrix type");
+            // Eliminate compiler warning, but should not reach here
+            op = new MatProd_matrix(A_mat_r, n, n);
     }
 
     res = run_eigs_gen(op, n, nev, ncv, rule, maxitr, tol, retvec);
@@ -238,6 +240,8 @@ RcppExport SEXP eigs_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
             break;
         default:
             Rcpp::stop("unsupported matrix type");
+            // Eliminate compiler warning, but should not reach here
+            op = new RealShift_matrix(A_mat_r, n);
     }
 
     res = run_eigs_real_shift_gen(op, n, nev, ncv, rule, sigmar, maxitr, tol, retvec);
