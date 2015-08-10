@@ -253,3 +253,97 @@ RcppExport SEXP eigs_real_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar
     END_RCPP
 }
 /************************ Real shift mode ************************/
+
+
+
+/************************ Complex shift mode ************************/
+Rcpp::RObject run_eigs_complex_shift_gen(ComplexShift* op, int n, int nev, int ncv, int rule,
+                                         double sigmar, double sigmai, int maxitr, double tol, bool retvec)
+{
+    // Prepare initial residuals
+    double *init_resid;
+    #include "rands.h"
+    if(n <= rands_len)
+    {
+        init_resid = rands;
+    } else {
+        init_resid = new double[n];
+        double *coef_pntr = init_resid;
+        for(int i = 0; i < n / rands_len; i++, coef_pntr += rands_len)
+        {
+            std::copy(rands, rands + rands_len, coef_pntr);
+        }
+        std::copy(rands, rands + n % rands_len, coef_pntr);
+    }
+
+    Rcpp::RObject evals, evecs;
+    int nconv = 0, niter = 0, nops = 0;
+
+    EIG_CODE_GENERATOR(COMPLEX_SHIFT, ComplexShift)
+
+    if(nconv < nev)
+        Rcpp::warning("only %d eigenvalues converged, less than k", nconv);
+
+    if(n > rands_len)
+        delete [] init_resid;
+
+    return Rcpp::List::create(
+        Rcpp::Named("values")  = evals,
+        Rcpp::Named("vectors") = evecs,
+        Rcpp::Named("nconv")   = nconv,
+        Rcpp::Named("niter")   = niter,
+        Rcpp::Named("nops")    = nops
+    );
+}
+
+RcppExport SEXP eigs_complex_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
+                                       SEXP params_list_r, SEXP mattype_scalar_r)
+{
+    BEGIN_RCPP
+
+    Rcpp::List params_rcpp(params_list_r);
+
+    int n         = as<int>(n_scalar_r);
+    int nev       = as<int>(k_scalar_r);
+    int ncv       = as<int>(params_rcpp["ncv"]);
+    int rule      = as<int>(params_rcpp["which"]);
+    double tol    = as<double>(params_rcpp["tol"]);
+    int maxitr    = as<int>(params_rcpp["maxitr"]);
+    bool retvec   = as<bool>(params_rcpp["retvec"]);
+    int mattype   = as<int>(mattype_scalar_r);
+    double sigmar = as<double>(params_rcpp["sigmar"]);
+    double sigmai = as<double>(params_rcpp["sigmai"]);
+
+    ComplexShift *op;
+    Rcpp::RObject res;
+
+    switch(mattype)
+    {
+        case MATRIX:
+            op = new ComplexShift_matrix(A_mat_r, n);
+            break;
+        /*case DGEMATRIX:
+            op = new ComplexShift_dgeMatrix(A_mat_r, n);
+            break;
+        case DGCMATRIX:
+            op = new ComplexShift_dgCMatrix(A_mat_r, n);
+            break;
+        case DGRMATRIX:
+            op = new ComplexShift_dgRMatrix(A_mat_r, n);
+            break;*/
+        default:
+            Rcpp::stop("unsupported matrix type");
+            // Eliminate compiler warning, but should not reach here
+            op = new ComplexShift_matrix(A_mat_r, n);
+    }
+
+    res = run_eigs_complex_shift_gen(op, n, nev, ncv, rule, sigmar, sigmai,
+                                     maxitr, tol, retvec);
+
+    delete op;
+
+    return res;
+
+    END_RCPP
+}
+/************************ Complex shift mode ************************/

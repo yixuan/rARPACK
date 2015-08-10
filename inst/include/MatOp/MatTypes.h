@@ -15,6 +15,9 @@
 #include "RealShift_dsyMatrix.h"
 #include "RealShift_sparseMatrix.h"
 
+#include "ComplexShift.h"
+#include "ComplexShift_matrix.h"
+
 enum MAT_TYPE {
     MATRIX = 0,
     SYMMATRIX,
