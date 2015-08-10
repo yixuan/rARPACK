@@ -51,7 +51,8 @@ eigs.real_sym <- function(A, k, which, sigma, opts, ..., mattype,
                         tol = 1e-10,
                         maxitr = 1000,
                         retvec = TRUE,
-                        sigma = sigma)
+                        sigma = sigma,
+                        use_lower = as.logical(lower))
     
     # Check the value of 'which'
     eigenv.type = c("LM", "SM", "LA", "SA", "BE")
@@ -78,7 +79,6 @@ eigs.real_sym <- function(A, k, which, sigma, opts, ..., mattype,
                 A,
                 as.integer(n), as.integer(k),
                 as.list(arpack.param),
-                as.logical(lower),
                 as.integer(MAT_TYPE[mattype]),
                 PACKAGE = "rARPACK")
     
