@@ -20,14 +20,4 @@
 #include "MatOp/ComplexShift_dgeMatrix.h"
 #include "MatOp/ComplexShift_sparseMatrix.h"
 
-enum MAT_TYPE {
-    MATRIX = 0,
-    SYMMATRIX,
-    DGEMATRIX,
-    DSYMATRIX,
-    DGCMATRIX,
-    DGRMATRIX,
-    FUNCTION
-};
-
 #endif // MATTYPES_H
