@@ -93,6 +93,7 @@ eigs.real_gen <- function(A, k, which, sigma, opts, ..., mattype)
     fun = switch(workmode,
                  regular = "eigs_gen",
                  real_shift = "eigs_real_shift_gen",
+                 complex_shift = "eigs_complex_shift_gen",
                  stop("unknown work mode"))
     res = .Call(fun,
                 A,

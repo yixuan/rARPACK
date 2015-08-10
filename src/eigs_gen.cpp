@@ -204,8 +204,8 @@ Rcpp::RObject run_eigs_real_shift_gen(RealShift* op, int n, int nev, int ncv, in
     );
 }
 
-RcppExport SEXP eigs_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-                               SEXP params_list_r, SEXP mattype_scalar_r)
+RcppExport SEXP eigs_real_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
+                                    SEXP params_list_r, SEXP mattype_scalar_r)
 {
     BEGIN_RCPP
 
