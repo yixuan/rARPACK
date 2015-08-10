@@ -1,6 +1,6 @@
 #include <RcppEigen.h>
 #include <SymEigsSolver.h>
-#include <rarpack/MatTypes.h>
+#include "matops.h"
 
 using Rcpp::as;
 
@@ -105,8 +105,7 @@ Rcpp::RObject run_eigs_sym(MatProd* op, int n, int nev, int ncv, int rule,
 
 
 RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-                         SEXP params_list_r, SEXP lower_logical_r,
-                         SEXP mattype_scalar_r)
+                         SEXP params_list_r, SEXP mattype_scalar_r)
 {
     BEGIN_RCPP
 
@@ -118,40 +117,11 @@ RcppExport SEXP eigs_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     int rule     = as<int>(params_rcpp["which"]);
     double tol   = as<double>(params_rcpp["tol"]);
     int maxitr   = as<int>(params_rcpp["maxitr"]);
-    char uplo    = as<bool>(lower_logical_r) ? 'L' : 'U';
     bool retvec  = as<bool>(params_rcpp["retvec"]);
     int mattype  = as<int>(mattype_scalar_r);
 
-    MatProd *op;
-    Rcpp::RObject res;
-
-    switch(mattype)
-    {
-        case MATRIX:
-            op = new MatProd_matrix(A_mat_r, n, n);
-            break;
-        case SYMMATRIX:
-            op = new MatProd_symmatrix(A_mat_r, n, uplo);
-            break;
-        case DGEMATRIX:
-            op = new MatProd_dgeMatrix(A_mat_r, n, n);
-            break;
-        case DSYMATRIX:
-            op = new MatProd_dsyMatrix(A_mat_r, n, uplo);
-            break;
-        case DGCMATRIX:
-            op = new MatProd_dgCMatrix(A_mat_r, n, n);
-            break;
-        case DGRMATRIX:
-            op = new MatProd_dgRMatrix(A_mat_r, n, n);
-            break;
-        default:
-            Rcpp::stop("unsupported matrix type");
-            // Eliminate compiler warning, but should not reach here
-            op = new MatProd_matrix(A_mat_r, n, n);
-    }
-
-    res = run_eigs_sym(op, n, nev, ncv, rule, maxitr, tol, retvec);
+    MatProd *op = get_mat_prod_op(A_mat_r, n, params_list_r, mattype);
+    Rcpp::RObject res = run_eigs_sym(op, n, nev, ncv, rule, maxitr, tol, retvec);
 
     delete op;
 
@@ -204,8 +174,7 @@ Rcpp::RObject run_eigs_shift_sym(RealShift* op, int n, int nev, int ncv, int rul
 }
 
 RcppExport SEXP eigs_shift_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
-                               SEXP params_list_r, SEXP lower_logical_r,
-                               SEXP mattype_scalar_r)
+                               SEXP params_list_r, SEXP mattype_scalar_r)
 {
     BEGIN_RCPP
 
@@ -217,41 +186,13 @@ RcppExport SEXP eigs_shift_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     int rule     = as<int>(params_rcpp["which"]);
     double tol   = as<double>(params_rcpp["tol"]);
     int maxitr   = as<int>(params_rcpp["maxitr"]);
-    char uplo    = as<bool>(lower_logical_r) ? 'L' : 'U';
     bool retvec  = as<bool>(params_rcpp["retvec"]);
     int mattype  = as<int>(mattype_scalar_r);
     double sigma = as<double>(params_rcpp["sigma"]);
 
-    RealShift *op;
-    Rcpp::RObject res;
-
-    switch(mattype)
-    {
-        case MATRIX:
-            op = new RealShift_matrix(A_mat_r, n);
-            break;
-        case SYMMATRIX:
-            op = new RealShift_symmatrix(A_mat_r, n, uplo);
-            break;
-        case DGEMATRIX:
-            op = new RealShift_dgeMatrix(A_mat_r, n);
-            break;
-        case DSYMATRIX:
-            op = new RealShift_dsyMatrix(A_mat_r, n, uplo);
-            break;
-        case DGCMATRIX:
-            op = new RealShift_dgCMatrix(A_mat_r, n);
-            break;
-        case DGRMATRIX:
-            op = new RealShift_dgRMatrix(A_mat_r, n);
-            break;
-        default:
-            Rcpp::stop("unsupported matrix type");
-            // Eliminate compiler warning, but should not reach here
-            op = new RealShift_matrix(A_mat_r, n);
-    }
-
-    res = run_eigs_shift_sym(op, n, nev, ncv, rule, sigma, maxitr, tol, retvec);
+    RealShift *op = eigs_sym_get_real_shift_op(A_mat_r, n, params_list_r, mattype);
+    
+    Rcpp::RObject res = run_eigs_shift_sym(op, n, nev, ncv, rule, sigma, maxitr, tol, retvec);
 
     delete op;
 

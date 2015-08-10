@@ -1,6 +1,6 @@
 #include <RcppEigen.h>
 #include <GenEigsSolver.h>
-#include <rarpack/MatTypes.h>
+#include "matops.h"
 
 using Rcpp::as;
 
@@ -129,30 +129,8 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool retvec  = as<bool>(params_rcpp["retvec"]);
     int mattype  = as<int>(mattype_scalar_r);
 
-    MatProd *op;
-    Rcpp::RObject res;
-
-    switch(mattype)
-    {
-        case MATRIX:
-            op = new MatProd_matrix(A_mat_r, n, n);
-            break;
-        case DGEMATRIX:
-            op = new MatProd_dgeMatrix(A_mat_r, n, n);
-            break;
-        case DGCMATRIX:
-            op = new MatProd_dgCMatrix(A_mat_r, n, n);
-            break;
-        case DGRMATRIX:
-            op = new MatProd_dgRMatrix(A_mat_r, n, n);
-            break;
-        default:
-            Rcpp::stop("unsupported matrix type");
-            // Eliminate compiler warning, but should not reach here
-            op = new MatProd_matrix(A_mat_r, n, n);
-    }
-
-    res = run_eigs_gen(op, n, nev, ncv, rule, maxitr, tol, retvec);
+    MatProd *op = get_mat_prod_op(A_mat_r, n, params_list_r, mattype);;
+    Rcpp::RObject res = run_eigs_gen(op, n, nev, ncv, rule, maxitr, tol, retvec);
 
     delete op;
 
@@ -221,30 +199,8 @@ RcppExport SEXP eigs_real_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar
     int mattype   = as<int>(mattype_scalar_r);
     double sigmar = as<double>(params_rcpp["sigmar"]);
 
-    RealShift *op;
-    Rcpp::RObject res;
-
-    switch(mattype)
-    {
-        case MATRIX:
-            op = new RealShift_matrix(A_mat_r, n);
-            break;
-        case DGEMATRIX:
-            op = new RealShift_dgeMatrix(A_mat_r, n);
-            break;
-        case DGCMATRIX:
-            op = new RealShift_dgCMatrix(A_mat_r, n);
-            break;
-        case DGRMATRIX:
-            op = new RealShift_dgRMatrix(A_mat_r, n);
-            break;
-        default:
-            Rcpp::stop("unsupported matrix type");
-            // Eliminate compiler warning, but should not reach here
-            op = new RealShift_matrix(A_mat_r, n);
-    }
-
-    res = run_eigs_real_shift_gen(op, n, nev, ncv, rule, sigmar, maxitr, tol, retvec);
+    RealShift *op = eigs_gen_get_real_shift_op(A_mat_r, n, params_list_r, mattype);
+    Rcpp::RObject res = run_eigs_real_shift_gen(op, n, nev, ncv, rule, sigmar, maxitr, tol, retvec);
 
     delete op;
 
@@ -314,31 +270,9 @@ RcppExport SEXP eigs_complex_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_sca
     double sigmar = as<double>(params_rcpp["sigmar"]);
     double sigmai = as<double>(params_rcpp["sigmai"]);
 
-    ComplexShift *op;
-    Rcpp::RObject res;
-
-    switch(mattype)
-    {
-        case MATRIX:
-            op = new ComplexShift_matrix(A_mat_r, n);
-            break;
-        case DGEMATRIX:
-            op = new ComplexShift_dgeMatrix(A_mat_r, n);
-            break;
-        case DGCMATRIX:
-            op = new ComplexShift_dgCMatrix(A_mat_r, n);
-            break;
-        case DGRMATRIX:
-            op = new ComplexShift_dgRMatrix(A_mat_r, n);
-            break;
-        default:
-            Rcpp::stop("unsupported matrix type");
-            // Eliminate compiler warning, but should not reach here
-            op = new ComplexShift_matrix(A_mat_r, n);
-    }
-
-    res = run_eigs_complex_shift_gen(op, n, nev, ncv, rule, sigmar, sigmai,
-                                     maxitr, tol, retvec);
+    ComplexShift *op = get_complex_shift_op(A_mat_r, n, params_list_r, mattype);
+    Rcpp::RObject res = run_eigs_complex_shift_gen(op, n, nev, ncv, rule, sigmar, sigmai,
+                                                   maxitr, tol, retvec);
 
     delete op;
 
