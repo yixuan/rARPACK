@@ -12,7 +12,7 @@ public:
     // y_out = Re( inv(A - sigma * I) * x_in )
     virtual void perform_op(double *x_in, double *y_out) = 0;
 
-    virtual ~RealShift() {}
+    virtual ~ComplexShift() {}
 };
 
 
