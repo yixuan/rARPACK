@@ -1,6 +1,6 @@
 #include <RcppEigen.h>
 #include <GenEigsSolver.h>
-#include "MatOp/MatTypes.h"
+#include <MatOp/MatTypes.h>
 
 using Rcpp::as;
 
