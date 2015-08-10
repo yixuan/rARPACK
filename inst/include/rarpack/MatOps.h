@@ -7,6 +7,7 @@
 #include "MatOp/MatProd_dgeMatrix.h"
 #include "MatOp/MatProd_dsyMatrix.h"
 #include "MatOp/MatProd_sparseMatrix.h"
+#include "MatOp/MatProd_function.h"
 
 #include "MatOp/RealShift.h"
 #include "MatOp/RealShift_matrix.h"

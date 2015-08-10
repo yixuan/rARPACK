@@ -33,6 +33,12 @@ MatProd* get_mat_prod_op(SEXP mat, int n, SEXP extra_arg, int mat_type)
     case DGRMATRIX:
         op = new MatProd_dgRMatrix(mat, n, n);
         break;
+    case FUNCTION:
+        {
+        SEXP fun_args = args["fun_args"];
+        op = new MatProd_function(mat, n, fun_args);
+        }
+        break;
     default:
         Rcpp::stop("unsupported matrix type");
         // Eliminate compiler warning, but should not reach here
