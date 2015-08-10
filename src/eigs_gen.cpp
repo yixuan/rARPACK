@@ -322,7 +322,7 @@ RcppExport SEXP eigs_complex_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_sca
         case MATRIX:
             op = new ComplexShift_matrix(A_mat_r, n);
             break;
-        /*case DGEMATRIX:
+        case DGEMATRIX:
             op = new ComplexShift_dgeMatrix(A_mat_r, n);
             break;
         case DGCMATRIX:
@@ -330,7 +330,7 @@ RcppExport SEXP eigs_complex_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_sca
             break;
         case DGRMATRIX:
             op = new ComplexShift_dgRMatrix(A_mat_r, n);
-            break;*/
+            break;
         default:
             Rcpp::stop("unsupported matrix type");
             // Eliminate compiler warning, but should not reach here

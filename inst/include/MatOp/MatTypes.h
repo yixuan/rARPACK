@@ -17,6 +17,8 @@
 
 #include "ComplexShift.h"
 #include "ComplexShift_matrix.h"
+#include "ComplexShift_dgeMatrix.h"
+#include "ComplexShift_sparseMatrix.h"
 
 enum MAT_TYPE {
     MATRIX = 0,
