@@ -58,7 +58,6 @@ eigs.real_gen <- function(A, n, k, which, sigma, opts, ..., mattype,
     {
         workmode = "regular"
         sigma = 0
-        sigmareal = TRUE
     } else {
         if(abs(Im(sigma)) < 1e-16)
         {

@@ -633,39 +633,41 @@ private:
         //                       1 \pm sqrt(1 - 4 * nu^2 * sigmai^2)
         //     lambda = sigmar + -----------------------------------
         //                                     2 * nu
-        // We need to rule out the wrong one
-        // Let v1 be the first eigenvector, then A * v1 = lambda1 * v1
-        // and inv(A - r * I) * v1 = 1 / (lambda1 - r) * v1
+        // We need to pick up the correct root
+        // Let vi be the i-th eigenvector, then A * vi = lambdai * vi
+        // and inv(A - r * I) * vi = 1 / (lambdai - r) * vi
         // where r is any real value.
-        // We can use this identity to test which lambda to choose
-        ComplexArray nu = this->ritz_val.head(this->nev).array();
-        ComplexArray tmp1 = Scalar(0.5) / nu + sigmar;
-        ComplexArray tmp2 = (Scalar(1) / nu / nu - 4 * sigmai * sigmai).sqrt() * Scalar(0.5);
+        // We can use this identity to back-solve lambdai
 
-        ComplexArray root1 = tmp1 + tmp2;
-        ComplexArray root2 = tmp1 - tmp2;
+        // Select an arbitrary real shift value
+        Scalar r = sigmar + std::sin(sigmar);
+        this->op->set_shift(r, 0);
 
-        ComplexArray v = this->fac_V * this->ritz_vec.col(0);
-        Array v_real = v.real();
-        Array v_imag = v.imag();
+        // Calculate inv(A - r * I) * vi
+        ComplexArray v;
+        Array v_real, v_imag;
         Array lhs_real(this->dim_n), lhs_imag(this->dim_n);
-
-        this->op->set_shift(sigmar, 0);
-        this->op->perform_op(v_real.data(), lhs_real.data());
-        this->op->perform_op(v_imag.data(), lhs_imag.data());
-
-        ComplexArray rhs1 = v / (root1[0] - Complex(sigmar, 0));
-        ComplexArray rhs2 = v / (root2[0] - Complex(sigmar, 0));
-
-        Scalar err1 = (rhs1.real() - lhs_real).abs().sum() + (rhs1.imag() - lhs_imag).abs().sum();
-        Scalar err2 = (rhs2.real() - lhs_real).abs().sum() + (rhs2.imag() - lhs_imag).abs().sum();
-
-        if(err1 < err2)
+        Scalar eps = std::pow(std::numeric_limits<Scalar>::epsilon(), Scalar(2.0 / 3));
+        for(int i = 0; i < this->nev; i++)
         {
-            this->ritz_val.head(this->nev) = root1;
-        } else {
-            this->ritz_val.head(this->nev) = root2;
+            v = this->fac_V * this->ritz_vec.col(i);
+            v_real = v.real();
+            v_imag = v.imag();
+
+            this->op->perform_op(v_real.data(), lhs_real.data());
+            this->op->perform_op(v_imag.data(), lhs_imag.data());
+
+            Complex lambdai = Complex(v_real[0], v_imag[0]) / Complex(lhs_real[0], lhs_imag[0]) +
+                              Complex(r, 0);
+            this->ritz_val[i] = lambdai;
+
+            if(std::abs(lambdai.imag()) > eps)
+            {
+                this->ritz_val[i + 1] = std::conj(lambdai);
+                i++;
+            }
         }
+
         GenEigsSolver<Scalar, SelectionRule, OpType>::sort_ritzpair();
     }
 public:
