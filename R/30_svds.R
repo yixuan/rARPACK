@@ -87,38 +87,39 @@
 ##' svds(Asp2, k, nu = 0, nv = 0)
 ##'
 svds <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    UseMethod("svds");
+    UseMethod("svds")
 
 ##' @rdname svds
 ##' @export
 svds.matrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
 {
-    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen;
-    fun(A, k, nu, nv, opts, ..., mattype = "matrix");
+    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen
+    fun(A, k, nu, nv, opts, ..., mattype = "matrix")
 }
 
 ##' @rdname svds
 ##' @export
 svds.dgeMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
 {
-    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen;
-    fun(A, k, nu, nv, opts, ..., mattype = "dgeMatrix");
+    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen
+    fun(A, k, nu, nv, opts, ..., mattype = "dgeMatrix")
 }
 
 ##' @rdname svds
 ##' @export
 svds.dgCMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
 {
-    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen;
-    fun(A, k, nu, nv, opts, ..., mattype = "dgCMatrix");
+    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen
+    fun(A, k, nu, nv, opts, ..., mattype = "dgCMatrix")
 }
 
 ##' @rdname svds
 ##' @export
 svds.dgRMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    svds.real_gen(A, k, nu, nv, opts, ..., mattype = "dgRMatrix");
+    svds.real_gen(A, k, nu, nv, opts, ..., mattype = "dgRMatrix")
 
 ##' @rdname svds
 ##' @export
 svds.dsyMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    svds.real_sym(A, k, nu, nv, opts, ..., mattype = "dsyMatrix");
+    svds.real_sym(A, k, nu, nv, opts, ..., mattype = "dsyMatrix",
+                  extra_args = list(use_lower = (A@uplo == "L")))
