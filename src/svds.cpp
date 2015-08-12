@@ -78,6 +78,12 @@ RcppExport SEXP svds_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
         }
     }
 
+    Rcpp::RObject u_ret;
+    Rcpp::RObject v_ret;
+
+    if(nu > 0)  u_ret = u;  else  u_ret = R_NilValue;
+    if(nv > 0)  v_ret = v;  else  v_ret = R_NilValue;
+
     if(n > rands_len)
         delete [] init_resid;
 
@@ -85,10 +91,10 @@ RcppExport SEXP svds_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
 
     return Rcpp::List::create(
         Rcpp::Named("d")     = d,
-        Rcpp::Named("u")     = u,
-        Rcpp::Named("v")     = v,
+        Rcpp::Named("u")     = u_ret,
+        Rcpp::Named("v")     = v_ret,
         Rcpp::Named("niter") = eigs.num_iterations(),
-        Rcpp::Named("nops")  = eigs.num_operations() * 2
+        Rcpp::Named("nops")  = eigs.num_operations()
     );
 
     END_RCPP
@@ -154,6 +160,7 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
 
     Rcpp::NumericVector d(nconv);
     Rcpp::NumericMatrix u(m, nu), v(n, nv);
+    int nops = 0;
 
     // Copy evals to d
     std::copy(evals.data(), evals.data() + nconv, d.begin());
@@ -174,6 +181,7 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
         {
             evecs.col(i) /= d[i];
             op_orig->perform_op(&evecs(0, i), &u(0, i));
+            nops++;
         }
     } else {
         // A = UDV', AA' = UD^2U', A'U = VD, vi = A' * ui / di
@@ -182,8 +190,15 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
         {
             evecs.col(i) /= d[i];
             op_orig->perform_tprod(&evecs(0, i), &v(0, i));
+            nops++;
         }
     }
+
+    Rcpp::RObject u_ret;
+    Rcpp::RObject v_ret;
+
+    if(nu > 0)  u_ret = u;  else  u_ret = R_NilValue;
+    if(nv > 0)  v_ret = v;  else  v_ret = R_NilValue;
 
     if(dim > rands_len)
         delete [] init_resid;
@@ -193,10 +208,10 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
 
     return Rcpp::List::create(
         Rcpp::Named("d")     = d,
-        Rcpp::Named("u")     = u,
-        Rcpp::Named("v")     = v,
+        Rcpp::Named("u")     = u_ret,
+        Rcpp::Named("v")     = v_ret,
         Rcpp::Named("niter") = eigs.num_iterations(),
-        Rcpp::Named("nops")  = eigs.num_operations() * 2
+        Rcpp::Named("nops")  = eigs.num_operations() * 2 + nops
     );
 
     END_RCPP
