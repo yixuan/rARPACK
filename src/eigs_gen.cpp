@@ -15,6 +15,9 @@ enum SOLVER_TYPE {
 #define EIG_COMMON_CODE                                                        \
 eigs.init(init_resid);                                                         \
 nconv = eigs.compute(maxitr, tol);                                             \
+if(nconv < nev)                                                                \
+    Rcpp::warning("only %d eigenvalue(s) converged, less than k = %d",         \
+                  nconv, nev);                                                 \
 evals = Rcpp::wrap(eigs.eigenvalues());                                        \
 if(retvec)                                                                     \
     evecs = Rcpp::wrap(eigs.eigenvectors());                                   \
@@ -97,9 +100,6 @@ Rcpp::RObject run_eigs_gen(MatProd* op, int n, int nev, int ncv, int rule,
 
     EIG_CODE_GENERATOR(REGULAR, MatProd)
 
-    if(nconv < nev)
-        Rcpp::warning("only %d eigenvalues converged, less than k = %d", nconv, nev);
-
     if(n > rands_len)
         delete [] init_resid;
 
@@ -167,9 +167,6 @@ Rcpp::RObject run_eigs_real_shift_gen(RealShift* op, int n, int nev, int ncv, in
 
     EIG_CODE_GENERATOR(REAL_SHIFT, RealShift)
 
-    if(nconv < nev)
-        Rcpp::warning("only %d eigenvalues converged, less than k = %d", nconv, nev);
-
     if(n > rands_len)
         delete [] init_resid;
 
@@ -236,9 +233,6 @@ Rcpp::RObject run_eigs_complex_shift_gen(ComplexShift* op, int n, int nev, int n
     int nconv = 0, niter = 0, nops = 0;
 
     EIG_CODE_GENERATOR(COMPLEX_SHIFT, ComplexShift)
-
-    if(nconv < nev)
-        Rcpp::warning("only %d eigenvalues converged, less than k = %d", nconv, nev);
 
     if(n > rands_len)
         delete [] init_resid;
