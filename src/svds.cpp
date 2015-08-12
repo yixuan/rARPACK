@@ -3,6 +3,8 @@
 #include "matops.h"
 
 using Rcpp::as;
+typedef Eigen::Map<Eigen::MatrixXd> MapMat;
+typedef Eigen::Map<Eigen::VectorXd> MapVec;
 
 RcppExport SEXP svds_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
                          SEXP nu_scalar_r, SEXP nv_scalar_r,
@@ -75,6 +77,119 @@ RcppExport SEXP svds_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
             }
         }
     }
+
+    if(n > rands_len)
+        delete [] init_resid;
+
+    delete op;
+
+    return Rcpp::List::create(
+        Rcpp::Named("d")     = d,
+        Rcpp::Named("u")     = u,
+        Rcpp::Named("v")     = v,
+        Rcpp::Named("niter") = eigs.num_iterations(),
+        Rcpp::Named("nops")  = eigs.num_operations() * 2
+    );
+
+    END_RCPP
+}
+
+
+
+RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
+                         SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
+                         SEXP params_list_r, SEXP mattype_scalar_r)
+{
+    BEGIN_RCPP
+
+    Rcpp::List params_svds(params_list_r);
+
+    int m        = as<int>(m_scalar_r);
+    int n        = as<int>(n_scalar_r);
+    int k        = as<int>(k_scalar_r);
+    int nu       = as<int>(nu_scalar_r);
+    int nv       = as<int>(nv_scalar_r);
+    int ncv      = as<int>(params_svds["ncv"]);
+    double tol   = as<double>(params_svds["tol"]);
+    int maxitr   = as<int>(params_svds["maxitr"]);
+    int mattype  = as<int>(mattype_scalar_r);
+
+    int dim = std::min(m, n);
+    // Operation for original matrix
+    MatProd *op_orig = get_mat_prod_op(A_mat_r, m, n, params_list_r, mattype);
+    // Operation for SVD
+    MatProd *op;
+    if(m > n)
+        op = get_svd_tall_op(A_mat_r, m, n, params_list_r, mattype);
+    else
+        op = get_svd_wide_op(A_mat_r, m, n, params_list_r, mattype);
+
+    // Prepare initial residuals
+    double *init_resid;
+    #include "rands.h"
+    if(dim <= rands_len)
+    {
+        init_resid = rands;
+    } else {
+        init_resid = new double[dim];
+        double *coef_pntr = init_resid;
+        for(int i = 0; i < dim / rands_len; i++, coef_pntr += rands_len)
+        {
+            std::copy(rands, rands + rands_len, coef_pntr);
+        }
+        std::copy(rands, rands + dim % rands_len, coef_pntr);
+    }
+
+    SymEigsSolver<double, LARGEST_MAGN, MatProd> eigs(op, k, ncv);
+    eigs.init(init_resid);
+    int nconv = eigs.compute(maxitr, tol);
+    if(nconv < k)
+        Rcpp::warning("only %d singular values converged, less than k = %d", nconv, k);
+
+    nu = std::min(nu, nconv);
+    nv = std::min(nv, nconv);
+
+    Eigen::VectorXd evals = eigs.eigenvalues();
+    Eigen::MatrixXd evecs = eigs.eigenvectors();
+
+    Rcpp::NumericVector d(nconv);
+    Rcpp::NumericMatrix u(m, nu), v(n, nv);
+
+    // Copy evals to d
+    std::copy(evals.data(), evals.data() + nconv, d.begin());
+
+    // Copy evecs to u or v according to the shape of A
+    // If A is tall, copy evecs to v, otherwise copy to u
+    if(m > n)
+        std::copy(evecs.data(), evecs.data() + nv * n, v.begin());
+    else
+        std::copy(evecs.data(), evecs.data() + nu * m, u.begin());
+
+    // Calculate the other one
+    if(m > n)
+    {
+        // A = UDV', A'A = VD^2V', AV = UD, ui = A * vi / di
+        // evecs has already been copied to v, so we can overwrite evecs
+        for(int i = 0; i < nu; i++)
+        {
+            evecs.col(i) /= d[i];
+            op_orig->perform_op(&evecs(0, i), &u(0, i));
+        }
+    } else {
+        // A = UDV', AA' = UD^2U', A'U = VD, vi = A' * ui / di
+        // evecs has already been copied to u, so we can overwrite evecs
+        for(int i = 0; i < nv; i++)
+        {
+            evecs.col(i) /= d[i];
+            op_orig->perform_tprod(&evecs(0, i), &v(0, i));
+        }
+    }
+
+    if(dim > rands_len)
+        delete [] init_resid;
+
+    delete op;
+    delete op_orig;
 
     return Rcpp::List::create(
         Rcpp::Named("d")     = d,
