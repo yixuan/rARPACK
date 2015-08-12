@@ -146,3 +146,21 @@ ComplexShift* get_complex_shift_op(SEXP mat, int n, SEXP extra_arg, int mat_type
 
     return op;
 }
+
+SVDTallOp* get_svd_tall_op(SEXP mat, int nrow, int ncol, SEXP extra_arg, int mat_type)
+{
+    // Fail the case of function-typed matrix
+    if(mat_type == FUNCTION)
+        mat_type = -99;
+
+    return new SVDTallOp(get_mat_prod_op(mat, nrow, ncol, extra_arg, mat_type));
+}
+
+SVDWideOp* get_svd_wide_op(SEXP mat, int nrow, int ncol, SEXP extra_arg, int mat_type)
+{
+    // Fail the case of function-typed matrix
+    if(mat_type == FUNCTION)
+        mat_type = -99;
+
+    return new SVDWideOp(get_mat_prod_op(mat, nrow, ncol, extra_arg, mat_type));
+}

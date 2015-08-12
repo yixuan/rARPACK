@@ -31,6 +31,11 @@ public:
         op->perform_op(x_in, work);
         op->perform_tprod(work, y_out);
     }
+
+    void perform_tprod(double *x_in, double *y_out)
+    {
+        perform_op(x_in, y_out);
+    }
 };
 
 class SVDWideOp: public MatProd
@@ -59,6 +64,11 @@ public:
     {
         op->perform_tprod(x_in, work);
         op->perform_op(work, y_out);
+    }
+
+    void perform_tprod(double *x_in, double *y_out)
+    {
+        perform_op(x_in, y_out);
     }
 };
 
