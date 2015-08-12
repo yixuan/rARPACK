@@ -7,7 +7,7 @@
 class SVDTallOp: public MatProd
 {
 private:
-    MapProd *op;
+    MatProd *op;
     const int dim;
     double *work;
 public:
@@ -28,15 +28,15 @@ public:
     // y_out = A'A * x_in
     void perform_op(double *x_in, double *y_out)
     {
-        op->perform_op(x_in, tmp);
-        op->perform_tprod(tmp, y_out);
+        op->perform_op(x_in, work);
+        op->perform_tprod(work, y_out);
     }
 };
 
 class SVDWideOp: public MatProd
 {
 private:
-    MapProd *op;
+    MatProd *op;
     const int dim;
     double *work;
 public:
@@ -57,8 +57,8 @@ public:
     // y_out = AA' * x_in
     void perform_op(double *x_in, double *y_out)
     {
-        op->perform_tprod(x_in, tmp);
-        op->perform_op(tmp, y_out);
+        op->perform_tprod(x_in, work);
+        op->perform_op(work, y_out);
     }
 };
 
