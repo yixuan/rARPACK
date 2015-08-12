@@ -55,6 +55,9 @@
 ##'             will be passed to the \code{A} function containing any
 ##'             extra data. See section \strong{Function Interface}
 ##'             for details.
+##' @param symmetric Only used when \code{A} is a function, to assume that
+##'                  \code{A} represents a symmetric matrix. User is
+##'                  responsible for guaranteeing the symmetry.
 ##'
 ##' @details The \code{which} argument is a character string
 ##' that specifies the type of eigenvalues to be computed.
