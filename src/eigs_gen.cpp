@@ -98,7 +98,7 @@ Rcpp::RObject run_eigs_gen(MatProd* op, int n, int nev, int ncv, int rule,
     EIG_CODE_GENERATOR(REGULAR, MatProd)
 
     if(nconv < nev)
-        Rcpp::warning("only %d eigenvalues converged, less than k", nconv);
+        Rcpp::warning("only %d eigenvalues converged, less than k = %d", nconv, nev);
 
     if(n > rands_len)
         delete [] init_resid;
@@ -168,7 +168,7 @@ Rcpp::RObject run_eigs_real_shift_gen(RealShift* op, int n, int nev, int ncv, in
     EIG_CODE_GENERATOR(REAL_SHIFT, RealShift)
 
     if(nconv < nev)
-        Rcpp::warning("only %d eigenvalues converged, less than k", nconv);
+        Rcpp::warning("only %d eigenvalues converged, less than k = %d", nconv, nev);
 
     if(n > rands_len)
         delete [] init_resid;
@@ -238,7 +238,7 @@ Rcpp::RObject run_eigs_complex_shift_gen(ComplexShift* op, int n, int nev, int n
     EIG_CODE_GENERATOR(COMPLEX_SHIFT, ComplexShift)
 
     if(nconv < nev)
-        Rcpp::warning("only %d eigenvalues converged, less than k", nconv);
+        Rcpp::warning("only %d eigenvalues converged, less than k = %d", nconv, nev);
 
     if(n > rands_len)
         delete [] init_resid;
