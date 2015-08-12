@@ -162,8 +162,9 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
     Rcpp::NumericMatrix u(m, nu), v(n, nv);
     int nops = 0;
 
-    // Copy evals to d
+    // Copy evals to d and take the square root
     std::copy(evals.data(), evals.data() + nconv, d.begin());
+    std::transform(d.begin(), d.end(), d.begin(), ::sqrt);
 
     // Copy evecs to u or v according to the shape of A
     // If A is tall, copy evecs to v, otherwise copy to u
