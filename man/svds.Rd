@@ -47,7 +47,8 @@ A list with the following components:
          the right singular vectors. If \code{nv == 0}, \code{NULL}
          will be returned.}
 \item{nconv}{Number of converged singular values.}
-\item{niter}{Number of iterations.}
+\item{niter}{Number of iterations used.}
+\item{nops}{Number of matrix-vector multiplications used.}
 }
 \description{
 Given an \eqn{m} by \eqn{n} matrix \eqn{A},

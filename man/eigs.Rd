@@ -72,7 +72,8 @@ A list of converged eigenvalues and eigenvectors.
 \item{values}{Computed eigenvalues.}
 \item{vectors}{Computed eigenvectors. \code{vectors[, j]} corresponds to \code{values[j]}.}
 \item{nconv}{Number of converged eigenvalues.}
-\item{niter}{Number of iterations in the computation.}
+\item{niter}{Number of iterations used in the computation.}
+\item{nops}{Number of matrix operations used in the computation.}
 }
 \description{
 Given an \eqn{n} by \eqn{n} matrix \eqn{A},

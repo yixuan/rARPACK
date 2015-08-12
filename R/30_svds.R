@@ -59,7 +59,8 @@
 ##'          the right singular vectors. If \code{nv == 0}, \code{NULL}
 ##'          will be returned.}
 ##' \item{nconv}{Number of converged singular values.}
-##' \item{niter}{Number of iterations.}
+##' \item{niter}{Number of iterations used.}
+##' \item{nops}{Number of matrix-vector multiplications used.}
 ##' @author Yixuan Qiu <\url{http://statr.me}>
 ##' @seealso \code{\link[base]{eigen}()}, \code{\link[base]{svd}()},
 ##' \code{\link[rARPACK]{eigs}()}.
