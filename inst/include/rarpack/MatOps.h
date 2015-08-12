@@ -21,4 +21,6 @@
 #include "MatOp/ComplexShift_dgeMatrix.h"
 #include "MatOp/ComplexShift_sparseMatrix.h"
 
+#include "MatOp/SVDOp.h"
+
 #endif // MATTYPES_H

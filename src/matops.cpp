@@ -1,59 +1,59 @@
 #include <Rcpp.h>
 #include "matops.h"
 
-MatProd* get_mat_prod_op(SEXP mat, int n, SEXP extra_arg, int mat_type)
+MatProd* get_mat_prod_op(SEXP mat, int nrow, int ncol, SEXP extra_arg, int mat_type)
 {
     MatProd *op;
-    
+
     Rcpp::List args(extra_arg);
-    
+
     switch(mat_type)
     {
     case MATRIX:
-        op = new MatProd_matrix(mat, n, n);
+        op = new MatProd_matrix(mat, nrow, ncol);
         break;
     case SYMMATRIX:
         {
         bool use_lower = Rcpp::as<bool>(args["use_lower"]);
-        op = new MatProd_symmatrix(mat, n, use_lower ? 'L' : 'U');
+        op = new MatProd_symmatrix(mat, nrow, use_lower ? 'L' : 'U');
         }
         break;
     case DGEMATRIX:
-        op = new MatProd_dgeMatrix(mat, n, n);
+        op = new MatProd_dgeMatrix(mat, nrow, ncol);
         break;
     case DSYMATRIX:
         {
         bool use_lower = Rcpp::as<bool>(args["use_lower"]);
-        op = new MatProd_dsyMatrix(mat, n, use_lower ? 'L' : 'U');
+        op = new MatProd_dsyMatrix(mat, nrow, use_lower ? 'L' : 'U');
         }
         break;
     case DGCMATRIX:
-        op = new MatProd_dgCMatrix(mat, n, n);
+        op = new MatProd_dgCMatrix(mat, nrow, ncol);
         break;
     case DGRMATRIX:
-        op = new MatProd_dgRMatrix(mat, n, n);
+        op = new MatProd_dgRMatrix(mat, nrow, ncol);
         break;
     case FUNCTION:
         {
         SEXP fun_args = args["fun_args"];
-        op = new MatProd_function(mat, n, fun_args);
+        op = new MatProd_function(mat, nrow, fun_args);
         }
         break;
     default:
         Rcpp::stop("unsupported matrix type");
         // Eliminate compiler warning, but should not reach here
-        op = new MatProd_matrix(mat, n, n);
+        op = new MatProd_matrix(mat, nrow, ncol);
     }
-    
+
     return op;
 }
 
 RealShift* eigs_sym_get_real_shift_op(SEXP mat, int n, SEXP extra_arg, int mat_type)
 {
     RealShift *op;
-    
+
     Rcpp::List args(extra_arg);
-    
+
     switch(mat_type)
     {
     case MATRIX:
@@ -85,16 +85,16 @@ RealShift* eigs_sym_get_real_shift_op(SEXP mat, int n, SEXP extra_arg, int mat_t
         // Eliminate compiler warning, but should not reach here
         op = new RealShift_matrix(mat, n);
     }
-    
+
     return op;
 }
 
 RealShift* eigs_gen_get_real_shift_op(SEXP mat, int n, SEXP extra_arg, int mat_type)
 {
     RealShift *op;
-    
+
     Rcpp::List args(extra_arg);
-    
+
     switch(mat_type)
     {
     case MATRIX:
@@ -114,16 +114,16 @@ RealShift* eigs_gen_get_real_shift_op(SEXP mat, int n, SEXP extra_arg, int mat_t
         // Eliminate compiler warning, but should not reach here
         op = new RealShift_matrix(mat, n);
     }
-    
+
     return op;
 }
 
 ComplexShift* get_complex_shift_op(SEXP mat, int n, SEXP extra_arg, int mat_type)
 {
     ComplexShift *op;
-    
+
     Rcpp::List args(extra_arg);
-    
+
     switch(mat_type)
     {
     case MATRIX:
@@ -143,6 +143,6 @@ ComplexShift* get_complex_shift_op(SEXP mat, int n, SEXP extra_arg, int mat_type
         // Eliminate compiler warning, but should not reach here
         op = new ComplexShift_matrix(mat, n);
     }
-    
+
     return op;
 }

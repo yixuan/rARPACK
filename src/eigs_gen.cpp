@@ -129,7 +129,7 @@ RcppExport SEXP eigs_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     bool retvec  = as<bool>(params_rcpp["retvec"]);
     int mattype  = as<int>(mattype_scalar_r);
 
-    MatProd *op = get_mat_prod_op(A_mat_r, n, params_list_r, mattype);;
+    MatProd *op = get_mat_prod_op(A_mat_r, n, n, params_list_r, mattype);;
     Rcpp::RObject res = run_eigs_gen(op, n, nev, ncv, rule, maxitr, tol, retvec);
 
     delete op;
