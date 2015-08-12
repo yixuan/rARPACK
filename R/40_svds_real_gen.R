@@ -58,7 +58,7 @@ svds.real_gen <- function(A, k, nu, nv, opts, ..., mattype,
                 as.integer(m), as.integer(n),
                 as.integer(k), as.integer(nu), as.integer(nv),
                 as.list(arpack.param),
-                as.integer(MATTYPES[mattype]),
+                as.integer(MAT_TYPE[mattype]),
                 PACKAGE = "rARPACK")
     
     return(res)
