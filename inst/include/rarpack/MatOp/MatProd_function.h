@@ -26,13 +26,20 @@ public:
     {
         Rcpp::NumericVector x(n);
         std::copy(x_in, x_in + n, x.begin());
-        
+
         Rcpp::NumericVector y = fun(x, args);
         if(y.length() != n)
             Rcpp::stop("the provided function should return n elements");
-        
+
         std::copy(y.begin(), y.end(), y_out);
     }
+
+    // y_out = A' * x_in
+    void perform_tprod(double *x_in, double *y_out)
+    {
+        Rcpp::stop("transpose multiplication not implemented for function-typed matrices");
+    }
+
 };
 
 
