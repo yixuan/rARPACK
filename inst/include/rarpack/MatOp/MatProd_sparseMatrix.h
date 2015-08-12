@@ -33,6 +33,13 @@ public:
         MapVec y(y_out, nrow);
         y.noalias() = mat * x;
     }
+
+    void perform_tprod(double *x_in, double *y_out)
+    {
+        MapVec x(x_in, nrow);
+        MapVec y(y_out, ncol);
+        y.noalias() = mat.transpose() * x;
+    }
 };
 
 // Operations on "dgCMatrix" class, defined in Matrix package

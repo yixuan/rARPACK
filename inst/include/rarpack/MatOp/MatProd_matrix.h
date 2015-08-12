@@ -36,6 +36,14 @@ public:
                         x_in, &BLAS_one, &BLAS_zero,
                         y_out, &BLAS_one);
     }
+
+    void perform_tprod(double *x_in, double *y_out)
+    {
+        F77_CALL(dgemv)("T", &nrow, &ncol,
+                        &BLAS_alpha, mat_pntr, &nrow,
+                        x_in, &BLAS_one, &BLAS_zero,
+                        y_out, &BLAS_one);
+    }
 };
 
 

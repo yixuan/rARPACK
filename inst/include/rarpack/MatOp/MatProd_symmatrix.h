@@ -36,6 +36,11 @@ public:
                         x_in, &BLAS_one, &BLAS_zero,
                         y_out, &BLAS_one);
     }
+
+    void perform_tprod(double *x_in, double *y_out)
+    {
+        perform_op(x_in, y_out);
+    }
 };
 
 
