@@ -121,14 +121,17 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
     int mattype  = as<int>(mattype_scalar_r);
 
     int dim = std::min(m, n);
+    // Fail the case of function-typed matrix
+    if(mattype == FUNCTION)
+        mattype = -99;
     // Operation for original matrix
     MatProd *op_orig = get_mat_prod_op(A_mat_r, m, n, params_list_r, mattype);
     // Operation for SVD
     MatProd *op;
     if(m > n)
-        op = get_svd_tall_op(A_mat_r, m, n, params_list_r, mattype);
+        op = new SVDTallOp(op_orig);
     else
-        op = get_svd_wide_op(A_mat_r, m, n, params_list_r, mattype);
+        op = new SVDWideOp(op_orig);
 
     // Prepare initial residuals
     double *init_resid;
@@ -146,7 +149,7 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
         std::copy(rands, rands + dim % rands_len, coef_pntr);
     }
 
-    SymEigsSolver<double, LARGEST_MAGN, MatProd> eigs(op, k, ncv);
+    SymEigsSolver<double, LARGEST_ALGE, MatProd> eigs(op, k, ncv);
     eigs.init(init_resid);
     int nconv = eigs.compute(maxitr, tol);
     if(nconv < k)
