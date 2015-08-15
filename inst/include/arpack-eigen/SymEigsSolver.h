@@ -521,21 +521,24 @@ public:
     ///
     /// Returning the eigenvectors associated with the converged eigenvalues.
     ///
+    /// \param nvec The number of eigenvectors to return.
+    ///
     /// \return A matrix containing the eigenvectors.
     /// Returned matrix type will be `Eigen::Matrix<Scalar, ...>`,
     /// depending on the template parameter `Scalar` defined.
     ///
-    Matrix eigenvectors()
+    Matrix eigenvectors(int nvec)
     {
         int nconv = ritz_conv.cast<int>().sum();
-        Matrix res(dim_n, nconv);
+        nvec = std::min(nvec, nconv);
+        Matrix res(dim_n, nvec);
 
-        if(!nconv)
+        if(!nvec)
             return res;
 
-        Matrix ritz_vec_conv(ncv, nconv);
+        Matrix ritz_vec_conv(ncv, nvec);
         int j = 0;
-        for(int i = 0; i < nev; i++)
+        for(int i = 0; i < nev && j < nvec; i++)
         {
             if(ritz_conv[i])
             {
@@ -547,6 +550,14 @@ public:
         res.noalias() = fac_V * ritz_vec_conv;
 
         return res;
+    }
+
+    ///
+    /// Returning all converged eigenvectors.
+    ///
+    Matrix eigenvectors()
+    {
+        return eigenvectors(nev);
     }
 };
 

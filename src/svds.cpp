@@ -159,7 +159,7 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
     nv = std::min(nv, nconv);
 
     Eigen::VectorXd evals = eigs.eigenvalues();
-    Eigen::MatrixXd evecs = eigs.eigenvectors();
+    Eigen::MatrixXd evecs = eigs.eigenvectors(std::max(nu, nv));
 
     Rcpp::NumericVector d(nconv);
     Rcpp::NumericMatrix u(m, nu), v(n, nv);
