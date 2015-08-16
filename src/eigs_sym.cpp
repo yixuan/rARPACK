@@ -3,6 +3,7 @@
 #include "matops.h"
 
 using Rcpp::as;
+typedef Eigen::Map<Eigen::MatrixXd> MapMat;
 
 enum SOLVER_TYPE {
     REGULAR = 0,
@@ -19,9 +20,14 @@ if(nconv < nev)                                                                \
                   nconv, nev);                                                 \
 evals = Rcpp::wrap(eigs.eigenvalues());                                        \
 if(retvec)                                                                     \
-    evecs = Rcpp::wrap(eigs.eigenvectors());                                   \
-else                                                                           \
+{                                                                              \
+    Rcpp::NumericMatrix evecs_ret(n, nconv);                                   \
+    MapMat m(evecs_ret.begin(), n, nconv);                                     \
+    m.noalias() = eigs.eigenvectors();                                         \
+    evecs = evecs_ret;                                                         \
+} else {                                                                       \
     evecs = R_NilValue;                                                        \
+}                                                                              \
 niter = eigs.num_iterations();                                                 \
 nops = eigs.num_operations();
 
