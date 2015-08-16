@@ -11,6 +11,7 @@
 
 #include "SelectionRule.h"
 #include "UpperHessenbergQR.h"
+#include "TridiagEigen.h"
 #include "MatOp/DenseGenMatProd.h"
 #include "MatOp/DenseSymShiftSolve.h"
 
@@ -291,9 +292,9 @@ private:
     // Retrieve and sort ritz values and ritz vectors
     void retrieve_ritzpair()
     {
-        EigenSolver eig(fac_H);
-        Vector evals = eig.eigenvalues();
-        Matrix evecs = eig.eigenvectors();
+        TridiagEigen<double> decomp(fac_H);
+        Vector evals = decomp.eigenvalues();
+        Matrix evecs = decomp.eigenvectors();
 
         SortEigenvalue<Scalar, SelectionRule> sorting(evals.data(), evals.size());
         std::vector<int> ind = sorting.index();
