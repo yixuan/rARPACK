@@ -4,7 +4,7 @@ library(microbenchmark)
 library(dplyr)
 library(ggplot2)
 
-m = 500
+m = 200
 n = 100
 k = 10
 
@@ -16,7 +16,7 @@ y100 = crossprod(x100)
 m100 = matrix(rnorm(m*n), m)
 mt100 = t(m100)
 
-m = 5000
+m = 2000
 n = 1000
 x1000 = matrix(rnorm(n^2), n)
 x1000[sample(n^2, floor(n^2 / 2))] = 0
@@ -25,7 +25,7 @@ y1000 = crossprod(x1000)
 m1000 = matrix(rnorm(m*n), m)
 mt1000 = t(m1000)
 
-nrun = 20
+nrun = 50
 
 packageVersion("rARPACK")
 
@@ -79,8 +79,13 @@ visualize = function(res)
         group_by(expr, version, size) %>%
         summarize(medtime = median(time) / 1e6)
     
+    pdat = res %>%
+        mutate(size = ifelse(grepl("1000", expr), "1000", "100"))
+    
     g = ggplot(dat, aes(x = expr, y = medtime)) +
-        geom_bar(aes(fill = version), stat = "identity", position = "dodge") +
+        geom_bar(aes(color = version), fill = "white",
+                 stat = "identity", position = "dodge") +
+        geom_jitter(aes(x = expr, y = time / 1e6, color = version), pdat) +
         facet_wrap(~ size, ncol = 2, scales = "free") +
         scale_y_continuous("Elapsed time (milliseconds)") +
         scale_x_discrete("Functions") +
