@@ -41,6 +41,14 @@ void eigs_sym_c(
     double *evals, double *evecs, int *info
 );
 
+typedef void (*eigs_sym_c_funtype)(
+        mat_op op, int n, int k,
+        const arpack_opts *opts, void *data,
+        int *nconv, int *niter, int *nops,
+        double *evals, double *evecs, int *info
+);
+
+
 /*
  * sigma: The shift. (in)
  */
@@ -49,6 +57,13 @@ void eigs_sym_shift_c(
     const arpack_opts *opts, void *data,
     int *nconv, int *niter, int *nops,
     double *evals, double *evecs, int *info
+);
+
+typedef void (*eigs_sym_shift_c_funtype)(
+        mat_op op, int n, int k, double sigma,
+        const arpack_opts *opts, void *data,
+        int *nconv, int *niter, int *nops,
+        double *evals, double *evecs, int *info
 );
 
 /*
@@ -64,6 +79,13 @@ void eigs_gen_c(
     double *evals_r, double *evals_i, double *evecs_r, double *evecs_i, int *info
 );
 
+typedef void (*eigs_gen_c_funtype)(
+        mat_op op, int n, int k,
+        const arpack_opts *opts, void *data,
+        int *nconv, int *niter, int *nops,
+        double *evals_r, double *evals_i, double *evecs_r, double *evecs_i, int *info
+);
+
 /*
  * sigmar: Real part of the shift.      (in)
  * sigmai: Imaginary part of the shift. (in)
@@ -75,6 +97,12 @@ void eigs_gen_shift_c(
     double *evals_r, double *evals_i, double *evecs_r, double *evecs_i, int *info
 );
 
+typedef void (*eigs_gen_shift_c_funtype)(
+        mat_op op, int n, int k, double sigmar, double sigmai,
+        const arpack_opts *opts, void *data,
+        int *nconv, int *niter, int *nops,
+        double *evals_r, double *evals_i, double *evecs_r, double *evecs_i, int *info
+);
 
 
 #ifdef __cplusplus
