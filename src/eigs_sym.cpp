@@ -204,3 +204,113 @@ RcppExport SEXP eigs_shift_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
     END_RCPP
 }
 /************************ Shift-and-invert mode ************************/
+
+
+
+/************************ C interface ************************/
+#include <ArpackC.h>
+
+class CMatProd: public MatProd
+{
+private:
+    mat_op op;
+    const int n;
+    void *data;
+public:
+    CMatProd(mat_op op_, int n_, void *data_) :
+        op(op_),
+        n(n_),
+        data(data_)
+    {}
+    int rows() { return n; }
+    int cols() { return n; }
+    void perform_op(double *x_in, double *y_out) { op(x_in, y_out, n, data); }
+    void perform_tprod(double *x_in, double *y_out) {}
+};
+
+void eigs_sym_c(
+    mat_op op, int n, int k,
+    const arpack_opts *opts, void *data,
+    int *nconv, int *niter, int *nops,
+    double *evals, double *evecs, int *info
+)
+{
+    BEGIN_RCPP
+
+    CMatProd cmat_op(op, n, data);
+    Rcpp::List res;
+    try {
+        res = run_eigs_sym((MatProd*) &cmat_op, n, k, opts->ncv, opts->rule,
+                           opts->maxitr, opts->tol, opts->retvec != 0);
+        *info = 0;
+    } catch(...) {
+        *info = 1;  // indicates error
+    }
+
+    *nconv = Rcpp::as<int>(res["nconv"]);
+    *niter = Rcpp::as<int>(res["niter"]);
+    *nops  = Rcpp::as<int>(res["nops"]);
+    Rcpp::NumericVector val = res["values"];
+    std::copy(val.begin(), val.end(), evals);
+    if(opts->retvec != 0)
+    {
+        Rcpp::NumericMatrix vec = res["vectors"];
+        std::copy(vec.begin(), vec.end(), evecs);
+    }
+
+    VOID_END_RCPP
+}
+
+
+
+class CRealShift: public RealShift
+{
+private:
+    mat_op op;
+    const int n;
+    void *data;
+public:
+    CRealShift(mat_op op_, int n_, void *data_) :
+        op(op_),
+        n(n_),
+        data(data_)
+    {}
+    int rows() { return n; }
+    int cols() { return n; }
+    void set_shift(double sigma) {}
+    void perform_op(double *x_in, double *y_out) { op(x_in, y_out, n, data); }
+};
+
+void eigs_sym_shift_c(
+    mat_op op, int n, int k, double sigma,
+    const arpack_opts *opts, void *data,
+    int *nconv, int *niter, int *nops,
+    double *evals, double *evecs, int *info
+)
+{
+    BEGIN_RCPP
+
+    CRealShift cmat_op(op, n, data);
+    Rcpp::List res;
+    try {
+        res = run_eigs_shift_sym((RealShift*) &cmat_op, n, k, opts->ncv, opts->rule,
+                                 sigma, opts->maxitr, opts->tol, opts->retvec != 0);
+        *info = 0;
+    } catch(...) {
+        *info = 1;  // indicates error
+    }
+
+    *nconv = Rcpp::as<int>(res["nconv"]);
+    *niter = Rcpp::as<int>(res["niter"]);
+    *nops  = Rcpp::as<int>(res["nops"]);
+    Rcpp::NumericVector val = res["values"];
+    std::copy(val.begin(), val.end(), evals);
+    if(opts->retvec != 0)
+    {
+        Rcpp::NumericMatrix vec = res["vectors"];
+        std::copy(vec.begin(), vec.end(), evecs);
+    }
+
+    VOID_END_RCPP
+}
+/************************ C interface ************************/
