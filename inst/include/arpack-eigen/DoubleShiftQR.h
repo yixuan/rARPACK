@@ -25,7 +25,8 @@ private:
     Scalar shift_t;     // Shift constant
     Matrix3X ref_u;     // Householder reflectors
     const Scalar prec;  // Approximately zero
-    const Scalar prec2;
+    const Scalar eps_rel;
+    const Scalar eps_abs;
     bool computed;      // Whether matrix has been factorized
 
     void compute_reflector(const Scalar &x1, const Scalar &x2, const Scalar &x3, int ind)
@@ -204,7 +205,8 @@ public:
     DoubleShiftQR(int size) :
         n(size),
         prec(std::numeric_limits<Scalar>::epsilon()),
-        prec2(std::min(std::pow(prec, Scalar(2) / 3), n * prec)),
+        eps_rel(std::pow(prec, Scalar(2.0) / 3)),
+        eps_abs(std::min(std::pow(prec, Scalar(3.0) / 4), n * prec)),
         computed(false)
     {}
 
@@ -215,7 +217,8 @@ public:
         shift_t(t),
         ref_u(3, n),
         prec(std::numeric_limits<Scalar>::epsilon()),
-        prec2(std::min(std::pow(prec, Scalar(2) / 3), n * prec)),
+        eps_rel(std::pow(prec, Scalar(2.0) / 3)),
+        eps_abs(std::min(std::pow(prec, Scalar(3.0) / 4), n * prec)),
         computed(false)
     {
         compute(mat, s, t);
@@ -244,7 +247,7 @@ public:
         for(int i = 0; i < n - 2; i++, Hii += (n + 1))
         {
             // Hii[1] => mat_H(i + 1, i)
-            if(std::abs(Hii[1]) <= prec2)
+            if(std::abs(Hii[1]) <= eps_abs || std::abs(Hii[1]) <= eps_rel * (std::abs(Hii[0]) + std::abs(Hii[n + 1])))
             {
                 Hii[1] = 0;
                 zero_ind.push_back(i + 1);

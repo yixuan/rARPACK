@@ -351,7 +351,7 @@ public:
         ncv(ncv_ > dim_n ? dim_n : ncv_),
         nmatop(0),
         niter(0),
-        prec(std::pow(std::numeric_limits<Scalar>::epsilon(), Scalar(2.0 / 3)))
+        prec(std::pow(std::numeric_limits<Scalar>::epsilon(), Scalar(2.0) / 3))
     {
         if(nev_ < 1 || nev_ > dim_n - 2)
             throw std::invalid_argument("nev must satisfy 1 <= nev <= n - 2, n is the size of matrix");
@@ -658,7 +658,7 @@ private:
         ComplexArray v;
         Array v_real, v_imag;
         Array lhs_real(this->dim_n), lhs_imag(this->dim_n);
-        Scalar eps = std::pow(std::numeric_limits<Scalar>::epsilon(), Scalar(2.0 / 3));
+        Scalar eps = std::pow(std::numeric_limits<Scalar>::epsilon(), Scalar(2.0) / 3);
         for(int i = 0; i < this->nev; i++)
         {
             v = this->fac_V * this->ritz_vec.col(i);

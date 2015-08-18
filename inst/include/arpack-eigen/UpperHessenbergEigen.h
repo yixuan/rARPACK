@@ -262,7 +262,7 @@ public:
             throw std::logic_error("UpperHessenbergEigen: need to call compute() first");
 
         int n = m_eivec.cols();
-        const Scalar prec = std::pow(std::numeric_limits<Scalar>::epsilon(), Scalar(2.0 / 3));
+        const Scalar prec = std::pow(std::numeric_limits<Scalar>::epsilon(), Scalar(2.0) / 3);
 
         ComplexMatrix matV(n, n);
         for(int j = 0; j < n; ++j)
