@@ -1,5 +1,5 @@
 #include <RcppEigen.h>
-#include <SymEigsSolver.h>
+#include <SymEigs.h>
 #include "matops.h"
 
 using Rcpp::as;

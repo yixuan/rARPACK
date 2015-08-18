@@ -1,4 +1,4 @@
-#include <rarpack/MatOps.h>
+#include <RMatOp.h>
 #include <Rinternals.h>
 
 enum MAT_TYPE {

@@ -1,4 +1,4 @@
-#include <Rcpp.h>
+#include <RcppEigen.h>
 #include "matops.h"
 
 MatProd* get_mat_prod_op(SEXP mat, int nrow, int ncol, SEXP extra_arg, int mat_type)

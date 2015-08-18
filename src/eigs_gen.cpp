@@ -1,5 +1,5 @@
 #include <RcppEigen.h>
-#include <GenEigsSolver.h>
+#include <GenEigs.h>
 #include "matops.h"
 
 using Rcpp::as;
