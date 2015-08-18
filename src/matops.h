@@ -1,3 +1,6 @@
+#ifndef MATOPS_H
+#define MATOPS_H
+
 #include <RMatOp.h>
 #include <Rinternals.h>
 
@@ -18,3 +21,6 @@ RealShift* eigs_sym_get_real_shift_op(SEXP mat, int n, SEXP extra_arg, int mat_t
 RealShift* eigs_gen_get_real_shift_op(SEXP mat, int n, SEXP extra_arg, int mat_type);
 
 ComplexShift* get_complex_shift_op(SEXP mat, int n, SEXP extra_arg, int mat_type);
+
+
+#endif // MATOPS_H
