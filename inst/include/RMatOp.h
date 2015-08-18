@@ -1,5 +1,5 @@
-#ifndef MATTYPES_H
-#define MATTYPES_H
+#ifndef MATOPS_H
+#define MATOPS_H
 
 #include "MatOp/MatProd.h"
 #include "MatOp/MatProd_matrix.h"
@@ -23,4 +23,4 @@
 
 #include "MatOp/SVDOp.h"
 
-#endif // MATTYPES_H
+#endif // MATOPS_H
