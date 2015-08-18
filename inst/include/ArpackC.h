@@ -35,7 +35,8 @@ typedef void (*mat_op)(double *x_in, double *y_out, int n, void *data);
  * info:  Nonzero if error occurs.             (out)
  */
 void eigs_sym_c(
-    mat_op op, int n, int k, const arpack_opts *opts,
+    mat_op op, int n, int k,
+    const arpack_opts *opts, void *data,
     int *nconv, int *niter, int *nops,
     double *evals, double *evecs, int *info
 );
@@ -44,7 +45,8 @@ void eigs_sym_c(
  * sigma: The shift. (in)
  */
 void eigs_sym_shift_c(
-    mat_op op, int n, int k, double sigma, const arpack_opts *opts,
+    mat_op op, int n, int k, double sigma,
+    const arpack_opts *opts, void *data,
     int *nconv, int *niter, int *nops,
     double *evals, double *evecs, int *info
 );
@@ -56,7 +58,8 @@ void eigs_sym_shift_c(
  * evecs_i: Imaginary part of the eigenvectors. (out)
  */
 void eigs_gen_c(
-    mat_op op, int n, int k, const arpack_opts *opts,
+    mat_op op, int n, int k,
+    const arpack_opts *opts, void *data,
     int *nconv, int *niter, int *nops,
     double *evals_r, double *evals_i, double *evecs_r, double *evecs_i, int *info
 );
@@ -67,7 +70,7 @@ void eigs_gen_c(
  */
 void eigs_gen_shift_c(
     mat_op op, int n, int k, double sigmar, double sigmai,
-    const arpack_opts *opts,
+    const arpack_opts *opts, void *data,
     int *nconv, int *niter, int *nops,
     double *evals_r, double *evals_i, double *evecs_r, double *evecs_i, int *info
 );
