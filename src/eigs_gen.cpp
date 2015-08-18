@@ -275,3 +275,108 @@ RcppExport SEXP eigs_complex_shift_gen(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_sca
     END_RCPP
 }
 /************************ Complex shift mode ************************/
+
+
+
+/************************ C interface ************************/
+#include "c_interface.h"
+
+void eigs_gen_c(
+    mat_op op, int n, int k,
+    const arpack_opts *opts, void *data,
+    int *nconv, int *niter, int *nops,
+    double *evals_r, double *evals_i, double *evecs_r, double *evecs_i, int *info
+)
+{
+    BEGIN_RCPP
+
+    CMatProd cmat_op(op, n, data);
+    Rcpp::List res;
+    try {
+        res = run_eigs_gen((MatProd*) &cmat_op, n, k, opts->ncv, opts->rule,
+                           opts->maxitr, opts->tol, opts->retvec != 0);
+        *info = 0;
+    } catch(...) {
+        *info = 1;  // indicates error
+    }
+
+    *nconv = Rcpp::as<int>(res["nconv"]);
+    *niter = Rcpp::as<int>(res["niter"]);
+    *nops  = Rcpp::as<int>(res["nops"]);
+    Rcpp::ComplexVector val = res["values"];
+    for(int i = 0; i < val.length(); i++)
+    {
+        Rcomplex c = val[i];
+        evals_r[i] = c.r;
+        evals_i[i] = c.i;
+    }
+    if(opts->retvec != 0)
+    {
+        Rcpp::ComplexMatrix vec = res["vectors"];
+        for(int i = 0; i < vec.length(); i++)
+        {
+            Rcomplex c = val[i];
+            evecs_r[i] = c.r;
+            evecs_i[i] = c.i;
+        }
+    }
+
+    VOID_END_RCPP
+}
+
+void eigs_gen_shift_c(
+    mat_op op, int n, int k, double sigmar, double sigmai,
+    const arpack_opts *opts, void *data,
+    int *nconv, int *niter, int *nops,
+    double *evals_r, double *evals_i, double *evecs_r, double *evecs_i, int *info
+)
+{
+    BEGIN_RCPP
+
+    Rcpp::List res;
+    try {
+        if(std::abs(sigmai) <= 1e-12)
+        {
+            CRealShift cmat_op(op, n, data);
+            res = run_eigs_real_shift_gen(
+                      (RealShift*) &cmat_op, n, k, opts->ncv, opts->rule,
+                      sigmar, opts->maxitr, opts->tol, opts->retvec != 0
+                  );
+        }
+        else {
+            CComplexShift cmat_op(op, n, data);
+            res = run_eigs_complex_shift_gen(
+                      (ComplexShift*) &cmat_op, n, k, opts->ncv, opts->rule,
+                      sigmar, sigmai, opts->maxitr, opts->tol, opts->retvec != 0
+                  );
+        }
+
+        *info = 0;
+    } catch(...) {
+        *info = 1;  // indicates error
+    }
+
+    *nconv = Rcpp::as<int>(res["nconv"]);
+    *niter = Rcpp::as<int>(res["niter"]);
+    *nops  = Rcpp::as<int>(res["nops"]);
+    Rcpp::ComplexVector val = res["values"];
+    for(int i = 0; i < val.length(); i++)
+    {
+        Rcomplex c = val[i];
+        evals_r[i] = c.r;
+        evals_i[i] = c.i;
+    }
+    if(opts->retvec != 0)
+    {
+        Rcpp::ComplexMatrix vec = res["vectors"];
+        for(int i = 0; i < vec.length(); i++)
+        {
+            Rcomplex c = val[i];
+            evecs_r[i] = c.r;
+            evecs_i[i] = c.i;
+        }
+    }
+
+    VOID_END_RCPP
+}
+/************************ C interface ************************/
