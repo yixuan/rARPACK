@@ -1,6 +1,24 @@
 \name{NEWS}
 \title{News for Package "rARPACK"}
 
+\section{Changes in rARPACK version 0.8-0}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item The backend ARPACK now uses the arpack-eigen implementation, which
+            brings cleaner code and better performance.
+      \item \code{eigs.function()} now has a new argument \code{symmetric} to
+            assume symmetry of the operator.
+      \item Added a C interface for other packages to link to.
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Fixed a bug reported by xshi19
+            (\href{https://github.com/yixuan/rARPACK/issues/8}{#8})
+    }
+  }
+}
+
 \section{Changes in rARPACK version 0.7-0}{
   \subsection{NEW FEATURES}{
     \itemize{
