@@ -36,16 +36,21 @@ res_eigs = microbenchmark(
     "eigs[1000]"            = eigs(x1000, k),
     "eigs[1000, sparse]"    = eigs(xsp1000, k),
     "eigs[1000, symmetric]" = eigs_sym(y1000, k),
-    times = nrun
+    times = nrun,
+    control = list(order = "inorder")
 )
 write.csv(res_eigs, "eigs_0.8-0.csv")
 
 res_svds = microbenchmark(
     "svds[100]"             = svds(m100, k),
+    "sleep1"                = Sys.sleep(0.01),
     "svds[100, transpose]"  = svds(mt100, k),
+    "sleep2"                = Sys.sleep(0.01),
     "svds[1000]"            = svds(m1000, k),
+    "sleep3"                = Sys.sleep(0.01),
     "svds[1000, transpose]" = svds(mt1000, k),
-    times = nrun
+    times = nrun,
+    control = list(order = "inorder")
 )
 write.csv(res_svds, "svds_0.8-0.csv")
 
@@ -74,12 +79,12 @@ res_svds = rbind(
 ## Visualize results
 visualize = function(res)
 {
-    dat = res %>% 
+    dat = res %>% filter(!grepl("sleep", expr)) %>%
         mutate(size = ifelse(grepl("1000", expr), "1000", "100")) %>%
         group_by(expr, version, size) %>%
         summarize(medtime = median(time) / 1e6)
     
-    pdat = res %>%
+    pdat = res %>% filter(!grepl("sleep", expr)) %>%
         mutate(size = ifelse(grepl("1000", expr), "1000", "100"))
     
     g = ggplot(dat, aes(x = expr, y = medtime)) +
