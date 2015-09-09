@@ -15,8 +15,10 @@
 #include "RMatOp/RealShift_matrix.h"
 #include "RMatOp/RealShift_sym_matrix.h"
 #include "RMatOp/RealShift_dgeMatrix.h"
+#include "RMatOp/RealShift_sym_dgeMatrix.h"
 #include "RMatOp/RealShift_dsyMatrix.h"
 #include "RMatOp/RealShift_sparseMatrix.h"
+#include "RMatOp/RealShift_sym_sparseMatrix.h"
 
 #include "RMatOp/ComplexShift.h"
 #include "RMatOp/ComplexShift_matrix.h"
