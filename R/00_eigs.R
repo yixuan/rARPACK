@@ -209,7 +209,8 @@ eigs.matrix <- function(A, k, which = "LM", sigma = NULL,
     {
         if(which == "LR")  which = "LA"
         if(which == "SR")  which = "SA"
-        eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "matrix")
+        eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "sym_matrix",
+                      extra_args = list(use_lower = TRUE))
     } else {
         eigs.real_gen(A, nrow(A), k, which, sigma, opts, ..., mattype = "matrix")
     }
@@ -226,7 +227,8 @@ eigs.dgeMatrix <- function(A, k, which = "LM", sigma = NULL,
     {
         if(which == "LR")  which = "LA"
         if(which == "SR")  which = "SA"
-        eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "dgeMatrix")
+        eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "sym_dgeMatrix",
+                      extra_args = list(use_lower = TRUE))
     } else {
         eigs.real_gen(A, nrow(A), k, which, sigma, opts, ..., mattype = "dgeMatrix")
     }
@@ -243,7 +245,8 @@ eigs.dgCMatrix <- function(A, k, which = "LM", sigma = NULL,
     {
         if(which == "LR")  which = "LA"
         if(which == "SR")  which = "SA"
-        eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "dgCMatrix")
+        eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "sym_dgCMatrix",
+                      extra_args = list(use_lower = TRUE))
     } else {
         eigs.real_gen(A, nrow(A), k, which, sigma, opts, ..., mattype = "dgCMatrix")
     }
@@ -290,7 +293,7 @@ eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...,
 {
     if(is.matrix(A))
     {
-        eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "symmatrix",
+        eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "sym_matrix",
                       extra_args = list(use_lower = as.logical(lower)))
     } else {
         stop("unsupported matrix type")
@@ -301,9 +304,12 @@ eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...,
 ## Some enumerations
 
 # Matrix types
-MAT_TYPE = c("matrix" = 0L, "symmatrix" = 1L, "dgeMatrix" = 2L,
-             "dsyMatrix" = 3L, "dgCMatrix" = 4L, "dgRMatrix" = 5L,
-             "function" = 6L)
+MAT_TYPE = c("matrix"    = 0L, "sym_matrix"    = 1L,
+             "dgeMatrix" = 2L, "sym_dgeMatrix" = 3L,
+             "dsyMatrix" = 4L,
+             "dgCMatrix" = 5L, "sym_dgCMatrix" = 6L,
+             "dgRMatrix" = 7L, "sym_dgRMatrix" = 8L,
+             "function"  = 9L)
 # Solver types
 SOLVER_TYPE = c("regular" = 0L, "real_shift" = 1L, "complex_shift" = 2L)
 
