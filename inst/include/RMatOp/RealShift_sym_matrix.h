@@ -1,9 +1,9 @@
-#ifndef REALSHIFT_SYMMATRIX_H
-#define REALSHIFT_SYMMATRIX_H
+#ifndef REALSHIFT_SYM_MATRIX_H
+#define REALSHIFT_SYM_MATRIX_H
 
 #include <RcppEigen.h>
 
-class RealShift_symmatrix: public RealShift
+class RealShift_sym_matrix: public RealShift
 {
 private:
     typedef Eigen::MatrixXd Matrix;
@@ -18,7 +18,7 @@ private:
     LDLTSolver solver;
 
 public:
-    RealShift_symmatrix(SEXP mat_, const int nrow_, const char uplo_ = 'L') :
+    RealShift_sym_matrix(SEXP mat_, const int nrow_, const char uplo_ = 'L') :
         mat(REAL(mat_), nrow_, nrow_),
         n(nrow_),
         uplo(uplo_)
@@ -51,4 +51,4 @@ public:
 };
 
 
-#endif // REALSHIFT_SYMMATRIX_H
+#endif // REALSHIFT_SYM_MATRIX_H

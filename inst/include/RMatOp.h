@@ -5,7 +5,7 @@
 
 #include "RMatOp/MatProd.h"
 #include "RMatOp/MatProd_matrix.h"
-#include "RMatOp/MatProd_symmatrix.h"
+#include "RMatOp/MatProd_sym_matrix.h"
 #include "RMatOp/MatProd_dgeMatrix.h"
 #include "RMatOp/MatProd_dsyMatrix.h"
 #include "RMatOp/MatProd_sparseMatrix.h"
@@ -13,7 +13,7 @@
 
 #include "RMatOp/RealShift.h"
 #include "RMatOp/RealShift_matrix.h"
-#include "RMatOp/RealShift_symmatrix.h"
+#include "RMatOp/RealShift_sym_matrix.h"
 #include "RMatOp/RealShift_dgeMatrix.h"
 #include "RMatOp/RealShift_dsyMatrix.h"
 #include "RMatOp/RealShift_sparseMatrix.h"

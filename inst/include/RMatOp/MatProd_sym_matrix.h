@@ -1,11 +1,11 @@
-#ifndef MATPROD_SYMMATRIX_H
-#define MATPROD_SYMMATRIX_H
+#ifndef MATPROD_SYM_MATRIX_H
+#define MATPROD_SYM_MATRIX_H
 
 #include <Rcpp.h>
 #include <R_ext/BLAS.h>  // for BLAS and F77_CALL
 #include "MatProd.h"
 
-class MatProd_symmatrix: public MatProd
+class MatProd_sym_matrix: public MatProd
 {
 private:
     const double* mat_ptr;
@@ -16,7 +16,7 @@ private:
     const double BLAS_zero;
 
 public:
-    MatProd_symmatrix(SEXP mat_, const int nrow_, const char uplo_ = 'L') :
+    MatProd_sym_matrix(SEXP mat_, const int nrow_, const char uplo_ = 'L') :
         mat_ptr(REAL(mat_)),
         n(nrow_),
         uplo(uplo_),
@@ -44,4 +44,4 @@ public:
 };
 
 
-#endif // MATPROD_SYMMATRIX_H
+#endif // MATPROD_SYM_MATRIX_H
