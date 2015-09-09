@@ -337,7 +337,7 @@ protected:
     // This is used to return the final results
     virtual void sort_ritzpair()
     {
-        SortEigenvalue<Scalar, LARGEST_MAGN> sorting(ritz_val.data(), nev);
+        SortEigenvalue<Scalar, LARGEST_ALGE> sorting(ritz_val.data(), nev);
         std::vector<int> ind = sorting.index();
 
         Vector new_ritz_val(ncv);
