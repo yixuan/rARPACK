@@ -15,12 +15,14 @@ private:
     // Map to Eigen sparse matrix
     MapSpMat mat;
     const int n;
+    const char uplo;
     SpLDLSolver solver;
 
 public:
-    RealShift_sym_sparseMatrix(SEXP mat_, const int nrow_) :
+    RealShift_sym_sparseMatrix(SEXP mat_, const int nrow_, const char uplo_ = 'L') :
         mat(Rcpp::as<MapSpMat>(mat_)),
-        n(nrow_)
+        n(nrow_),
+        uplo(uplo_)
     {}
 
     int rows() { return n; }
@@ -29,7 +31,11 @@ public:
     void set_shift(double sigma)
     {
         solver.setShift(-sigma);
-        solver.compute(mat);
+        
+        if(uplo == 'L')
+            solver.compute(mat.selfadjointView<Eigen::Lower>());
+        else
+            solver.compute(mat.selfadjointView<Eigen::Upper>());
     }
 
     // y_out = inv(A - sigma * I) * x_in
