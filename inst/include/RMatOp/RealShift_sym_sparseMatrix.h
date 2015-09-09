@@ -33,9 +33,9 @@ public:
         solver.setShift(-sigma);
         
         if(uplo == 'L')
-            solver.compute(mat.selfadjointView<Eigen::Lower>());
+            solver.compute(mat.template selfadjointView<Eigen::Lower>());
         else
-            solver.compute(mat.selfadjointView<Eigen::Upper>());
+            solver.compute(mat.template selfadjointView<Eigen::Upper>());
     }
 
     // y_out = inv(A - sigma * I) * x_in
