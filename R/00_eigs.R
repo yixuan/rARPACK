@@ -30,11 +30,13 @@
 ##' \code{eigs_sym()} assumes the matrix is symmetric,
 ##' and only the lower triangle (or upper triangle, which is
 ##' controlled by the argument \code{lower}) is used for
-##' computation, which in some cases reduces the workload.
-##' Notice that \code{eigs_sym()} only applies to "ordinary" matrix,
-##' i.e., of class "matrix". If you want to calculate
-##' eigenvalues/vectors of matrix of "dsyMatrix" class, use
-##' \code{eigs()} instead.
+##' computation, which guarantees that the eigenvalues and eigenvectors are
+##' real, and in some cases reduces the workload. One exception is when
+##' \code{A} is a function, in which case the user is responsible for the
+##' symmetry of the operator.
+##' 
+##' \code{eigs_sym()} supports "matrix", "dgeMatrix", "dgCMatrix", "dgRMatrix"
+##' and "function" typed matrices.
 ##' 
 ##' @param A The matrix whose eigenvalues/vectors are to be computed.
 ##'          It can also be a function which receives a vector \eqn{x}
@@ -55,9 +57,6 @@
 ##'             will be passed to the \code{A} function containing any
 ##'             extra data. See section \strong{Function Interface}
 ##'             for details.
-##' @param symmetric Only used when \code{A} is a function, to assume that
-##'                  \code{A} represents a symmetric matrix. User is
-##'                  responsible for guaranteeing the symmetry.
 ##'
 ##' @details The \code{which} argument is a character string
 ##' that specifies the type of eigenvalues to be computed.

@@ -6,8 +6,7 @@
     \itemize{
       \item The backend ARPACK now uses the arpack-eigen implementation, which
             brings cleaner code and better performance.
-      \item \code{eigs.function()} now has a new argument \code{symmetric} to
-            assume symmetry of the operator.
+      \item \code{eigs_sym()} now accepts more matrix types.
       \item Added a C interface for other packages to link to.
     }
   }
@@ -15,6 +14,8 @@
     \itemize{
       \item Fixed a bug reported by xshi19
             (\href{https://github.com/yixuan/rARPACK/issues/8}{#8})
+      \item Fixed a performance issue reported by swajnautcz
+            (\href{https://github.com/yixuan/rARPACK/issues/10}{#10})
     }
   }
 }

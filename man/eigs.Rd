@@ -9,6 +9,7 @@
 \alias{eigs.function}
 \alias{eigs.matrix}
 \alias{eigs_sym}
+\alias{eigs_sym.function}
 \title{Find a Specified Number of Eigenvalues/vectors for Square Matrix}
 \usage{
 eigs(A, k, which = "LM", sigma = NULL, opts = list(), ...)
@@ -29,10 +30,13 @@ eigs(A, k, which = "LM", sigma = NULL, opts = list(), ...)
   ...)
 
 \method{eigs}{function}(A, k, which = "LM", sigma = NULL, opts = list(),
-  ..., n = NULL, args = NULL, symmetric = FALSE)
+  ..., n = NULL, args = NULL)
 
 eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
-  ..., lower = TRUE)
+   lower = TRUE, ...)
+
+\method{eigs_sym}{function}(A, k, which = "LM", sigma = NULL,
+  opts = list(), lower = TRUE, ..., n = NULL, args = NULL)
 }
 \arguments{
 \item{A}{The matrix whose eigenvalues/vectors are to be computed.
@@ -54,13 +58,9 @@ dimension of the implicit matrix. See section
 \strong{Function Interface} for details.}
 
 \item{args}{Only used when \code{A} is a function. This argument
-will be passed to the \code{A} function containing any
-extra data. See section \strong{Function Interface}
-for details.}
-
-\item{symmetric}{Only used when \code{A} is a function, to assume that
-                 \code{A} represents a symmetric matrix. User is
-                 responsible for guaranteeing the symmetry.}
+            will be passed to the \code{A} function containing any
+            extra data. See section \strong{Function Interface}
+            for details.}
 
 \item{lower}{For symmetric matrices, should the lower triangle
 or upper triangle be used.}
@@ -105,11 +105,13 @@ Currently \code{eigs()} supports matrices of the following classes:
 \code{eigs_sym()} assumes the matrix is symmetric,
 and only the lower triangle (or upper triangle, which is
 controlled by the argument \code{lower}) is used for
-computation, which in some cases reduces the workload.
-Notice that \code{eigs_sym()} only applies to "ordinary" matrix,
-i.e., of class "matrix". If you want to calculate
-eigenvalues/vectors of matrix of "dsyMatrix" class, use
-\code{eigs()} instead.
+computation, which guarantees that the eigenvalues and eigenvectors are
+real, and in some cases reduces the workload. One exception is when
+\code{A} is a function, in which case the user is responsible for the
+symmetry of the operator.
+
+\code{eigs_sym()} supports "matrix", "dgeMatrix", "dgCMatrix", "dgRMatrix"
+and "function" typed matrices.
 }
 \details{
 The \code{which} argument is a character string
