@@ -270,35 +270,57 @@ eigs.dsyMatrix <- function(A, k, which = "LM", sigma = NULL,
 ##' @export
 eigs.function <- function(A, k, which = "LM", sigma = NULL,
                           opts = list(), ...,
-                          n = NULL, args = NULL, symmetric = FALSE)
-{
-    if(symmetric)
-    {
-        eigs.real_sym(A, as.integer(n), k, which, sigma, opts, ..., mattype = "function",
-                      extra_args = list(fun_args = args))
-    } else {
-        eigs.real_gen(A, as.integer(n), k, which, sigma, opts, ..., mattype = "function",
-                      extra_args = list(fun_args = args))
-    }
-}
+                          n = NULL, args = NULL)
+    eigs.real_gen(A, as.integer(n), k, which, sigma, opts, ..., mattype = "function",
+                  extra_args = list(fun_args = args))
 
 
 
 ##' @rdname eigs
 ##' @usage eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
-##'   ..., lower = TRUE)
+##'    lower = TRUE, ...)
 ##' @export
-eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...,
-                     lower = TRUE)
+eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(),
+                     lower = TRUE, ...)
+    UseMethod("eigs_sym")
+
+eigs_sym.matrix <- function(A, k, which = "LM", sigma = NULL, opts = list(),
+                            lower = TRUE, ...)
 {
-    if(is.matrix(A))
-    {
-        eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "sym_matrix",
-                      extra_args = list(use_lower = as.logical(lower)))
-    } else {
-        stop("unsupported matrix type")
-    }
+    eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "sym_matrix",
+                  extra_args = list(use_lower = as.logical(lower)))
 }
+
+eigs_sym.dgeMatrix <- function(A, k, which = "LM", sigma = NULL, opts = list(),
+                               lower = TRUE, ...)
+{
+    eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "sym_dgeMatrix",
+                  extra_args = list(use_lower = as.logical(lower)))
+}
+
+eigs_sym.dgCMatrix <- function(A, k, which = "LM", sigma = NULL, opts = list(),
+                               lower = TRUE, ...)
+{
+    eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "sym_dgCMatrix",
+                  extra_args = list(use_lower = as.logical(lower)))
+}
+
+eigs_sym.dgRMatrix <- function(A, k, which = "LM", sigma = NULL, opts = list(),
+                               lower = TRUE, ...)
+{
+    eigs.real_sym(A, nrow(A), k, which, sigma, opts, ..., mattype = "sym_dgRMatrix",
+                  extra_args = list(use_lower = as.logical(lower)))
+}
+
+##' @rdname eigs
+##' @export
+eigs_sym.function <- function(A, k, which = "LM", sigma = NULL, opts = list(),
+                              lower = TRUE, ..., n = NULL, args = NULL)
+{
+    eigs.real_sym(A, as.integer(n), k, which, sigma, opts, ..., mattype = "function",
+                  extra_args = list(fun_args = args))
+}
+
 
 
 ## Some enumerations

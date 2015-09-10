@@ -9,6 +9,12 @@ S3method(eigs, dgRMatrix)
 S3method(eigs, dsyMatrix)
 S3method(eigs, "function")
 
+S3method(eigs_sym, matrix)
+S3method(eigs_sym, dgeMatrix)
+S3method(eigs_sym, dgCMatrix)
+S3method(eigs_sym, dgRMatrix)
+S3method(eigs_sym, "function")
+
 S3method(svds, matrix)
 S3method(svds, dgeMatrix)
 S3method(svds, dgCMatrix)
