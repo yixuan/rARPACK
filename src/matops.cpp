@@ -19,8 +19,13 @@ MatProd* get_mat_prod_op(SEXP mat, int nrow, int ncol, SEXP extra_arg, int mat_t
         }
         break;
     case DGEMATRIX:
-    case SYM_DGEMATRIX:
         op = new MatProd_dgeMatrix(mat, nrow, ncol);
+        break;
+    case SYM_DGEMATRIX:
+        {
+        bool use_lower = Rcpp::as<bool>(args["use_lower"]);
+        op = new MatProd_sym_dgeMatrix(mat, nrow, use_lower ? 'L' : 'U');
+        }
         break;
     case DSYMATRIX:
         {
@@ -29,12 +34,22 @@ MatProd* get_mat_prod_op(SEXP mat, int nrow, int ncol, SEXP extra_arg, int mat_t
         }
         break;
     case DGCMATRIX:
-    case SYM_DGCMATRIX:
         op = new MatProd_dgCMatrix(mat, nrow, ncol);
         break;
+    case SYM_DGCMATRIX:
+        {
+        bool use_lower = Rcpp::as<bool>(args["use_lower"]);
+        op = new MatProd_sym_dgCMatrix(mat, nrow, use_lower ? 'L' : 'U');
+        }
+        break;
     case DGRMATRIX:
-    case SYM_DGRMATRIX:
         op = new MatProd_dgRMatrix(mat, nrow, ncol);
+        break;
+    case SYM_DGRMATRIX:
+        {
+        bool use_lower = Rcpp::as<bool>(args["use_lower"]);
+        op = new MatProd_sym_dgRMatrix(mat, nrow, use_lower ? 'L' : 'U');
+        }
         break;
     case FUNCTION:
         {
