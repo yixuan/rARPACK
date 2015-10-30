@@ -2,7 +2,7 @@
 #define SYMEIGS_H
 
 #ifdef __cplusplus
-#include <arpack_eigen/SymEigsSolver.h>
+#include <Spectra/SymEigsSolver.h>
 #endif
 
 #endif /* SYMEIGS_H */

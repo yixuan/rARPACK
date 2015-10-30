@@ -2,6 +2,7 @@
 #include <GenEigs.h>
 #include "matops.h"
 
+using namespace Spectra;
 using Rcpp::as;
 
 enum SOLVER_TYPE {

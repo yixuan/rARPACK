@@ -2,6 +2,7 @@
 #include <SymEigs.h>
 #include "matops.h"
 
+using namespace Spectra;
 using Rcpp::as;
 typedef Eigen::Map<Eigen::MatrixXd> MapMat;
 
