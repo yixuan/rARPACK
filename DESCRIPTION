@@ -3,7 +3,7 @@ Type: Package
 Title: R wrapper of ARPACK for large scale eigenvalue/vector problems,
     on both dense and sparse matrices
 Version: 0.8-0
-Date: 2015-08-12
+Date: 2015-10-29
 Author: Yixuan Qiu, Jiali Mei and authors of the ARPACK library. See file
     AUTHORS for details.
 Maintainer: Yixuan Qiu <yixuan.qiu@cos.name>
