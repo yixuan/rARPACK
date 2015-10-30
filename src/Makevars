@@ -13,4 +13,4 @@ clean:
 	$(RM) *.o
 	$(RM) *.dll
 	$(RM) *.so
-	cd ARPACK && $(MAKE) clean
+	$(RM) *.dylib
