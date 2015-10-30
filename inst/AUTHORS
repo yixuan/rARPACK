@@ -24,9 +24,9 @@ were contributed by Jiali Mei.
 
 
 For rARPACK of version >= 0.8-0,
-the package included the ARPACK-Eigen library
-(https://github.com/yixuan/arpack-eigen/)
-to replace arpack-ng. ARPACK-Eigen was written by Yixuan Qiu.
+the package included the Spectra library
+(https://github.com/yixuan/spectra/)
+to replace arpack-ng. Spectra was written by Yixuan Qiu.
 
 
 
