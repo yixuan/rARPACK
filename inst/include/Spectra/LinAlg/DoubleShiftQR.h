@@ -1,3 +1,9 @@
+// Copyright (C) 2015 Yixuan Qiu <yixuan.qiu@cos.name>
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef DOUBLE_SHIFT_QR_H
 #define DOUBLE_SHIFT_QR_H
 
@@ -7,6 +13,9 @@
 #include <cmath>      // std::abs, std::sqrt, std::pow
 #include <limits>     // std::numeric_limits
 #include <stdexcept>  // std::invalid_argument, std::logic_error
+
+namespace Spectra {
+
 
 template <typename Scalar = double>
 class DoubleShiftQR
@@ -324,5 +333,7 @@ public:
     }
 };
 
+
+} // namespace Spectra
 
 #endif // DOUBLE_SHIFT_QR_H

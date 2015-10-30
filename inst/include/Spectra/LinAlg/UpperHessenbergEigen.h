@@ -1,10 +1,22 @@
 // The code was adapted from Eigen/src/Eigenvaleus/EigenSolver.h
+//
+// Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
+// Copyright (C) 2010,2012 Jitse Niesen <jitse@maths.leeds.ac.uk>
+// Copyright (C) 2015 Yixuan Qiu <yixuan.qiu@cos.name>
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef UPPER_HESSENBERG_EIGEN_H
 #define UPPER_HESSENBERG_EIGEN_H
 
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <stdexcept>
+
+namespace Spectra {
+
 
 template <typename Scalar = double>
 class UpperHessenbergEigen
@@ -290,5 +302,6 @@ public:
 };
 
 
+} // namespace Spectra
 
 #endif // UPPER_HESSENBERG_EIGEN_H

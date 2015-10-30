@@ -1,3 +1,9 @@
+// Copyright (C) 2015 Yixuan Qiu <yixuan.qiu@cos.name>
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef SYM_EIGS_SOLVER_H
 #define SYM_EIGS_SOLVER_H
 
@@ -10,10 +16,13 @@
 #include <stdexcept>  // std::invalid_argument
 
 #include "SelectionRule.h"
-#include "UpperHessenbergQR.h"
-#include "TridiagEigen.h"
+#include "LinAlg/UpperHessenbergQR.h"
+#include "LinAlg/TridiagEigen.h"
 #include "MatOp/DenseGenMatProd.h"
 #include "MatOp/DenseSymShiftSolve.h"
+
+
+namespace Spectra {
 
 
 ///
@@ -27,7 +36,7 @@
 ///
 /// This class implements the eigen solver for real symmetric matrices.
 ///
-/// **ARPACK-Eigen** is designed to calculate a specified number (\f$k\f$)
+/// **Spectra** is designed to calculate a specified number (\f$k\f$)
 /// of eigenvalues of a large square matrix (\f$A\f$). Usually \f$k\f$ is much
 /// less than the size of the matrix (\f$n\f$), so that only a few eigenvalues
 /// and eigenvectors are computed.
@@ -47,7 +56,7 @@
 /// default template parameter for SymEigsSolver.
 ///
 /// If the users need to define their own matrix-vector multiplication operation
-/// class, it should impelement all the public member functions as in DenseGenMatProd.
+/// class, it should implement all the public member functions as in DenseGenMatProd.
 ///
 /// \tparam Scalar        The element type of the matrix.
 ///                       Currently supported types are `float`, `double` and `long double`.
@@ -55,7 +64,7 @@
 ///                       the requested eigenvalues, for example `LARGEST_MAGN`
 ///                       to retrieve eigenvalues with the largest magnitude.
 ///                       The full list of enumeration values can be found in
-///                       SelectionRule.h .
+///                       \ref Enumerations.
 /// \tparam OpType        The name of the matrix operation class. Users could either
 ///                       use the DenseGenMatProd wrapper class, or define their
 ///                       own that impelemnts all the public member functions as in
@@ -67,6 +76,8 @@
 /// #include <Eigen/Core>
 /// #include <SymEigsSolver.h>  // Also includes <MatOp/DenseGenMatProd.h>
 /// #include <iostream>
+///
+/// using namespace Spectra;
 ///
 /// int main()
 /// {
@@ -101,6 +112,8 @@
 /// #include <Eigen/Core>
 /// #include <SymEigsSolver.h>
 /// #include <iostream>
+///
+/// using namespace Spectra;
 ///
 /// // M = diag(1, 2, ..., 10)
 /// class MyDiagonalTen
@@ -292,7 +305,7 @@ private:
     // Retrieve and sort ritz values and ritz vectors
     void retrieve_ritzpair()
     {
-        TridiagEigen<double> decomp(fac_H);
+        TridiagEigen<Scalar> decomp(fac_H);
         Vector evals = decomp.eigenvalues();
         Matrix evecs = decomp.eigenvectors();
 
@@ -333,12 +346,39 @@ private:
     }
 
 protected:
-    // Sort the first nev Ritz pairs in decreasing magnitude order
+    // Sort the first nev Ritz pairs in the specified order
     // This is used to return the final results
-    virtual void sort_ritzpair()
+    virtual void sort_ritzpair(int sort_rule)
     {
+        // First make sure that we have a valid index vector
         SortEigenvalue<Scalar, LARGEST_ALGE> sorting(ritz_val.data(), nev);
         std::vector<int> ind = sorting.index();
+
+        switch(sort_rule)
+        {
+            case LARGEST_ALGE:
+                break;
+            case LARGEST_MAGN:
+            {
+                SortEigenvalue<Scalar, LARGEST_MAGN> sorting(ritz_val.data(), nev);
+                ind = sorting.index();
+            }
+                break;
+            case SMALLEST_ALGE:
+            {
+                SortEigenvalue<Scalar, SMALLEST_ALGE> sorting(ritz_val.data(), nev);
+                ind = sorting.index();
+            }
+                break;
+            case SMALLEST_MAGN:
+            {
+                SortEigenvalue<Scalar, SMALLEST_MAGN> sorting(ritz_val.data(), nev);
+                ind = sorting.index();
+            }
+                break;
+            default:
+                throw std::invalid_argument("unsupported sorting rule");
+        }
 
         Vector new_ritz_val(ncv);
         Matrix new_ritz_vec(ncv, nev);
@@ -395,7 +435,7 @@ public:
     ///
     /// \param init_resid Pointer to the initial residual vector.
     ///
-    /// **ARPACK-Eigen** (and also **ARPACK**) uses an iterative algorithm
+    /// **Spectra** (and also **ARPACK**) uses an iterative algorithm
     /// to find eigenvalues. This function allows the user to provide the initial
     /// residual vector.
     ///
@@ -452,12 +492,22 @@ public:
     ///
     /// Conducting the major computation procedure.
     ///
-    /// \param maxit Maximum number of iterations allowed in the algorithm.
-    /// \param tol Precision parameter for the calculated eigenvalues.
+    /// \param maxit      Maximum number of iterations allowed in the algorithm.
+    /// \param tol        Precision parameter for the calculated eigenvalues.
+    /// \param sort_rule  Rule to sort the eigenvalues and eigenvectors.
+    ///                   Supported values are
+    ///                   `Spectra::LARGEST_ALGE`, `Spectra::LARGEST_MAGN`,
+    ///                   `Spectra::SMALLEST_ALGE` and `Spectra::SMALLEST_MAGN`,
+    ///                   for example `LARGEST_ALGE` indicates that largest eigenvalues
+    ///                   come first. Note that this argument is only used to
+    ///                   **sort** the final result, and the **selection** rule
+    ///                   (e.g. selecting the largest or smallest eigenvalues in the
+    ///                   full spectrum) is specified by the template parameter
+    ///                   `SelectionRule` of SymEigsSolver.
     ///
     /// \return Number of converged eigenvalues.
     ///
-    int compute(int maxit = 1000, Scalar tol = 1e-10)
+    int compute(int maxit = 1000, Scalar tol = 1e-10, int sort_rule = LARGEST_ALGE)
     {
         // The m-step Arnoldi factorization
         factorize_from(1, ncv, fac_f);
@@ -474,7 +524,7 @@ public:
             restart(nev_adj);
         }
         // Sorting results
-        sort_ritzpair();
+        sort_ritzpair(sort_rule);
 
         niter += i + 1;
 
@@ -590,7 +640,7 @@ public:
 /// that \f$\lambda=\sigma+\nu^{-1}\f$.
 ///
 /// The reason why we need this type of manipulation is that
-/// the algorithm of **ARPACK-Eigen** (and also **ARPACK**)
+/// the algorithm of **Spectra** (and also **ARPACK**)
 /// is good at finding eigenvalues with large magnitude, but may fail in looking
 /// for eigenvalues that are close to zero. However, if we really need them, we
 /// can set \f$\sigma=0\f$, find the largest eigenvalues of \f$A^{-1}\f$, and then
@@ -610,7 +660,7 @@ public:
 /// \tparam SelectionRule An enumeration value indicating the selection rule of
 ///                       the shifted-and-inverted eigenvalues.
 ///                       The full list of enumeration values can be found in
-///                       SelectionRule.h .
+///                       \ref Enumerations.
 /// \tparam OpType        The name of the matrix operation class. Users could either
 ///                       use the DenseSymShiftSolve wrapper class, or define their
 ///                       own that impelemnts all the public member functions as in
@@ -622,6 +672,8 @@ public:
 /// #include <Eigen/Core>
 /// #include <SymEigsSolver.h>  // Also includes <MatOp/DenseSymShiftSolve.h>
 /// #include <iostream>
+///
+/// using namespace Spectra;
 ///
 /// int main()
 /// {
@@ -654,6 +706,8 @@ public:
 /// #include <Eigen/Core>
 /// #include <SymEigsSolver.h>
 /// #include <iostream>
+///
+/// using namespace Spectra;
 ///
 /// // M = diag(1, 2, ..., 10)
 /// class MyDiagonalTenShiftSolve
@@ -702,11 +756,11 @@ private:
     Scalar sigma;
 
     // First transform back the ritz values, and then sort
-    void sort_ritzpair()
+    void sort_ritzpair(int sort_rule)
     {
         Array ritz_val_org = Scalar(1.0) / this->ritz_val.head(this->nev).array() + sigma;
         this->ritz_val.head(this->nev) = ritz_val_org;
-        SymEigsSolver<Scalar, SelectionRule, OpType>::sort_ritzpair();
+        SymEigsSolver<Scalar, SelectionRule, OpType>::sort_ritzpair(sort_rule);
     }
 public:
     ///
@@ -734,5 +788,8 @@ public:
         this->op->set_shift(sigma);
     }
 };
+
+
+} // namespace Spectra
 
 #endif // SYM_EIGS_SOLVER_H

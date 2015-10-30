@@ -1,3 +1,9 @@
+// Copyright (C) 2015 Yixuan Qiu <yixuan.qiu@cos.name>
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef SELECTION_RULE_H
 #define SELECTION_RULE_H
 
@@ -8,18 +14,22 @@
 #include <utility>    // std::pair
 #include <stdexcept>  // std::invalid_argument
 
+namespace Spectra {
+
+
 ///
-/// \file SelectionRule.h
+/// \defgroup Enumerations
 ///
-/// This file defines enumeration types for the selection rule of eigenvalues.
+/// Enumeration types for the selection rule of eigenvalues.
 ///
 
+///
+/// \ingroup Enumerations
 ///
 /// The enumeration of selection rules of desired eigenvalues.
 ///
 enum SELECT_EIGENVALUE
 {
-
     LARGEST_MAGN = 0,  ///< Select eigenvalues with largest magnitude. Magnitude
                        ///< means the absolute value for real numbers and norm for
                        ///< complex numbers. Applies to both symmetric and general
@@ -45,6 +55,8 @@ enum SELECT_EIGENVALUE
                        ///< `nev` is odd, compute more from the high end. Only for symmetric eigen solvers.
 };
 
+///
+/// \ingroup Enumerations
 ///
 /// The enumeration of selection rules of desired eigenvalues. Alias for `SELECT_EIGENVALUE`.
 ///
@@ -253,5 +265,8 @@ public:
 };
 
 /// \endcond
+
+
+} // namespace Spectra
 
 #endif // SELECTION_RULE_H

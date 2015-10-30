@@ -1,3 +1,9 @@
+// Copyright (C) 2015 Yixuan Qiu <yixuan.qiu@cos.name>
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef UPPER_HESSENBERG_QR_H
 #define UPPER_HESSENBERG_QR_H
 
@@ -6,6 +12,9 @@
 #include <algorithm>  // std::fill, std::copy
 #include <limits>     // std::numeric_limits
 #include <stdexcept>  // std::logic_error
+
+namespace Spectra {
+
 
 ///
 /// \defgroup LinearAlgebra Linear Algebra
@@ -581,5 +590,6 @@ public:
 };
 
 
+} // namespace Spectra
 
 #endif // UPPER_HESSENBERG_QR_H

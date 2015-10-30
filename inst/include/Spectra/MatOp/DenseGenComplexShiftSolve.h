@@ -1,9 +1,18 @@
+// Copyright (C) 2015 Yixuan Qiu <yixuan.qiu@cos.name>
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #ifndef DENSE_GEN_COMPLEX_SHIFT_SOLVE_H
 #define DENSE_GEN_COMPLEX_SHIFT_SOLVE_H
 
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <stdexcept>
+
+namespace Spectra {
+
 
 ///
 /// \ingroup MatOp
@@ -90,5 +99,7 @@ public:
     }
 };
 
+
+} // namespace Spectra
 
 #endif // DENSE_GEN_COMPLEX_SHIFT_SOLVE_H

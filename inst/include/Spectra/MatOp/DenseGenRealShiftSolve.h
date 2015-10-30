@@ -1,19 +1,28 @@
-#ifndef DENSE_SYM_SHIFT_SOLVE_H
-#define DENSE_SYM_SHIFT_SOLVE_H
+// Copyright (C) 2015 Yixuan Qiu <yixuan.qiu@cos.name>
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#ifndef DENSE_GEN_REAL_SHIFT_SOLVE_H
+#define DENSE_GEN_REAL_SHIFT_SOLVE_H
 
 #include <Eigen/Core>
-#include <Eigen/Cholesky>
+#include <Eigen/LU>
 #include <stdexcept>
+
+namespace Spectra {
+
 
 ///
 /// \ingroup MatOp
 ///
-/// This class defines the shift-solve operation on a real symmetric matrix \f$A\f$,
+/// This class defines the shift-solve operation on a general real matrix \f$A\f$,
 /// i.e., calculating \f$y=(A-\sigma I)^{-1}x\f$ for any real \f$\sigma\f$ and
-/// vector \f$x\f$. It is mainly used in the SymEigsShiftSolver eigen solver.
+/// vector \f$x\f$. It is mainly used in the GenEigsRealShiftSolver eigen solver.
 ///
 template <typename Scalar>
-class DenseSymShiftSolve
+class DenseGenRealShiftSolve
 {
 private:
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
@@ -25,7 +34,7 @@ private:
 
     const MapMat mat;
     const int dim_n;
-    Eigen::LDLT<Matrix> solver;
+    Eigen::PartialPivLU<Matrix> solver;
 
 public:
     ///
@@ -36,12 +45,12 @@ public:
     /// `Eigen::MatrixXf`), or its mapped version
     /// (e.g. `Eigen::Map<Eigen::MatrixXd>`).
     ///
-    DenseSymShiftSolve(ConstGenericMatrix &mat_) :
+    DenseGenRealShiftSolve(ConstGenericMatrix &mat_) :
         mat(mat_.data(), mat_.rows(), mat_.cols()),
         dim_n(mat_.rows())
     {
         if(mat_.rows() != mat_.cols())
-            throw std::invalid_argument("DenseSymShiftSolve: matrix must be square");
+            throw std::invalid_argument("DenseGenRealShiftSolve: matrix must be square");
     }
 
     ///
@@ -77,4 +86,6 @@ public:
 };
 
 
-#endif // DENSESYMSHIFTSOLVE_H
+} // namespace Spectra
+
+#endif // DENSE_GEN_REAL_SHIFT_SOLVE_H
