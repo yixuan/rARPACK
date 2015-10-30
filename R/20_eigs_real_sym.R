@@ -18,7 +18,7 @@ eigs.real_sym <- function(A, n, k, which, sigma, opts, ..., mattype,
     if (k == n)
     {
         warning("all eigenvalues are requested, eigen() is used instead")
-        return(c(eigen(if(lower) A else t(A),
+        return(c(eigen(if(extra_args$use_lower) A else t(A),
                        symmetric = TRUE,
                        only.values = identical(opts$retvec, FALSE)),
                  nconv = n, niter = 0))
