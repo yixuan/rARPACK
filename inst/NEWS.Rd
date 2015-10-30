@@ -4,8 +4,9 @@
 \section{Changes in rARPACK version 0.8-0}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item The backend ARPACK now uses the arpack-eigen implementation, which
-            brings cleaner code and better performance.
+      \item The backend program is now changed from ARPACK to
+            \href{https://github.com/yixuan/spectra}{Spectra},
+            which brings cleaner code and better performance.
       \item \code{eigs_sym()} now accepts more matrix types.
       \item Added a C interface for other packages to link to.
     }
