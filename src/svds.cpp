@@ -103,6 +103,8 @@ RcppExport SEXP svds_sym(SEXP A_mat_r, SEXP n_scalar_r, SEXP k_scalar_r,
 
 
 
+inline double simple_sqrt(double x) { return std::sqrt(x); }
+
 RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
                          SEXP k_scalar_r, SEXP nu_scalar_r, SEXP nv_scalar_r,
                          SEXP params_list_r, SEXP mattype_scalar_r)
@@ -168,7 +170,7 @@ RcppExport SEXP svds_gen(SEXP A_mat_r, SEXP m_scalar_r, SEXP n_scalar_r,
 
     // Copy evals to d and take the square root
     std::copy(evals.data(), evals.data() + nconv, d.begin());
-    std::transform(d.begin(), d.end(), d.begin(), ::sqrt);
+    std::transform(d.begin(), d.end(), d.begin(), simple_sqrt);
 
     // Copy evecs to u or v according to the shape of A
     // If A is tall, copy evecs to v, otherwise copy to u
