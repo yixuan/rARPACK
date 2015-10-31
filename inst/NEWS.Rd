@@ -1,6 +1,14 @@
 \name{NEWS}
 \title{News for Package "rARPACK"}
 
+\section{Changes in rARPACK version 0.8-1}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Fixed a compilation problem on Solaris
+    }
+  }
+}
+
 \section{Changes in rARPACK version 0.8-0}{
   \subsection{NEW FEATURES}{
     \itemize{
