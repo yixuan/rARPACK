@@ -1,6 +1,14 @@
 \name{NEWS}
 \title{News for Package "rARPACK"}
 
+\section{Changes in rARPACK version 0.9-0}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Fixed a bug that causes the algorithm not converging on some matrices
+    }
+  }
+}
+
 \section{Changes in rARPACK version 0.8-1}{
   \subsection{BUG FIXES}{
     \itemize{
