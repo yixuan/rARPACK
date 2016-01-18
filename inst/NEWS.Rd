@@ -1,6 +1,15 @@
 \name{NEWS}
 \title{News for Package "rARPACK"}
 
+\section{Changes in rARPACK version 0.10-0}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Updated the backend Spectra library, which fixed the compatibility
+            with Eigen >= 3.2.6
+    }
+  }
+}
+
 \section{Changes in rARPACK version 0.9-0}{
   \subsection{BUG FIXES}{
     \itemize{
