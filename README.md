@@ -1,11 +1,13 @@
-## R wrapper of ARPACK for large scale eigen value/vector problems
+## Solvers for Large Scale Eigenvalue and SVD Problems
 
 ### Introduction
 
-**rARPACK** is an R wrapper of the
+**rARPACK** was originally an R wrapper of the
 [ARPACK library](http://www.caam.rice.edu/software/ARPACK/)
 to solve large scale eigen
-value/vector problems. It is typically used to compute a few eigen
+value/vector problems. From version 0.8-0 it changed the backend to the
+[Spectra library](http://yixuan.cos.name/spectra/).
+This R package is typically used to compute a few eigen
 values/vectors of an `n` by `n` matrix, e.g., the `k` largest eigen values, which
 is usually more efficient than `eigen()` if `k << n`. 
 
