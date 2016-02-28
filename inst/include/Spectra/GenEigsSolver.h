@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Yixuan Qiu <yixuan.qiu@cos.name>
+// Copyright (C) 2016 Yixuan Qiu <yixuan.qiu@cos.name>
 //
 // This Source Code Form is subject to the terms of the Mozilla
 // Public License v. 2.0. If a copy of the MPL was not distributed
@@ -17,6 +17,7 @@
 
 #include "SelectionRule.h"
 #include "CompInfo.h"
+#include "SimpleRandom.h"
 #include "LinAlg/UpperHessenbergQR.h"
 #include "LinAlg/UpperHessenbergEigen.h"
 #include "LinAlg/DoubleShiftQR.h"
@@ -144,9 +145,32 @@ private:
         m_fac_H.block(from_k, 0, m_ncv - from_k, from_k).setZero();
         for(int i = from_k; i <= to_m - 1; i++)
         {
+            bool restart = false;
+            // If beta = 0, then the next V is not full rank
+            // We need to generate a new residual vector that is orthogonal
+            // to the current V, which we call a restart
+            if(beta < m_prec)
+            {
+                SimpleRandom<Scalar> rng(2 * i);
+                m_fac_f.noalias() = rng.random_vec(m_n);
+                // f <- f - V * V' * f, so that f is orthogonal to V
+                MapMat V(m_fac_V.data(), m_n, i); // The first i columns
+                Vector Vf = V.transpose() * m_fac_f;
+                m_fac_f.noalias() -= V * Vf;
+                // beta <- ||f||
+                beta = m_fac_f.norm();
+
+                restart = true;
+            }
+
             // v <- f / ||f||
             m_fac_V.col(i).noalias() = m_fac_f / beta; // The (i+1)-th column
-            m_fac_H(i, i - 1) = beta;
+
+            // Note that H[i+1, i] equals to the unrestarted beta
+            if(restart)
+                m_fac_H(i, i - 1) = 0.0;
+            else
+                m_fac_H(i, i - 1) = beta;
 
             // w <- A * v, v = m_fac_V.col(i)
             m_op->perform_op(&m_fac_V(0, i), w.data());
@@ -163,14 +187,25 @@ private:
             m_fac_f.noalias() = w - Vs * h;
             beta = m_fac_f.norm();
 
+            if(beta > 0.717 * h.norm())
+                continue;
+
             // f/||f|| is going to be the next column of V, so we need to test
             // whether V' * (f/||f||) ~= 0
             Vector Vf = Vs.transpose() * m_fac_f;
-            if(Vf.cwiseAbs().maxCoeff() > m_prec * beta)
+            // If not, iteratively correct the residual
+            int count = 0;
+            while(count < 5 && Vf.cwiseAbs().maxCoeff() > m_prec * beta)
             {
-                // f <- f - V * V' * f
+                // f <- f - V * Vf
                 m_fac_f.noalias() -= Vs * Vf;
+                // h <- h + Vf
+                h.noalias() += Vf;
+                // beta <- ||f||
                 beta = m_fac_f.norm();
+
+                Vf.noalias() = Vs.transpose() * m_fac_f;
+                count++;
             }
         }
     }
@@ -471,8 +506,8 @@ public:
     ///
     void init()
     {
-        Vector init_resid = Vector::Random(m_n);
-        init_resid.array() -= 0.5;
+        SimpleRandom<Scalar> rng(0);
+        Vector init_resid = rng.random_vec(m_n);
         init(init_resid.data());
     }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Yixuan Qiu <yixuan.qiu@cos.name>
+// Copyright (C) 2016 Yixuan Qiu <yixuan.qiu@cos.name>
 //
 // This Source Code Form is subject to the terms of the Mozilla
 // Public License v. 2.0. If a copy of the MPL was not distributed
@@ -17,9 +17,10 @@
 
 #include "SelectionRule.h"
 #include "CompInfo.h"
+#include "SimpleRandom.h"
 #include "LinAlg/UpperHessenbergQR.h"
 #include "LinAlg/TridiagEigen.h"
-#include "MatOp/DenseGenMatProd.h"
+#include "MatOp/DenseSymMatProd.h"
 #include "MatOp/DenseSymShiftSolve.h"
 
 
@@ -52,12 +53,12 @@ namespace Spectra {
 ///
 /// If the matrix \f$A\f$ is already stored as a matrix object in **Eigen**,
 /// for example `Eigen::MatrixXd`, then there is an easy way to construct such
-/// matrix operation class, by using the built-in wrapper class DenseGenMatProd
+/// matrix operation class, by using the built-in wrapper class DenseSymMatProd
 /// which wraps an existing matrix object in **Eigen**. This is also the
 /// default template parameter for SymEigsSolver.
 ///
 /// If the users need to define their own matrix-vector multiplication operation
-/// class, it should implement all the public member functions as in DenseGenMatProd.
+/// class, it should implement all the public member functions as in DenseSymMatProd.
 ///
 /// \tparam Scalar        The element type of the matrix.
 ///                       Currently supported types are `float`, `double` and `long double`.
@@ -67,15 +68,15 @@ namespace Spectra {
 ///                       The full list of enumeration values can be found in
 ///                       \ref Enumerations.
 /// \tparam OpType        The name of the matrix operation class. Users could either
-///                       use the DenseGenMatProd wrapper class, or define their
+///                       use the DenseSymMatProd wrapper class, or define their
 ///                       own that impelemnts all the public member functions as in
-///                       DenseGenMatProd.
+///                       DenseSymMatProd.
 ///
 /// Below is an example that demonstrates the usage of this class.
 ///
 /// \code{.cpp}
 /// #include <Eigen/Core>
-/// #include <SymEigsSolver.h>  // Also includes <MatOp/DenseGenMatProd.h>
+/// #include <SymEigsSolver.h>  // Also includes <MatOp/DenseSymMatProd.h>
 /// #include <iostream>
 ///
 /// using namespace Spectra;
@@ -87,10 +88,10 @@ namespace Spectra {
 ///     Eigen::MatrixXd M = A + A.transpose();
 ///
 ///     // Construct matrix operation object using the wrapper class DenseGenMatProd
-///     DenseGenMatProd<double> op(M);
+///     DenseSymMatProd<double> op(M);
 ///
 ///     // Construct eigen solver object, requesting the largest three eigenvalues
-///     SymEigsSolver< double, LARGEST_ALGE, DenseGenMatProd<double> > eigs(&op, 3, 6);
+///     SymEigsSolver< double, LARGEST_ALGE, DenseSymMatProd<double> > eigs(&op, 3, 6);
 ///
 ///     // Initialize and compute
 ///     eigs.init();
@@ -151,7 +152,7 @@ namespace Spectra {
 ///
 template < typename Scalar = double,
            int SelectionRule = LARGEST_MAGN,
-           typename OpType = DenseGenMatProd<double> >
+           typename OpType = DenseSymMatProd<double> >
 class SymEigsSolver
 {
 private:
@@ -210,32 +211,70 @@ private:
         m_fac_H.block(from_k, 0, m_ncv - from_k, from_k).setZero();
         for(int i = from_k; i <= to_m - 1; i++)
         {
+            bool restart = false;
+            // If beta = 0, then the next V is not full rank
+            // We need to generate a new residual vector that is orthogonal
+            // to the current V, which we call a restart
+            if(beta < m_prec)
+            {
+                SimpleRandom<Scalar> rng(2 * i);
+                m_fac_f.noalias() = rng.random_vec(m_n);
+                // f <- f - V * V' * f, so that f is orthogonal to V
+                MapMat V(m_fac_V.data(), m_n, i); // The first i columns
+                Vector Vf = V.transpose() * m_fac_f;
+                m_fac_f.noalias() -= V * Vf;
+                // beta <- ||f||
+                beta = m_fac_f.norm();
+
+                restart = true;
+            }
+
             // v <- f / ||f||
             MapVec v(&m_fac_V(0, i), m_n); // The (i+1)-th column
             v.noalias() = m_fac_f / beta;
-            m_fac_H(i, i - 1) = beta;
+
+            // Note that H[i+1, i] equals to the unrestarted beta
+            if(restart)
+                m_fac_H(i, i - 1) = 0.0;
+            else
+                m_fac_H(i, i - 1) = beta;
 
             // w <- A * v
             m_op->perform_op(v.data(), w.data());
             m_nmatop++;
 
             Hii = v.dot(w);
-            m_fac_H(i - 1, i) = beta;
+            m_fac_H(i - 1, i) = m_fac_H(i, i - 1); // Due to symmetry
             m_fac_H(i, i) = Hii;
 
-            //  f <- w - V * V' * w
-            m_fac_f.noalias() = w - beta * m_fac_V.col(i - 1) - Hii * v;
+            // f <- w - V * V' * w = w - H[i+1, i] * V{i} - H[i+1, i+1] * V{i+1}
+            // If restarting, we know that H[i+1, i] = 0
+            if(restart)
+                m_fac_f.noalias() = w - Hii * v;
+            else
+                m_fac_f.noalias() = w - m_fac_H(i, i - 1) * m_fac_V.col(i - 1) - Hii * v;
+
             beta = m_fac_f.norm();
 
             // f/||f|| is going to be the next column of V, so we need to test
             // whether V' * (f/||f||) ~= 0
             MapMat V(m_fac_V.data(), m_n, i + 1); // The first (i+1) columns
             Vector Vf = V.transpose() * m_fac_f;
-            if(Vf.cwiseAbs().maxCoeff() > m_prec * beta)
+            // If not, iteratively correct the residual
+            int count = 0;
+            while(count < 5 && Vf.cwiseAbs().maxCoeff() > m_prec * beta)
             {
-                // f <- f - V * V' * f
+                // f <- f - V * Vf
                 m_fac_f.noalias() -= V * Vf;
+                // h <- h + Vf
+                m_fac_H(i - 1, i) += Vf[i - 1];
+                m_fac_H(i, i - 1) = m_fac_H(i - 1, i);
+                m_fac_H(i, i) += Vf[i];
+                // beta <- ||f||
                 beta = m_fac_f.norm();
+
+                Vf.noalias() = V.transpose() * m_fac_f;
+                count++;
             }
         }
     }
@@ -415,9 +454,9 @@ public:
     /// \param op_  Pointer to the matrix operation object, which should implement
     ///             the matrix-vector multiplication operation of \f$A\f$:
     ///             calculating \f$Ay\f$ for any vector \f$y\f$. Users could either
-    ///             create the object from the DenseGenMatProd wrapper class, or
+    ///             create the object from the DenseSymMatProd wrapper class, or
     ///             define their own that impelemnts all the public member functions
-    ///             as in DenseGenMatProd.
+    ///             as in DenseSymMatProd.
     /// \param nev_ Number of eigenvalues requested. This should satisfy \f$1\le nev \le n-1\f$,
     ///             where \f$n\f$ is the size of matrix.
     /// \param ncv_ Parameter that controls the convergence speed of the algorithm.
@@ -499,8 +538,8 @@ public:
     ///
     void init()
     {
-        Vector init_resid = Vector::Random(m_n);
-        init_resid.array() -= 0.5;
+        SimpleRandom<Scalar> rng(0);
+        Vector init_resid = rng.random_vec(m_n);
         init(init_resid.data());
     }
 
