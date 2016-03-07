@@ -1,3 +1,17 @@
+### NOTE
+
+> **rARPACK** has been superseded by
+[RSpectra](https://github.com/yixuan/RSpectra) to avoid the confusion on
+package name.
+
+> **rARPACK** was originally an R wrapper of the
+[ARPACK library](http://www.caam.rice.edu/software/ARPACK/)
+to solve large scale eigenvalue/vector problems. From version 0.8-0, it changed the backend to the
+[Spectra library](http://yixuan.cos.name/spectra/), and from version 0.11-0
+it became simply a shell of the **RSpectra** package.
+
+> New users of **rARPACK** are advised to switch to the **RSpectra** package.
+
 ## Solvers for Large Scale Eigenvalue and SVD Problems
 
 ### Introduction
@@ -9,7 +23,7 @@ value/vector problems. From version 0.8-0 it changed the backend to the
 [Spectra library](http://yixuan.cos.name/spectra/).
 This R package is typically used to compute a few eigen
 values/vectors of an `n` by `n` matrix, e.g., the `k` largest eigen values, which
-is usually more efficient than `eigen()` if `k << n`. 
+is usually more efficient than `eigen()` if `k << n`.
 
 Currently this package provides function `eigs()` for eigenvalue/eigenvector
 problems, and `svds()` for truncated SVD. Different matrix types in R,
@@ -107,4 +121,3 @@ Asp2 = as(A, "dgRMatrix")
 svds(Asp1, k)
 svds(Asp2, k, nu = 0, nv = 0)
 ```
-
