@@ -19,4 +19,6 @@ URL: https://github.com/yixuan/rARPACK
 BugReports: https://github.com/yixuan/rARPACK/issues
 Imports:
     RSpectra
+Suggests:
+    Matrix (>= 1.1-0)
 RoxygenNote: 5.0.1
