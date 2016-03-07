@@ -11,6 +11,8 @@ to solve large scale eigenvalue/vector problems. From version 0.8-0, it changed 
 no longer depended on ARPACK since then. From version 0.11-0,
 **rARPACK** was simply a shell of the **RSpectra** package.
 
+> Old sources are kept in the [archive](https://github.com/yixuan/rARPACK/tree/archive/) branch.
+
 > New users of **rARPACK** are advised to switch to the **RSpectra** package.
 
 ## Solvers for Large Scale Eigenvalue and SVD Problems
