@@ -2,24 +2,9 @@
 % Please edit documentation in R/30_svds.R
 \name{svds}
 \alias{svds}
-\alias{svds.dgCMatrix}
-\alias{svds.dgRMatrix}
-\alias{svds.dgeMatrix}
-\alias{svds.dsyMatrix}
-\alias{svds.matrix}
 \title{Find the Largest k Singular Values/Vectors of a Matrix}
 \usage{
 svds(A, k, nu = k, nv = k, opts = list(), ...)
-
-\method{svds}{matrix}(A, k, nu = k, nv = k, opts = list(), ...)
-
-\method{svds}{dgeMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
-
-\method{svds}{dgCMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
-
-\method{svds}{dgRMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
-
-\method{svds}{dsyMatrix}(A, k, nu = k, nv = k, opts = list(), ...)
 }
 \arguments{
 \item{A}{The matrix whose truncated SVD is to be computed.}
@@ -51,6 +36,9 @@ A list with the following components:
 \item{nops}{Number of matrix-vector multiplications used.}
 }
 \description{
+This function is a simple wrapper of the \code{\link[RSpectra]{svds}()}
+function in the \pkg{RSpectra} package. Also see the documentation there.
+
 Given an \eqn{m} by \eqn{n} matrix \eqn{A},
 function \code{svds()} can find its largest \eqn{k}
 singular values and the corresponding singular vectors.

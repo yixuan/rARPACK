@@ -2,41 +2,13 @@
 % Please edit documentation in R/00_eigs.R
 \name{eigs}
 \alias{eigs}
-\alias{eigs.dgCMatrix}
-\alias{eigs.dgRMatrix}
-\alias{eigs.dgeMatrix}
-\alias{eigs.dsyMatrix}
-\alias{eigs.function}
-\alias{eigs.matrix}
 \alias{eigs_sym}
-\alias{eigs_sym.function}
 \title{Find a Specified Number of Eigenvalues/vectors for Square Matrix}
 \usage{
 eigs(A, k, which = "LM", sigma = NULL, opts = list(), ...)
 
-\method{eigs}{matrix}(A, k, which = "LM", sigma = NULL, opts = list(),
-  ...)
-
-\method{eigs}{dgeMatrix}(A, k, which = "LM", sigma = NULL, opts = list(),
-  ...)
-
-\method{eigs}{dgCMatrix}(A, k, which = "LM", sigma = NULL, opts = list(),
-  ...)
-
-\method{eigs}{dgRMatrix}(A, k, which = "LM", sigma = NULL, opts = list(),
-  ...)
-
-\method{eigs}{dsyMatrix}(A, k, which = "LM", sigma = NULL, opts = list(),
-  ...)
-
-\method{eigs}{function}(A, k, which = "LM", sigma = NULL, opts = list(),
-  ..., n = NULL, args = NULL)
-
 eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
    lower = TRUE, ...)
-
-\method{eigs_sym}{function}(A, k, which = "LM", sigma = NULL,
-  opts = list(), lower = TRUE, ..., n = NULL, args = NULL)
 }
 \arguments{
 \item{A}{The matrix whose eigenvalues/vectors are to be computed.
@@ -53,19 +25,12 @@ See section \strong{Function Interface} for details.}
 \item{opts}{Control parameters related to the computing
 algorithm. See \strong{Details} below.}
 
-\item{n}{Only used when \code{A} is a function, to specify the
-dimension of the implicit matrix. See section
-\strong{Function Interface} for details.}
-
-\item{args}{Only used when \code{A} is a function. This argument
-will be passed to the \code{A} function containing any
-extra data. See section \strong{Function Interface}
-for details.}
-
 \item{lower}{For symmetric matrices, should the lower triangle
 or upper triangle be used.}
 
-\item{\dots}{Currently not used.}
+\item{\dots}{Additional arguments such as \code{n} and \code{args} that are
+related to the Function Interface. See
+\code{\link[RSpectra]{eigs}()} in the \pkg{RSpectra} package.}
 }
 \value{
 A list of converged eigenvalues and eigenvectors.
@@ -76,6 +41,9 @@ A list of converged eigenvalues and eigenvectors.
 \item{nops}{Number of matrix operations used in the computation.}
 }
 \description{
+This function is a simple wrapper of the \code{\link[RSpectra]{eigs}()}
+function in the \pkg{RSpectra} package. Also see the documentation there.
+
 Given an \eqn{n} by \eqn{n} matrix \eqn{A},
 function \code{eigs()} can calculate a limited
 number of eigenvalues and eigenvectors of \eqn{A}.
