@@ -1,6 +1,9 @@
 ##' Find the Largest k Singular Values/Vectors of a Matrix
 ##'
 ##' @description
+##' This function is a simple wrapper of the \code{\link[RSpectra]{svds}()}
+##' function in the \pkg{RSpectra} package. Also see the documentation there.
+##' 
 ##' Given an \eqn{m} by \eqn{n} matrix \eqn{A},
 ##' function \code{svds()} can find its largest \eqn{k}
 ##' singular values and the corresponding singular vectors.
@@ -87,40 +90,4 @@
 ##' svds(Asp1, k)
 ##' svds(Asp2, k, nu = 0, nv = 0)
 ##'
-svds <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    UseMethod("svds")
-
-##' @rdname svds
-##' @export
-svds.matrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-{
-    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen
-    fun(A, k, nu, nv, opts, ..., mattype = "matrix")
-}
-
-##' @rdname svds
-##' @export
-svds.dgeMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-{
-    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen
-    fun(A, k, nu, nv, opts, ..., mattype = "dgeMatrix")
-}
-
-##' @rdname svds
-##' @export
-svds.dgCMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-{
-    fun = if(isSymmetric(A)) svds.real_sym else svds.real_gen
-    fun(A, k, nu, nv, opts, ..., mattype = "dgCMatrix")
-}
-
-##' @rdname svds
-##' @export
-svds.dgRMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    svds.real_gen(A, k, nu, nv, opts, ..., mattype = "dgRMatrix")
-
-##' @rdname svds
-##' @export
-svds.dsyMatrix <- function(A, k, nu = k, nv = k, opts = list(), ...)
-    svds.real_sym(A, k, nu, nv, opts, ..., mattype = "dsyMatrix",
-                  extra_args = list(use_lower = (A@uplo == "L")))
+svds <- RSpectra::svds
