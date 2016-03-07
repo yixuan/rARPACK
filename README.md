@@ -7,8 +7,9 @@ package name.
 > **rARPACK** was originally an R wrapper of the
 [ARPACK library](http://www.caam.rice.edu/software/ARPACK/)
 to solve large scale eigenvalue/vector problems. From version 0.8-0, it changed the backend to the
-[Spectra library](http://yixuan.cos.name/spectra/), and from version 0.11-0
-it became simply a shell of the **RSpectra** package.
+[Spectra library](http://yixuan.cos.name/spectra/), so theoretically it
+no longer depended on ARPACK since then. From version 0.11-0,
+**rARPACK** was simply a shell of the **RSpectra** package.
 
 > New users of **rARPACK** are advised to switch to the **RSpectra** package.
 
@@ -16,12 +17,7 @@ it became simply a shell of the **RSpectra** package.
 
 ### Introduction
 
-**rARPACK** was originally an R wrapper of the
-[ARPACK library](http://www.caam.rice.edu/software/ARPACK/)
-to solve large scale eigen
-value/vector problems. From version 0.8-0 it changed the backend to the
-[Spectra library](http://yixuan.cos.name/spectra/).
-This R package is typically used to compute a few eigen
+**rARPACK** is typically used to compute a few eigen
 values/vectors of an `n` by `n` matrix, e.g., the `k` largest eigen values, which
 is usually more efficient than `eigen()` if `k << n`.
 
