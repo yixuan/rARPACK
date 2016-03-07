@@ -1,6 +1,15 @@
 \name{NEWS}
 \title{News for Package "rARPACK"}
 
+\section{Changes in rARPACK version 0.11-0}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item Now \pkg{rARPACK} becomes a simple shell of the \pkg{RSpectra}
+            package.
+    }
+  }
+}
+
 \section{Changes in rARPACK version 0.10-0}{
   \subsection{BUG FIXES}{
     \itemize{
