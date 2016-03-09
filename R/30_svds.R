@@ -90,4 +90,5 @@
 ##' svds(Asp1, k)
 ##' svds(Asp2, k, nu = 0, nv = 0)
 ##'
-svds <- RSpectra::svds
+svds <- function(A, k, nu = k, nv = k, opts = list(), ...)
+    RSpectra::svds(A, k, nu, nv, opts, ...)

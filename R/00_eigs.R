@@ -191,7 +191,8 @@
 ##' 
 ##' ## The results should be the same,
 ##' ## but the latter method is far more stable on large matrices
-eigs <- RSpectra::eigs
+eigs <- function(A, k, which = "LM", sigma = NULL, opts = list(), ...)
+    RSpectra::eigs(A, k, which, sigma, opts, ...)
 
 
 
@@ -199,4 +200,6 @@ eigs <- RSpectra::eigs
 ##' @usage eigs_sym(A, k, which = "LM", sigma = NULL, opts = list(),
 ##'    lower = TRUE, ...)
 ##' @export
-eigs_sym <- RSpectra::eigs_sym
+eigs_sym <- function(A, k, which = "LM", sigma = NULL, opts = list(),
+                     lower = TRUE, ...)
+    RSpectra::eigs_sym(A, k, which, sigma, opts, lower, ...)
